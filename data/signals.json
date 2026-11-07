@@ -35,5 +35,9 @@
 
   {"id":"official_domain_match","category":"dampener","reliability":0.30,"reason":"The link is on a verified official domain."},
   {"id":"no_action_requested","category":"dampener","reliability":0.25,"reason":"The message asks you to do nothing."},
-  {"id":"known_sender_format","category":"dampener","reliability":0.25,"reason":"Matches a genuine alert format with masked digits and no link."}
+  {"id":"known_sender_format","category":"dampener","reliability":0.25,"reason":"Matches a genuine alert format with masked digits and no link."},
+  {"id":"msg_job_lure","category":"impersonation","reliability":0.55,"reason":"Offers a job and asks for an upfront fee."},
+  {"id":"msg_family_impersonation","category":"impersonation","reliability":0.65,"reason":"Pretends to be a family member on a new number."},
+  {"id":"msg_legal_threat","category":"urgency","reliability":0.60,"reason":"Threatens legal action or arrest."},
+  {"id":"msg_subsidy_request","category":"financial_redirect","reliability":0.55,"reason":"Asks for bank OTP to receive a subsidy or benefit."}
 ]

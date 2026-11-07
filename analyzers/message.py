@@ -39,11 +39,14 @@ RULES = {
     ],
     "msg_payment_demand": [
         (r"\b(pay|deposit|transfer|send)\b[^.\n]{0,25}(₹|rs\.?|inr)\s?\d", 1.0),
+        (r"\b(pay|deposit|transfer|send)\s+(rs\.?\s?|inr\s?|₹\s?)?\d{3,}\b", 0.8),
         (r"\b(fee|charge|penalty|fine)\b[^.\n]{0,25}\b(pay|due|pending)\b", 0.7),
     ],
     "msg_threat_block": [
-        (r"\bwill be (blocked|suspended|deactivated|frozen|closed|cancelled)\b", 1.0),
+        (r"\bwill be (blocked|suspended|deactivated|frozen|closed|cancelled|disconnected|terminated)\b", 1.0),
         (r"\b(legal action|arrest|police case|fir)\b", 1.0),
+        (r"\b(band|block|suspend)\s+ho\s+(jayega|jaega|jayegi|jaayega)\b", 1.0),
+        (r"\b(illegal activity|money laundering|digital arrest|case (has been )?(registered|filed) against you)\b", 1.0),
         (r"\baccount (is )?(blocked|suspended|frozen)\b", 0.6),
     ],
     "msg_authority_claim": [
@@ -58,10 +61,19 @@ RULES = {
     ],
     "msg_deadline_pressure": [
         (r"\bwithin\s+\d+\s*(hours|hrs|minutes|mins)\b", 1.0),
-        (r"\b(immediately|urgent|last chance|today only|expires today)\b", 0.8),
+        (r"\b(immediately|urgent(ly)?|last chance|today only|expires today)\b", 0.8),
     ],
     "msg_unknown_shortlink": [
         (r"\b(bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|goo\.gl|shorturl\.at)/\S+", 1.0),
+    ],
+    "msg_job_lure": [
+        (r"\b(you are|you have been) selected for\b[^.\n]{0,30}\b(job|position|role|internship)\b", 1.0),
+        (r"\bjoining (fee|kit|charges?)\b", 0.8),
+    ],
+    "msg_family_impersonation": [
+        (r"\bmy phone (broke|is broken|got (broken|damaged|lost))\b", 0.8),
+        (r"\bthis is my new (phone )?number\b", 0.8),
+        (r"\b(hi|hello)\s+(mom|mum|dad|mummy|papa)\b", 0.7),
     ],
 }
 
