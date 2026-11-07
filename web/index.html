@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentra</title>
+<style>
+:root{--bg:#eef1f5;--panel:#fff;--ink:#101b2d;--mute:#5b6678;--line:#dde3ec;--accent:#1d3a6e;
+--low:#1f8a70;--sus:#c98a12;--high:#d4532b;--crit:#b3203a;--lvl:var(--mute)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
+.serif{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif}
+header{max-width:1120px;margin:0 auto;padding:36px 24px 8px}
+header h1{margin:0;font-size:34px;letter-spacing:-.5px}
+header p{margin:6px 0 0;color:var(--mute);max-width:60ch}
+main{max-width:1120px;margin:0 auto;padding:20px 24px 48px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:24px;align-items:start}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+h2{font-size:18px;margin:0 0 12px}
+textarea{width:100%;min-height:170px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;color:var(--ink);background:#fafbfd}
+textarea:focus,button:focus-visible,.drop:focus-visible{outline:3px solid #9db7e8;outline-offset:2px}
+.samples{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 18px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:14px;color:var(--accent);cursor:pointer}
+.chip:hover{background:#f2f6fd}
+.drop{border:1.5px dashed #b5c1d4;border-radius:10px;padding:18px;text-align:center;color:var(--mute);cursor:pointer;background:#fafbfd}
+.drop.over{border-color:var(--accent);background:#eef3fc}
+.drop strong{color:var(--ink)}
+.go{margin-top:18px;width:100%;border:0;border-radius:10px;padding:14px;font:inherit;font-weight:600;font-size:16px;background:var(--accent);color:#fff;cursor:pointer}
+.go:disabled{opacity:.6;cursor:wait}
+.err{margin-top:12px;color:var(--crit);font-size:14px}
+.empty{color:var(--mute);padding:40px 8px;text-align:center}
+.gauge{display:flex;flex-direction:column;align-items:center;margin-bottom:6px}
+.gauge svg{width:100%;max-width:340px;overflow:visible}
+.track{fill:none;stroke:#e5eaf1;stroke-width:16;stroke-linecap:round}
+.fill{fill:none;stroke:var(--lvl);stroke-width:16;stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray 1.1s cubic-bezier(.2,.8,.2,1)}
+.score{font-size:44px;font-weight:700;fill:var(--ink)}
+.lvl{font-size:30px;color:var(--lvl);margin:-4px 0 4px;text-align:center}
+.say{text-align:center;color:var(--mute);margin:0 auto 18px;max-width:46ch}
+.sec{margin-top:22px;border-top:1px solid var(--line);padding-top:16px}
+.chain{display:inline-block;background:#f3f5f9;border-radius:8px;padding:4px 10px;font-size:14px;margin-bottom:10px}
+ol.replay{list-style:none;margin:0;padding:0 0 0 22px;border-left:2px solid var(--line)}
+ol.replay li{position:relative;padding:6px 0 10px 14px;opacity:0;transform:translateX(-6px)}
+ol.replay li::before{content:"";position:absolute;left:-29px;top:12px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--lvl)}
+ol.replay li:last-child{font-weight:600;color:var(--crit)}
+ol.replay li:last-child::before{background:var(--crit);border-color:var(--crit)}
+.show ol.replay li{animation:in .5s forwards}
+@keyframes in{to{opacity:1;transform:none}}
+.cat{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:12px;align-items:center;margin:8px 0;font-size:14px}
+.bar{height:8px;border-radius:99px;background:#e9edf3;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--lvl);border-radius:99px}
+.sig{padding:10px 0;border-bottom:1px solid var(--line)}
+.sig:last-child{border:0}
+.sig b{font-weight:600}
+.sig .ev{display:block;color:var(--mute);font-size:13px;margin:2px 0 6px;word-break:break-word}
+.good{color:var(--low)}
+.note{font-size:13px;color:var(--mute);margin-top:20px}
+@media(prefers-reduced-motion:reduce){.fill{transition:none}.show ol.replay li{animation:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<header>
+<h1 class="serif">Sentra</h1>
+<p>Paste a message, a link, a payment QR address, or drop an app file. Sentra checks every part together and explains what it found.</p>
+</header>
+<main>
+<section class="panel" aria-label="What to check">
+<h2>What looks suspicious?</h2>
+<textarea id="text" placeholder="Paste the message or link here"></textarea>
+<div class="samples" id="samples"></div>
+<div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose an app file">
+<div id="dropText"><strong>Drop an app file</strong> or click to choose one<br><small>.apk files only, read safely and never opened</small></div>
+</div>
+<input type="file" id="file" accept=".apk" hidden>
+<button class="go" id="go">Check this</button>
+<div class="err" id="err" role="alert"></div>
+</section>
+<section class="panel" id="out" aria-live="polite">
+<div class="empty">Your result will appear here.<br>Try one of the samples to see how it works.</div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const SAMPLES={
+"Fake bank KYC":"Dear customer, your SBI account will be blocked today. Update your KYC immediately: http://sbi-kyc-update.xyz/login and share the OTP you receive.",
+"Parcel fee":"Your package is held. Pay Rs 49 customs fee within 24 hours to release: bit.ly/3xYz",
+"Genuine bank alert":"Rs 2,500.00 debited from A/c XX1234 on 06-11-26. If not you, call 1800-000-000. Do not share OTP with anyone. -SBI"};
+const CAT={impersonation:"Pretends to be someone you trust",urgency:"Pushes you to act fast",credential_theft:"Goes after codes and passwords",financial_redirect:"Redirects your money",device_takeover:"Tries to take control of your phone",obfuscation:"Hides where it really leads"};
+const CHAIN={fake_kyc:"Fake bank verification",bad_app:"Malicious app install",qr_reverse:"Payment disguised as receiving money",fake_shop:"Fake shop or refund page",courier_fee:"Delivery fee trap"};
+const LVL={"Low signals":["--low","No strong warning signs found. That is not a guarantee, so stay careful with anything that asks for money or codes."],
+"Suspicious":["--sus","Some warning signs. Check with the real sender before you act."],
+"High risk":["--high","Several warning signs line up. Do not click, pay, or share anything."],
+"Critical":["--crit","This matches a known scam pattern. Do not click, pay, install, or share any code."]};
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+let file=null;
+for(const k in SAMPLES){const b=el("button","chip",k);b.type="button";b.onclick=()=>{$("text").value=SAMPLES[k];$("text").focus()};$("samples").append(b)}
+const drop=$("drop"),inp=$("file");
+function setFile(f){file=f;$("dropText").replaceChildren(el("strong",null,f?f.name:"Drop an app file"),document.createTextNode(f?" is ready to check":" or click to choose one"))}
+drop.onclick=()=>inp.click();
+drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}};
+inp.onchange=()=>setFile(inp.files[0]||null);
+["dragenter","dragover"].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)setFile(f)});
+$("go").onclick=async()=>{
+const text=$("text").value.trim();$("err").textContent="";
+if(!text&&!file){$("err").textContent="Paste a message or link, or add an app file first.";return}
+const fd=new FormData();fd.append("text",text);if(file)fd.append("apk",file);
+$("go").disabled=true;$("go").textContent="Checking…";
+try{const r=await fetch("/api/scan",{method:"POST",body:fd});if(!r.ok)throw 0;render(await r.json())}
+catch(e){$("err").textContent="Could not reach the Sentra server. Check that it is running, then try again."}
+finally{$("go").disabled=false;$("go").textContent="Check this"}};
+function render(d){
+const [cv,say]=LVL[d.level]||LVL["Low signals"];
+const out=$("out");out.replaceChildren();out.style.setProperty("--lvl","var("+cv+")");
+const g=el("div","gauge");
+g.innerHTML='<svg viewBox="0 0 240 140" role="img"><path class="track" d="M20 120A100 100 0 0 1 220 120" pathLength="100"/><path class="fill" id="fill" d="M20 120A100 100 0 0 1 220 120" pathLength="100"/><text class="score serif" x="120" y="112" text-anchor="middle" id="score">0</text></svg>';
+out.append(g);
+g.querySelector("svg").setAttribute("aria-label","Risk "+Math.round(d.risk*100)+" out of 100");
+out.append(el("div","lvl serif",d.level),el("p","say",say));
+const risky=(d.signals||[]).filter(s=>s.category!=="dampener"),damp=(d.signals||[]).filter(s=>s.category==="dampener");
+if(d.chain){const s=el("div","sec");s.append(el("h2",null,"How this scam would play out"),el("span","chain",CHAIN[d.chain]||d.chain));
+const ol=el("ol","replay");(d.replay||[]).forEach((t,i)=>{const li=el("li",null,t);li.style.animationDelay=(1.0+i*.45)+"s";ol.append(li)});s.append(ol);out.append(s)}
+const cats=Object.entries(d.categories||{}).sort((a,b)=>b[1]-a[1]);
+if(cats.length){const s=el("div","sec");s.append(el("h2",null,"What it is trying to do"));
+cats.forEach(([c,v])=>{const r=el("div","cat");r.append(el("span",null,CAT[c]||c));const b=el("div","bar"),i=document.createElement("i");i.style.width=Math.round(v*100)+"%";b.append(i);r.append(b);s.append(r)});out.append(s)}
+if(risky.length){const s=el("div","sec");s.append(el("h2",null,"The evidence"));
+risky.forEach(x=>{const w=el("div","sig");w.append(el("b",null,x.reason));if(x.evidence)w.append(el("span","ev",x.evidence));
+const b=el("div","bar"),i=document.createElement("i");i.style.width=Math.round(Math.min(1,x.weight)*100)+"%";b.append(i);w.append(b);s.append(w)});out.append(s)}
+if(damp.length){const s=el("div","sec");s.append(el("h2","good","Reassuring signs"));damp.forEach(x=>{const w=el("div","sig");w.append(el("span",null,x.reason));s.append(w)});out.append(s)}
+(d.notes||[]).forEach(n=>out.append(el("p","note",n)));
+out.append(el("p","note",d.disclaimer||""));
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+$("fill").style.strokeDasharray=(d.risk*100)+" 100";if(d.risk<0.01)$("fill").style.display="none";
+const t0=performance.now(),sc=$("score");
+(function tick(n){const p=Math.min(1,(n-t0)/1100);sc.textContent=Math.round(d.risk*100*p);if(p<1)requestAnimationFrame(tick)})(t0)}));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+[
+  {"id":"fake_kyc","need":["impersonation","urgency","credential_theft"],"bonus":0.35,
+   "replay":["Message arrives claiming to be your bank","You trust it and tap the link","A fake page collects your card and OTP","Your account is drained"]},
+  {"id":"bad_app","need":["impersonation","device_takeover"],"bonus":0.45,
+   "replay":["A message pushes you to install a file","The app gets SMS and screen access","It reads your OTPs silently","Your banking app is controlled and emptied"]},
+  {"id":"qr_reverse","need":["financial_redirect","urgency"],"bonus":0.30,
+   "replay":["You are told to scan a QR to receive money","The QR is actually a payment request","You approve under pressure","Money leaves your account"]},
+  {"id":"fake_shop","need":["impersonation","financial_redirect"],"bonus":0.30,
+   "replay":["A convincing fake shop or refund page appears","You trust the branding","You pay","The payee is an unrelated account"]},
+  {"id":"courier_fee","need":["impersonation","urgency","financial_redirect"],"bonus":0.35,
+   "replay":["A message says your package is held","You pay a small fee through the link","Your card details are captured","A larger charge follows"]}
+]

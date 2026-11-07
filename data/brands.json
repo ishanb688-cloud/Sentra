@@ -1,0 +1,22 @@
+[
+  {"name":"SBI","tokens":["sbi","onlinesbi"],"domains":["sbi.co.in","onlinesbi.sbi","onlinesbi.com","sbicard.com"]},
+  {"name":"HDFC Bank","tokens":["hdfc","hdfcbank"],"domains":["hdfcbank.com","hdfc.com"]},
+  {"name":"ICICI Bank","tokens":["icici","icicibank"],"domains":["icicibank.com"]},
+  {"name":"Axis Bank","tokens":["axis","axisbank"],"domains":["axisbank.com"]},
+  {"name":"Kotak","tokens":["kotak"],"domains":["kotak.com"]},
+  {"name":"PNB","tokens":["pnb","pnbindia"],"domains":["pnbindia.in"]},
+  {"name":"Paytm","tokens":["paytm"],"domains":["paytm.com"]},
+  {"name":"PhonePe","tokens":["phonepe"],"domains":["phonepe.com"]},
+  {"name":"Amazon","tokens":["amazon"],"domains":["amazon.in","amazon.com"]},
+  {"name":"Flipkart","tokens":["flipkart"],"domains":["flipkart.com"]},
+  {"name":"IRCTC","tokens":["irctc"],"domains":["irctc.co.in"]},
+  {"name":"Income Tax","tokens":["incometax"],"domains":["incometax.gov.in"]},
+  {"name":"UIDAI","tokens":["uidai","aadhaar","aadhar"],"domains":["uidai.gov.in"]},
+  {"name":"Parivahan","tokens":["parivahan","echallan","rto"],"domains":["parivahan.gov.in"]},
+  {"name":"India Post","tokens":["indiapost"],"domains":["indiapost.gov.in"]},
+  {"name":"Google","tokens":["google"],"domains":["google.com"]},
+  {"name":"WhatsApp","tokens":["whatsapp"],"domains":["whatsapp.com"]},
+  {"name":"Delhivery","tokens":["delhivery"],"domains":["delhivery.com"]},
+  {"name":"DTDC","tokens":["dtdc"],"domains":["dtdc.in","dtdc.com"]},
+  {"name":"Blue Dart","tokens":["bluedart"],"domains":["bluedart.com"]}
+]
