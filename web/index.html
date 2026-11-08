@@ -1,165 +1,278 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sentra: one check for every scam signal</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l12 5v9c0 7-5.500 11.500-12 14C9.500 27.500 4 23 4 16V7z' fill='%231d3a6e'/%3E%3Cpath d='M9 11l7 6M23 11l-7 6M16 24v-7' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='17' r='2.500' fill='%237fb0ff'/%3E%3C/svg%3E">
+<html lang="en"><head><meta charset="utf-8"><meta name="theme-color" content="#08080a"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sentra: one check for every scam signal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l12 5v9c0 7-5.500 11.500-12 14C9.500 27.500 4 23 4 16V7z' fill='%23c9a45c'/%3E%3Cpath d='M9 11l7 6M23 11l-7 6M16 24v-7' stroke='%230b0b0e' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='17' r='2.500' fill='%230b0b0e'/%3E%3C/svg%3E">
 <style>
-:root{--bg:#eef1f6;--panel:#fff;--ink:#0e1a2f;--mute:#5a6578;--line:#dce2ec;--accent:#1d3a6e;--accent2:#2d5bb0;
---low:#1f8a70;--sus:#c98a12;--high:#d4532b;--crit:#b3203a;--lvl:var(--mute);--r:14px}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
+:root{--bg:#08080a;--side:#0c0c0f;--panel:#111114;--field:#0b0b0d;--ink:#f3efe6;--mute:#a39e92;--line:#26262c;--accent:#d8b878;--accent2:#c9a45c;--low:#3ccf9b;--sus:#f2b84b;--high:#f2784b;--crit:#ff4d6d;--lvl:#2c3d5f;--r:18px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;color-scheme:dark}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
 .serif{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif}
-.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
-.hero{background:radial-gradient(900px 400px at 85% 0,#1f3a70 0,transparent 70%),#0b1424;color:#e8edf7;padding-bottom:56px}
-nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0}
-.brand{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:700;letter-spacing:-.3px}
-.brand svg{width:34px;height:34px}
-nav a{color:#9fb0cc;text-decoration:none;font-size:15px;padding:8px 12px;border-radius:8px;transition:.2s}
-nav a:hover{color:#fff;background:#ffffff14}
-.heroGrid{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:32px;align-items:center;padding-top:28px}
-@media(max-width:860px){.heroGrid{grid-template-columns:1fr}.motif{display:none}}
-h1{font-size:clamp(34px,5vw,54px);line-height:1.08;margin:0 0 16px;letter-spacing:-1px}
-.hero p{color:#a9b8d2;font-size:18px;max-width:46ch;margin:0 0 24px}
-.cta{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#0b1424;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:999px;transition:transform .2s,box-shadow .2s}
-.cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px #0006}
-.cta svg{width:16px;height:16px}
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;padding:26px 16px;background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.brand{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:700;padding:0 10px 18px}.brand svg{width:34px;height:34px}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav button{display:flex;align-items:center;gap:12px;border:0;background:none;color:var(--mute);font:inherit;padding:12px 14px;border-radius:12px;cursor:pointer;text-align:left;transition:background .25s,color .25s,transform .2s;position:relative}
+.nav button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.nav button:hover{background:#ffffff0a;color:#fff}
+.nav button.on{background:linear-gradient(90deg,#27447f,#1a2d54);color:#fff;box-shadow:inset 3px 0 0 var(--accent)}
+.sidenote{margin:auto 8px 0;font-size:12px;color:#7d786d}
+.stage{padding:40px clamp(18px,4vw,56px) 64px;max-width:1240px;width:100%}
+.view{display:none}.view.on{display:block;animation:viewIn .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes viewIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.vh{font-size:32px;margin:0 0 6px;letter-spacing:-.5px}.vs{color:var(--mute);margin:0 0 24px;max-width:60ch}
+.heroH{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:28px;align-items:center;padding:12px 0 36px;position:relative}
+h1{font-size:clamp(34px,5vw,56px);line-height:1.06;margin:0 0 16px;letter-spacing:-1px}
+h1 em{font-style:normal;background:linear-gradient(90deg,#f6e7bd,#d8b878 45%,#a8863f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.heroH p{color:var(--mute);font-size:18px;max-width:46ch;margin:0 0 22px}
+.cta{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#08080a;border:0;font:inherit;font-weight:600;padding:13px 22px;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px #d8b87840;transition:transform .2s,box-shadow .2s}
+.cta:hover{transform:translateY(-2px);box-shadow:0 14px 34px #d8b87855}
+.trust{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.trust span{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#cfc7b6;border:1px solid #ffffff22;background:#ffffff0d;border-radius:999px;padding:6px 12px}
+.trust i{width:6px;height:6px;border-radius:50%;background:var(--low);box-shadow:0 0 8px var(--low)}
 .motif svg{width:100%;height:auto}
-.motif .ln{fill:none;stroke:#5f86d6;stroke-width:2;stroke-linecap:round;stroke-dasharray:220;stroke-dashoffset:220;animation:draw 1.1s .3s forwards}
-.motif .ln:nth-of-type(2){animation-delay:.5s}.motif .ln:nth-of-type(3){animation-delay:.7s}.motif .ln:nth-of-type(4){animation-delay:1.2s;stroke:#9fc2ff}
-.motif .nd{fill:#0b1424;stroke:#5f86d6;stroke-width:2}
-.motif .core{fill:#7fb0ff;transform-origin:190px 100px;animation:pulse 1.2s 1.1s both}
-.motif text{fill:#9fb0cc;font-size:11px}
-@keyframes draw{to{stroke-dashoffset:0}}
-@keyframes pulse{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.3);opacity:1}100%{transform:scale(1)}}
-main{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:24px;align-items:start;margin-top:-28px;position:relative}
-@media(max-width:860px){main{grid-template-columns:1fr}}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:0 12px 32px #0e1a2f14}
+.motif .ln{fill:none;stroke:#9c8350;stroke-width:2;stroke-linecap:round;stroke-dasharray:220;stroke-dashoffset:220;animation:draw 1.1s .3s forwards}
+.motif .ln:nth-of-type(2){animation-delay:.5s}.motif .ln:nth-of-type(3){animation-delay:.7s}.motif .ln:nth-of-type(4){animation-delay:1.2s;stroke:#f2dfae}
+.motif .nd{fill:var(--bg);stroke:#9c8350;stroke-width:2}.motif .core{fill:#d8b878;transform-origin:190px 100px;animation:pulse 1.2s 1.1s both}.motif text{fill:#a39e92;font-size:11px}
+@keyframes draw{to{stroke-dashoffset:0}}@keyframes pulse{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.3);opacity:1}100%{transform:scale(1)}}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;color:var(--ink);font:inherit;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s}
+.tile svg{width:26px;height:26px;fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-bottom:6px}
+.tile b{font-size:18px}.tile span{color:var(--mute);font-size:14px;flex:1}.tile em{font-style:normal;color:var(--accent);font-size:14px;margin-top:8px}
+.tile:hover{transform:translateY(-4px);border-color:#6b5a35;box-shadow:0 18px 40px -16px #000a}
+.chk{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:22px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:0 24px 48px -20px #000a}
 h2{font-size:19px;margin:0 0 12px}
-textarea{width:100%;min-height:170px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;color:var(--ink);background:#fafbfd;transition:border .2s,box-shadow .2s}
-textarea:focus{border-color:var(--accent2);box-shadow:0 0 0 4px #2d5bb01f;outline:0}
-button:focus-visible,.drop:focus-visible,a:focus-visible{outline:3px solid #9db7e8;outline-offset:2px}
-.label{font-size:14px;color:var(--mute);margin:12px 0 6px}
-.samples{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;color:var(--accent);cursor:pointer;transition:.18s}
-.chip:hover{background:#eef3fc;border-color:#b9c9e6;transform:translateY(-1px)}
-.drop{border:1.5px dashed #b5c1d4;border-radius:10px;padding:18px;text-align:center;color:var(--mute);cursor:pointer;background:#fafbfd;transition:.2s}
-.drop:hover,.drop.over{border-color:var(--accent2);background:#eef3fc}
-.drop strong{color:var(--ink)}
-.row{display:flex;gap:10px;margin-top:18px}
-.go{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:12px;padding:15px;font:inherit;font-weight:600;font-size:16px;background:linear-gradient(180deg,#2a4f95,#1d3a6e);color:#fff;cursor:pointer;box-shadow:0 6px 16px #1d3a6e55;transition:transform .15s,box-shadow .15s,filter .15s}
-.go:hover{transform:translateY(-2px);box-shadow:0 10px 22px #1d3a6e66;filter:brightness(1.06)}
-.go:active{transform:translateY(0) scale(.99)}
-.go:disabled{opacity:.7;cursor:wait;transform:none}
-.go svg{width:18px;height:18px}
-.spin{width:16px;height:16px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite}
-@keyframes rot{to{transform:rotate(360deg)}}
-.ghost{border:1px solid var(--line);background:#fff;border-radius:12px;padding:0 18px;font:inherit;color:var(--mute);cursor:pointer;transition:.18s}
-.ghost:hover{background:#f3f6fb;color:var(--ink)}
-.err{margin-top:12px;color:var(--crit);font-size:14px;min-height:1px}
-.empty{color:var(--mute);padding:56px 8px;text-align:center}
-.empty svg{width:54px;height:54px;opacity:.35;margin-bottom:10px}
-.pulse{animation:fade 1.1s ease-in-out infinite alternate}
-@keyframes fade{from{opacity:.35}to{opacity:1}}
-#out{border-top:4px solid var(--lvl);transition:border-color .4s}
-.gauge{display:flex;flex-direction:column;align-items:center}
-.gauge svg{width:100%;max-width:340px;overflow:visible}
-.track{fill:none;stroke:#e5eaf1;stroke-width:16;stroke-linecap:round}
-.fill{fill:none;stroke:var(--lvl);stroke-width:16;stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray 1.1s cubic-bezier(.2,.8,.2,1)}
-.score{font-size:44px;font-weight:700;fill:var(--ink)}
-.lvl{font-size:30px;color:var(--lvl);margin:-4px 0 4px;text-align:center}
-.say{text-align:center;color:var(--mute);margin:0 auto 6px;max-width:46ch}
-.sec{margin-top:22px;border-top:1px solid var(--line);padding-top:16px}
-.chain{display:inline-block;background:#f1f4f9;border-radius:8px;padding:4px 10px;font-size:14px;margin-bottom:10px}
-ol.replay{list-style:none;margin:0;padding:0 0 0 22px;border-left:2px solid var(--line)}
-ol.replay li{position:relative;padding:6px 0 10px 14px;opacity:0;transform:translateX(-6px)}
-ol.replay li::before{content:"";position:absolute;left:-29px;top:12px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--lvl)}
-ol.replay li:last-child{font-weight:600;color:var(--crit)}
-ol.replay li:last-child::before{background:var(--crit);border-color:var(--crit)}
-.show ol.replay li{animation:in .5s forwards}
-@keyframes in{to{opacity:1;transform:none}}
-.cat{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:12px;align-items:center;margin:8px 0;font-size:14px}
-.bar{height:8px;border-radius:99px;background:#e9edf3;overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--lvl);border-radius:99px;transition:width .9s .3s cubic-bezier(.2,.8,.2,1)}
-.sig{padding:10px 0;border-bottom:1px solid var(--line)}
-.sig:last-child{border:0}
-.sig b{font-weight:600}
-.sig .ev{display:block;color:var(--mute);font-size:13px;margin:2px 0 6px;word-break:break-word}
-.good{color:var(--low)}
-.note{font-size:13px;color:var(--mute);margin-top:18px}
-.copy{margin-top:14px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-size:14px;color:var(--accent);cursor:pointer;transition:.18s}
-.copy:hover{background:#eef3fc}
-.how{padding:72px 0 24px}
-.how h2{font-size:30px;margin:0 0 8px}
-.how>.wrap>p{color:var(--mute);max-width:60ch;margin:0 0 28px}
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;list-style:none;margin:0;padding:0}
-@media(max-width:860px){.steps{grid-template-columns:1fr 1fr}}
-@media(max-width:520px){.steps{grid-template-columns:1fr}}
-.steps li{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px}
-.steps b{display:block;font-size:17px;margin-bottom:6px}
-.steps span{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;margin-bottom:10px}
-.steps p{margin:0;color:var(--mute);font-size:15px}
-footer{padding:40px 0 56px;color:var(--mute);font-size:14px}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.motif .ln{stroke-dashoffset:0}ol.replay li{opacity:1;transform:none}.bar i{width:var(--w)!important}}
-.qrrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.ghost2{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;font:inherit;font-size:14px;color:var(--accent);cursor:pointer;transition:.18s}
-.ghost2:hover{background:#eef3fc;border-color:#b9c9e6}
-.tiny{font-size:12px;color:var(--mute);margin:8px 0 0}
+#out{position:sticky;top:20px;border-top:4px solid var(--lvl);transition:border-color .4s}
+.tabs{position:relative;display:grid;grid-template-columns:repeat(4,1fr);background:var(--field);border-radius:12px;padding:4px;margin:4px 0 18px}
+.pill{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/4);background:#24231f;border-radius:9px;box-shadow:0 2px 10px #0008;transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.tab{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;padding:10px 2px;font:inherit;font-size:13px;color:var(--mute);cursor:pointer;border-radius:9px;transition:color .25s}
+.tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:#fff;font-weight:600}
+.dot{position:absolute;top:7px;right:calc(50% - 20px);width:8px;height:8px;border-radius:50%;background:var(--low)}
+.pane{display:none}.pane.on{display:block;animation:viewIn .4s cubic-bezier(.2,.8,.2,1)}
+.pane h3{margin:0 0 4px;font-size:17px}.pane>p{margin:0 0 12px;color:var(--mute);font-size:14px}
+textarea,input.lnk{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px 12px;font:inherit;color:var(--ink);background:var(--field);transition:border .2s,box-shadow .2s}
+textarea{min-height:170px;resize:vertical}
+textarea:focus,input.lnk:focus{border-color:var(--accent2);box-shadow:0 0 0 4px #c9a45c33;outline:0}
+::placeholder{color:#6d685e}
+button:focus-visible,.drop:focus-visible,a:focus-visible,.tile:focus-visible{outline:3px solid #d8b87888;outline-offset:2px}
+.label{font-size:14px;color:var(--mute);margin:14px 0 6px}
+.samples{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:#17171b;border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;color:#e8dcc0;cursor:pointer;transition:.18s}
+.chip:hover{background:#24231f;border-color:#6b5a35;transform:translateY(-1px)}
+.drop{border:1.5px dashed #3a3a44;border-radius:12px;padding:26px 18px;text-align:center;color:var(--mute);cursor:pointer;background:var(--field);transition:.2s}
+.drop:hover,.drop.over{border-color:var(--accent);background:#17161a}.drop strong{color:var(--ink)}
+.qrrow{display:flex;gap:10px;flex-wrap:wrap}
+.ghost2{display:inline-flex;align-items:center;border:1px solid var(--line);background:#17171b;border-radius:10px;padding:10px 14px;font:inherit;font-size:14px;color:#e8dcc0;cursor:pointer;transition:.18s}
+.ghost2:hover{background:#24231f;border-color:#6b5a35}
+.tiny{font-size:12px;color:#837e72;margin:8px 0 0}
+.qrbox{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--field);font-size:13px;word-break:break-all;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.qrbox[hidden]{display:none}.qrbox button{border:0;background:none;color:var(--accent);cursor:pointer;font:inherit;font-size:13px;flex:none}
 .scanner{position:fixed;inset:0;background:#05080f;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px}
 .scanner[hidden]{display:none}
 .scanner video{width:min(92vw,520px);height:min(70vh,520px);object-fit:cover;border-radius:18px;background:#000}
-.scanner .frame{position:absolute;width:min(60vw,260px);aspect-ratio:1;border:3px solid #7fb0ff;border-radius:18px;box-shadow:0 0 0 9999px #0008;pointer-events:none}
+.scanner .frame{position:absolute;width:min(60vw,260px);aspect-ratio:1;border:3px solid #d8b878;border-radius:18px;box-shadow:0 0 0 9999px #0008;pointer-events:none}
 .scanner p{color:#cdd8ee;margin:0;text-align:center;position:relative}
-.scanner button{position:relative;border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:600;background:#fff;color:#0b1424;cursor:pointer}
-.upi{background:#f5f8fd;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:6px}
-.upi div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:15px}
-.upi span:first-child{color:var(--mute)}.upi span:last-child{font-weight:600;word-break:break-all;text-align:right}
-.upi .warn{display:block;font-weight:600;color:var(--high);padding-bottom:6px}
-.tabs{position:relative;display:grid;grid-template-columns:repeat(4,1fr);background:#eef1f6;border-radius:12px;padding:4px;margin:4px 0 18px}
-.pill{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/4);background:#fff;border-radius:9px;box-shadow:0 2px 8px #0e1a2f1f;transition:transform .4s cubic-bezier(.2,.8,.2,1)}
-.tab{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;padding:10px 2px;font:inherit;font-size:13px;color:var(--mute);cursor:pointer;border-radius:9px;transition:color .25s}
-.tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tab.on{color:var(--accent);font-weight:600}
-.dot{position:absolute;top:7px;right:calc(50% - 20px);width:8px;height:8px;border-radius:50%;background:var(--low)}
-.pane{display:none}.pane.on{display:block;animation:paneIn .4s cubic-bezier(.2,.8,.2,1)}
-@keyframes paneIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.pane h3{margin:0 0 4px;font-size:17px}.pane>p{margin:0 0 12px;color:var(--mute);font-size:14px}
-input.lnk{width:100%;border:1px solid var(--line);border-radius:10px;padding:13px 12px;font:inherit;background:#fafbfd;color:var(--ink);transition:border .2s,box-shadow .2s}
-input.lnk:focus{border-color:var(--accent2);box-shadow:0 0 0 4px #2d5bb01f;outline:0}
-.qrbox{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#f5f8fd;font-size:13px;word-break:break-all;display:flex;justify-content:space-between;gap:10px;align-items:center}
-.qrbox[hidden]{display:none}
-.qrbox button{border:0;background:none;color:var(--accent);cursor:pointer;font:inherit;font-size:13px;flex:none}
-</style>
-</head>
-<body>
-<header class="hero">
-<div class="wrap">
-<nav>
-<div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l12 5v9c0 7-5.5 11.5-12 14C9.5 27.5 4 23 4 16V7z" fill="#2d5bb0"/><path d="M9 11l7 6M23 11l-7 6M16 24v-7" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="17" r="2.5" fill="#bcd6ff"/></svg><span class="serif">Sentra</span></div>
-<a href="#how">How it decides</a>
-</nav>
-<div class="heroGrid">
-<div>
-<h1 class="serif">One check for every scam signal.</h1>
-<p>Paste a message, a link, or a payment address, or drop an app file. Sentra reads all of it together and shows you exactly why it is or is not worth trusting.</p>
-<a class="cta" href="#check">Check something now <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3.500 8.500L8 13l4.500-4.500"/></svg></a>
+.scanner button{position:relative;border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:600;background:#fff;color:#08080a;cursor:pointer}
+.row{display:flex;gap:10px;margin-top:20px}
+.go{position:relative;overflow:hidden;flex:1;display:flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:12px;padding:15px;font:inherit;font-weight:600;font-size:16px;background:linear-gradient(180deg,#c9a45c,#2f5fc4);color:#fff;cursor:pointer;box-shadow:0 8px 22px #2f5fc455;transition:transform .15s,box-shadow .15s,filter .15s}
+.go:hover{transform:translateY(-2px);filter:brightness(1.08)}.go:active{transform:scale(.99)}.go:disabled{opacity:.75;cursor:wait;transform:none}
+.go::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,#ffffff40,transparent);transform:skewX(-20deg);transition:left .7s}.go:hover::after{left:130%}
+.go svg{width:18px;height:18px}
+.spin{width:16px;height:16px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite}@keyframes rot{to{transform:rotate(360deg)}}
+.ghost{border:1px solid var(--line);background:#17171b;border-radius:12px;padding:0 18px;font:inherit;color:var(--mute);cursor:pointer}.ghost:hover{color:#fff}
+.err{margin-top:12px;color:#ff8aa0;font-size:14px}
+.empty{color:var(--mute);padding:56px 8px;text-align:center}.pulse{animation:fade 1.1s ease-in-out infinite alternate}@keyframes fade{from{opacity:.35}to{opacity:1}}
+.pv{text-align:center;padding:26px 8px 18px}.pv svg{width:100%;max-width:260px}.pvt{font-size:26px;margin:4px 0 6px}.pv p{color:var(--mute);max-width:38ch;margin:0 auto 20px}
+.pvl{display:grid;gap:10px;justify-items:center}.pvl i{display:block;height:10px;border-radius:99px;background:linear-gradient(90deg,#17171c,#202027,#17171c);background-size:200% 100%;animation:shim 1.8s linear infinite}@keyframes shim{to{background-position:-200% 0}}
+.gauge{display:flex;flex-direction:column;align-items:center}.gauge svg{width:100%;max-width:340px;overflow:visible}
+.track{fill:none;stroke:#25252b;stroke-width:16;stroke-linecap:round}
+.fill{fill:none;stroke:var(--lvl);stroke-width:16;stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray 1.1s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 8px var(--lvl))}
+.score{font-size:44px;font-weight:700;fill:#fff;font-variant-numeric:tabular-nums}
+.lvl{font-size:30px;color:var(--lvl);margin:-4px 0 4px;text-align:center}.say{text-align:center;color:var(--mute);margin:0 auto 6px;max-width:46ch}
+.sec{margin-top:22px;border-top:1px solid var(--line);padding-top:16px}
+.chain{display:inline-block;background:#1f1e1a;border-radius:8px;padding:4px 10px;font-size:14px;margin-bottom:10px}
+ol.replay{list-style:none;margin:0;padding:0 0 0 22px;border-left:2px solid var(--line)}
+ol.replay li{position:relative;padding:6px 0 10px 14px;opacity:0;transform:translateX(-6px)}
+ol.replay li::before{content:"";position:absolute;left:-29px;top:12px;width:12px;height:12px;border-radius:50%;background:var(--panel);border:2px solid var(--lvl)}
+ol.replay li:last-child{font-weight:600;color:#ff8aa0}ol.replay li:last-child::before{background:var(--crit);border-color:var(--crit)}
+.show ol.replay li{animation:in .5s forwards}@keyframes in{to{opacity:1;transform:none}}
+.cat{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:12px;align-items:center;margin:8px 0;font-size:14px}
+.bar{height:8px;border-radius:99px;background:#1f1e1a;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--lvl);border-radius:99px;transition:width .9s .3s cubic-bezier(.2,.8,.2,1)}
+.sig{padding:10px 0;border-bottom:1px solid var(--line)}.sig:last-child{border:0}.sig b{font-weight:600}.sig .ev{display:block;color:var(--mute);font-size:13px;margin:2px 0 6px;word-break:break-word}
+.good{color:var(--low)}.note{font-size:13px;color:#8a8579;margin-top:18px}
+.copy{margin-top:14px;border:1px solid var(--line);background:#17171b;border-radius:10px;padding:8px 14px;font:inherit;font-size:14px;color:#e8dcc0;cursor:pointer}.copy:hover{background:#24231f}
+.upi{background:var(--field);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:6px}.upi div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:15px}
+.upi span:first-child{color:var(--mute)}.upi span:last-child{font-weight:600;word-break:break-all;text-align:right}.upi .warn{display:block;font-weight:600;color:var(--high);padding-bottom:6px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;list-style:none;margin:0 0 22px;padding:0}
+.steps li{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;transition:transform .25s,border-color .25s}.steps li:hover{transform:translateY(-3px);border-color:#6b5a35}
+.steps b{display:block;font-size:17px;margin-bottom:6px}.steps span{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent2);color:#fff;font-size:14px;margin-bottom:10px}.steps p{margin:0;color:var(--mute);font-size:15px}
+.limits ul{margin:8px 0 0;padding-left:20px;color:var(--mute)}.limits li{margin:6px 0}
+.hrow{display:grid;grid-template-columns:130px 1fr 1.2fr auto;gap:14px;align-items:center;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-bottom:10px;border-left:4px solid var(--lvl)}
+.badge{color:var(--lvl);font-weight:700}.hk{font-weight:600}.hs,.ht{color:var(--mute);font-size:14px}
+@media(max-width:980px){.chk,.heroH{grid-template-columns:1fr}.motif{display:none}.tiles,.steps{grid-template-columns:1fr 1fr}#out{position:static}}
+@media(max-width:860px){.app{grid-template-columns:1fr}.side{position:fixed;inset:auto 0 0 0;height:auto;flex-direction:row;padding:8px;z-index:20;border-right:0;border-top:1px solid var(--line)}.brand,.sidenote{display:none}.nav{flex-direction:row;width:100%;justify-content:space-around}.nav button{flex-direction:column;gap:2px;font-size:12px;padding:8px 10px}.nav button.on{box-shadow:none}.stage{padding-bottom:96px}.hrow{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.tiles,.steps{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.motif .ln{stroke-dashoffset:0}ol.replay li{opacity:1;transform:none}.bar i{width:var(--w)!important}}
+
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(900px 600px at 10% -10%,#d8b87828,transparent 60%),radial-gradient(800px 520px at 100% 0,#7a5cff16,transparent 60%),radial-gradient(700px 500px at 60% 115%,#d8b87815,transparent 60%),#08080a}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.side{background:#0c0c0fcc;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-right:1px solid #ffffff10}
+.brand svg path:first-child{fill:#c9a45c}.brand svg path:nth-child(2){stroke:#0b0b0e}.brand svg circle{fill:#0b0b0e}
+.brand .serif{background:linear-gradient(100deg,#f6e7bd,#d8b878 60%,#a8863f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav button.on{background:linear-gradient(90deg,#d8b87822,transparent);color:#f6e7bd;box-shadow:inset 2px 0 0 #d8b878}
+.eyebrow{display:flex;align-items:center;gap:12px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#d8b878;margin-bottom:18px}.eyebrow::before{content:"";width:32px;height:1px;background:#d8b878}
+h1{font-weight:400;letter-spacing:-.025em;line-height:1.02;font-size:clamp(40px,6vw,74px)}
+h1 em{background:linear-gradient(100deg,#f6e7bd,#d8b878 45%,#a8863f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.vh{font-weight:400;font-size:42px;letter-spacing:-.02em}
+.panel,.tile,.steps li{position:relative;overflow:hidden;background:linear-gradient(180deg,#151519,#0f0f12);border:1px solid #ffffff14;box-shadow:inset 0 1px 0 #ffffff0f,0 30px 60px -34px #000}
+.panel::before,.tile::before,.steps li::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),#d8b8781f,transparent 60%)}
+.panel:hover::before,.tile:hover::before,.steps li:hover::before{opacity:1}
+.tile:hover,.steps li:hover{border-color:#d8b87855}
+.cta,.go{background:linear-gradient(180deg,#f4e3b4,#d3ae62 55%,#a8863f);color:#17120a;box-shadow:inset 0 1px 0 #fff9,0 12px 32px -10px #d8b878aa}
+.cta:hover,.go:hover{box-shadow:inset 0 1px 0 #fff9,0 18px 40px -10px #d8b878cc;filter:brightness(1.05)}
+.spin{border-color:#17120a55;border-top-color:#17120a}
+.pill{background:#26231b;box-shadow:inset 0 0 0 1px #d8b87838}
+.tab.on{color:#f6e7bd}
+.chain{background:#d8b8781a;color:#f0dfb4}
+.steps span{color:#17120a;background:linear-gradient(180deg,#f2dfae,#c9a45c)}
+.chip,.ghost2,.copy,.ghost{border-color:#ffffff16}
+.chip:hover,.ghost2:hover,.copy:hover{background:#24231f;border-color:#d8b87855}
+textarea,input.lnk,.drop,.qrbox,.upi{border-color:#ffffff14}
+.track{stroke:#ffffff10}
+.trust span{border-color:#d8b87833;background:#d8b87810}
+.sidenote{color:#7d786d}
+:root{--lvl:#4a4230}
+.stage{padding-bottom:140px}
+.dock{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:30;display:flex;align-items:flex-end;gap:2px;padding:8px 10px;border-radius:28px;background:#0e0e12d9;-webkit-backdrop-filter:blur(22px) saturate(160%);backdrop-filter:blur(22px) saturate(160%);border:1px solid #ffffff1c;box-shadow:0 24px 60px -12px #000,inset 0 1px 0 #ffffff14;animation:dockIn .7s .2s cubic-bezier(.2,.8,.2,1) both}
+@keyframes dockIn{from{opacity:0;transform:translate(-50%,24px)}to{opacity:1;transform:translateX(-50%)}}
+.dock button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:56px;padding:8px 6px;border:0;background:none;color:var(--mute);font:inherit;font-size:11px;border-radius:16px;cursor:pointer;transition:color .2s,background .2s,transform .25s}
+.dock button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dock button:hover{color:#fff;transform:translateY(-3px)}
+.dock button.on{color:#f6e7bd;background:#d8b87818}
+.dock .fab{margin:-30px 8px 0;min-width:66px;height:66px;justify-content:center;border-radius:50%;background:linear-gradient(180deg,#f4e3b4,#d3ae62 55%,#a8863f);color:#17120a;box-shadow:0 14px 30px -6px #d8b878aa,inset 0 1px 0 #fff9,0 0 0 6px #08080a}
+.dock .fab svg{width:28px;height:28px;stroke-width:2}
+.dock .fab:hover{color:#17120a;transform:translateY(-4px) scale(1.05)}
+.dock .fab::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid #d8b87877;animation:ring 2.4s ease-out infinite;pointer-events:none}
+@keyframes ring{from{transform:scale(1);opacity:.8}to{transform:scale(1.4);opacity:0}}
+@media(max-width:860px){.side{display:none}}
+@media(max-width:420px){.dock button{min-width:46px;padding:8px 3px}.dock .fab{min-width:60px;height:60px;margin:-28px 4px 0}}
+
+.stageHero{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:32px;align-items:center;min-height:calc(100vh - 200px);padding:8px 0 20px}
+.hc p{color:var(--mute);font-size:18px;max-width:46ch;margin:0 0 22px}
+.pills{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 26px}
+.pillf{display:inline-flex;align-items:center;gap:12px;padding:6px 22px 6px 6px;border-radius:999px;background:linear-gradient(90deg,#d8b87833,#d8b8780f);border:1px solid #d8b87844;color:#f6e7bd;font-weight:600;font-size:15px}
+.pillf i{width:32px;height:32px;border-radius:50%;background:linear-gradient(180deg,#f4e3b4,#c9a45c);box-shadow:inset 0 1px 0 #fff9,0 4px 12px #d8b87855}
+.ctaRow{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.strip{display:inline-flex;flex-wrap:wrap;gap:8px 28px;margin-top:34px;padding:12px 28px;max-width:100%;background:linear-gradient(90deg,#f7f0e1,#e6d9b8);color:#17120a;border-radius:6px;transform:skewX(-12deg);box-shadow:0 20px 44px -18px #d8b878aa}
+.strip span{display:inline-flex;align-items:center;gap:8px;transform:skewX(12deg);font-size:14px;font-weight:600}
+.strip b{width:8px;height:8px;border-radius:50%;background:#1f8a5f}
+.phoneWrap{position:relative;display:grid;place-items:center;padding:30px 0 40px}
+.glow{position:absolute;width:125%;aspect-ratio:1;background:radial-gradient(closest-side,#d8b87855,#7a5cff14 62%,transparent 76%);filter:blur(8px);animation:breathe 6s ease-in-out infinite alternate;pointer-events:none}
+@keyframes breathe{to{transform:scale(1.08);opacity:.75}}
+.phone{position:relative;width:min(270px,70vw);aspect-ratio:9/18.5;border-radius:38px;padding:9px;background:linear-gradient(160deg,#3a3a42,#0d0d10 40%,#2b2b32);box-shadow:0 50px 80px -30px #000,0 0 0 1px #ffffff22;transform:perspective(1000px) rotateY(-10deg) rotateZ(2deg);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.phone:hover{transform:perspective(1000px) rotateY(0) rotateZ(0)}
+.screen{height:100%;border-radius:30px;background:linear-gradient(180deg,#15151b,#0b0b0e);padding:20px 14px 14px;overflow:hidden;position:relative;display:flex;flex-direction:column;gap:8px}
+.notch{position:absolute;top:15px;left:50%;transform:translateX(-50%);width:72px;height:18px;border-radius:12px;background:#000;z-index:2}
+.ph-top{display:flex;align-items:center;gap:6px;font-size:12px;color:#d8b878;margin-top:16px;font-weight:600}.ph-top b{width:14px;height:14px;border-radius:4px;background:#c9a45c}
+.screen svg{width:100%}
+.pgTrack{fill:none;stroke:#ffffff12;stroke-width:14;stroke-linecap:round}
+.pgFill{fill:none;stroke:var(--crit);stroke-width:14;stroke-linecap:round;stroke-dasharray:92 100;filter:drop-shadow(0 0 6px var(--crit));animation:sweep 7s ease-in-out infinite}
+@keyframes sweep{0%{stroke-dasharray:0 100;opacity:0}3%{opacity:1}25%,82%{stroke-dasharray:92 100;opacity:1}94%{stroke-dasharray:0 100;opacity:0}100%{stroke-dasharray:0 100;opacity:0}}
+.ph-lvl{text-align:center;color:var(--crit);font-size:22px;margin-top:-4px}
+.ph-chain{align-self:center;font-size:11px;padding:3px 9px;border-radius:8px;background:#d8b8781a;color:#f0dfb4}
+.ph-steps{list-style:none;margin:6px 0 0 4px;padding:0 0 0 12px;border-left:2px solid #ffffff14;font-size:11px;color:#c9c3b6}
+.ph-steps li{position:relative;padding:3px 0 6px 10px}
+.ph-steps li::before{content:"";position:absolute;left:-19px;top:7px;width:8px;height:8px;border-radius:50%;background:#0b0b0e;border:2px solid var(--crit)}
+.ph-steps .end{color:#ff8aa0;font-weight:600}
+.ph-ev{margin-top:auto;display:grid;gap:5px;font-size:10.5px;color:#a39e92}.ph-ev i{display:block;height:5px;border-radius:9px;background:linear-gradient(90deg,var(--crit),#ff8aa0)}
+.fl{position:absolute;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:14px;font-size:13px;font-weight:600;color:#f3efe6;background:#14141acc;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid #ffffff1c;box-shadow:0 18px 40px -14px #000;animation:floaty 6s ease-in-out infinite}
+.fl i{width:8px;height:8px;border-radius:50%;background:var(--low)}
+.fl1{top:14%;left:0}.fl1 i{background:var(--crit)}.fl2{bottom:22%;right:0;animation-delay:-2s}.fl3{bottom:8%;left:6%;animation-delay:-4s}.fl3 i{background:var(--sus)}
+@keyframes floaty{50%{transform:translateY(-10px)}}
+.cap{position:absolute;bottom:6px;color:#7d786d;font-size:12px}
+@media(max-width:980px){.stageHero{grid-template-columns:1fr;min-height:0}.strip{transform:none}.strip span{transform:none}}
+
+.sectionH{margin:84px 0 10px}.sectionH .eyebrow{margin-bottom:10px}
+.sectionH h2{font-size:clamp(28px,3.6vw,42px);font-weight:400;letter-spacing:-.02em;margin:0 0 10px}.sectionH p{color:var(--mute);max-width:56ch;margin:0}
+.unfold{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,6fr);gap:20px;margin-top:26px}
+.scamlist{display:grid;gap:10px;align-content:start}
+.scamBtn{text-align:left;border:1px solid #ffffff14;background:#121216;border-radius:14px;padding:16px 18px;color:var(--ink);font:inherit;cursor:pointer;transition:.25s}
+.scamBtn b{display:block}.scamBtn span{color:var(--mute);font-size:14px}
+.scamBtn:hover{border-color:#d8b87855;transform:translateX(4px)}
+.scamBtn.on{border-color:#d8b878;background:linear-gradient(90deg,#d8b87822,#121216)}
+.tl{padding:26px 28px}.tl h2{font-size:20px;margin-bottom:18px}
+.tl ol{list-style:none;margin:0;padding:0 0 0 24px;border-left:2px solid #ffffff14}
+.tl li{position:relative;padding:8px 0 16px 18px;opacity:.22;transform:translateX(-6px);transition:opacity .5s,transform .5s}
+.tl li::before{content:"";position:absolute;left:-31px;top:14px;width:12px;height:12px;border-radius:50%;background:#0b0b0e;border:2px solid #d8b878}
+.tl li.lit{opacity:1;transform:none}
+.tl li.catch{color:#7fe3bd;font-weight:600}.tl li.catch::before{border-color:#3ccf9b;background:#3ccf9b}
+.tl li.end{color:#ff8aa0;font-weight:600}.tl li.end::before{border-color:var(--crit);background:var(--crit)}
+.faq{display:grid;gap:10px;margin-top:22px}
+.faq details{border:1px solid #ffffff14;background:#121216;border-radius:14px;padding:0 22px;transition:border-color .25s}
+.faq details[open]{border-color:#d8b87855}
+.faq summary{cursor:pointer;padding:18px 0;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:#d8b878;font-size:24px;line-height:1;transition:transform .3s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq p{margin:0 0 18px;color:var(--mute)}
+.band{margin:84px 0 10px;padding:40px;border-radius:24px;background:radial-gradient(600px 220px at 85% 0,#d8b87833,transparent),linear-gradient(180deg,#17161a,#0f0f12);border:1px solid #d8b87833;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.foot{margin-top:40px;padding-top:20px;border-top:1px solid #ffffff12;color:#7d786d;font-size:13px}
+@media(max-width:860px){.unfold{grid-template-columns:1fr}}
+.fill{opacity:0;transition:stroke-dasharray 1.1s cubic-bezier(.2,.8,.2,1),opacity .25s}.show .fill{opacity:1}
+.tabs{display:none}
+.single .pane>h3,.single .pane>p{display:none}
+.all .pane{display:block;animation:none;margin-bottom:26px;padding-bottom:22px;border-bottom:1px solid #ffffff12}.all .pane:last-child{margin-bottom:0;border:0;padding-bottom:0}
+.looks{margin-top:28px}.looks h2{font-size:26px;font-weight:400;margin:0 0 14px}
+.lkgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lk{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border:1px solid #ffffff14;border-radius:14px;background:#121216;transition:border-color .25s,transform .25s}.lk:hover{border-color:#d8b87855;transform:translateY(-2px)}
+.lk i{flex:none;width:8px;height:8px;margin-top:9px;border-radius:50%;background:#d8b878;box-shadow:0 0 10px #d8b87888}.lk span{color:var(--mute)}
+.navlbl{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#6d685e;padding:16px 14px 4px}
+@media(max-width:700px){.lkgrid{grid-template-columns:1fr}}
+
+.topbar{display:none}
+.toast{position:fixed;left:50%;bottom:128px;transform:translate(-50%,10px);background:#17171c;border:1px solid #d8b87855;color:#f6e7bd;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:60;font-size:14px;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.scrim{position:fixed;inset:0;background:#000b;opacity:0;pointer-events:none;transition:opacity .3s;z-index:35}.scrim.open{opacity:1;pointer-events:auto}
+@media(max-width:860px){
+.topbar{display:flex;position:sticky;top:0;z-index:25;align-items:center;gap:12px;padding:10px 16px;background:#08080acc;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid #ffffff10}
+.topbar .brand{padding:0;font-size:20px}
+.topbar button{border:1px solid #ffffff18;background:#14141a;color:#f6e7bd;border-radius:12px;width:42px;height:42px;display:grid;place-items:center;cursor:pointer}
+.topbar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.side{display:flex;position:fixed;left:0;top:0;bottom:0;width:276px;height:100vh;z-index:40;transform:translateX(-100%);transition:transform .35s cubic-bezier(.2,.8,.2,1);overflow-y:auto}
+.side.open{transform:none}.brand{display:flex}.sidenote{display:block}
+}
+</style></head>
+<body><header class="topbar"><button type="button" id="menuBtn" aria-label="Open menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="brand"><span class="serif">Sentra</span></div></header><div class="scrim" id="scrim"></div>
+<div class="app">
+<aside class="side"><div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l12 5v9c0 7-5.5 11.5-12 14C9.5 27.5 4 23 4 16V7z" fill="#2d5bb0"/><path d="M9 11l7 6M23 11l-7 6M16 24v-7" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="17" r="2.5" fill="#bcd6ff"/></svg><span class="serif">Sentra</span></div><nav class="nav" id="nav"><button type="button" data-v="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/></svg><span>Home</span></button><div class="navlbl">Checks</div><button type="button" data-v="message"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg><span>Message</span></button><button type="button" data-v="link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg><span>Link</span></button><button type="button" data-v="qr"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg><span>QR and UPI</span></button><button type="button" data-v="app"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg><span>App file</span></button><button type="button" data-v="full"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Full check</span></button><div class="navlbl">More</div><button type="button" data-v="history"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg><span>History</span></button><button type="button" data-v="how"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8h.01"/></svg><span>How it works</span></button></nav><p class="sidenote">Guidance based on warning signs. Never a guarantee of safety.</p></aside>
+<main class="stage">
+<section class="view on" id="v-home"><div class="stageHero">
+<div class="hc"><div class="eyebrow">Scam triage</div>
+<h1 class="serif">One check for every <em>scam signal.</em></h1>
+<p>Messages, links, payment QR codes and app files, read together, with every warning sign explained.</p>
+<div class="pills"><span class="pillf"><i></i>Reads everything together</span><span class="pillf"><i></i>Explains every verdict</span></div>
+<div class="ctaRow"><button class="cta" type="button" data-nav="message">Start a check</button><button class="ghost" type="button" data-nav="full" style="padding:13px 22px;border-radius:999px">Full check</button><button class="ghost" type="button" data-nav="how" style="padding:13px 22px;border-radius:999px">How it decides</button></div>
+<div class="strip"><span><b></b>Links are never visited</span><span><b></b>Apps are never run</span><span><b></b>QR images stay in your browser</span></div></div>
+<div class="phoneWrap" aria-hidden="true"><div class="glow"></div>
+<div class="phone"><div class="notch"></div><div class="screen">
+<div class="ph-top"><b></b>Sentra</div>
+<svg viewBox="0 0 240 130"><path class="pgTrack" d="M20 120A100 100 0 0 1 220 120" pathLength="100"/><path class="pgFill" d="M20 120A100 100 0 0 1 220 120" pathLength="100"/><text class="serif" x="120" y="108" text-anchor="middle" style="font-size:44px;font-weight:700;fill:#fff">92</text></svg>
+<div class="ph-lvl serif">Critical</div><div class="ph-chain">Fake bank verification</div>
+<ol class="ph-steps"><li>Message claims to be your bank</li><li>Link opens a fake login page</li><li>Your OTP is collected</li><li class="end">Your account is drained</li></ol>
+<div class="ph-ev"><span>Asks you to share an OTP</span><i style="width:92%"></i><span>Lookalike bank domain</span><i style="width:78%"></i></div>
+</div></div>
+<div class="fl fl1"><i></i>OTP request detected</div><div class="fl fl2"><i></i>Link never visited</div><div class="fl fl3"><i></i>Scam pattern matched</div>
+<small class="cap">Example result</small></div>
 </div>
-<div class="motif" aria-hidden="true">
-<svg viewBox="0 0 380 200"><path class="ln" d="M40 40Q110 40 190 100"/><path class="ln" d="M40 100H190"/><path class="ln" d="M40 160Q110 160 190 100"/><path class="ln" d="M190 100H330"/>
-<circle class="nd" cx="40" cy="40" r="7"/><circle class="nd" cx="40" cy="100" r="7"/><circle class="nd" cx="40" cy="160" r="7"/><circle class="nd" cx="330" cy="100" r="12"/>
-<circle class="core" cx="190" cy="100" r="9"/>
-<text x="54" y="30">Message</text><text x="54" y="90">Link and QR</text><text x="54" y="150">App file</text><text x="292" y="132">Verdict</text></svg>
-</div>
-</div>
-</div>
-</header>
-<div class="wrap" id="check">
-<main>
-<section class="panel" aria-label="What to check">
-<h2>What looks suspicious?</h2>
-<div class="tabs" role="tablist"><i class="pill" id="pill"></i><button type="button" role="tab" class="tab on" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Message<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg>Link<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg>QR and UPI<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>App file<b class="dot" hidden></b></button></div><div class="pane on"><h3>A message you received</h3><p>Paste the text exactly as it arrived: SMS, WhatsApp, email.</p><textarea id="text" placeholder="Paste the message here"></textarea><div class="label">Or try an example</div><div class="samples" id="samples"></div></div><div class="pane"><h3>A link you were sent</h3><p>Paste it without opening it. Sentra reads the address and never visits it.</p><input class="lnk" id="linkIn" type="text" placeholder="https://" autocomplete="off" spellcheck="false"><div class="label">Or try an example</div><div class="samples" id="lsamples"></div></div><div class="pane"><h3>A payment QR code</h3><p>Scan it or upload a photo. Sentra shows who it would pay and what it really does.</p><div class="qrrow"><button class="ghost2" id="camBtn" type="button">Scan a QR with the camera</button><label class="ghost2" for="qrPhoto">Upload a QR photo</label><input type="file" id="qrPhoto" accept="image/*" hidden></div>
+<div class="sectionH"><div class="eyebrow">Know the script</div><h2 class="serif">Watch a scam unfold</h2><p>Every scam follows a script. Pick one and see the steps Sentra recognises.</p></div>
+<div class="unfold" id="unfold"><div class="scamlist" id="scamlist"></div><div class="panel tl"><h2 id="tlTitle"></h2><ol id="tlSteps"></ol></div></div>
+<div class="sectionH"><div class="eyebrow">Straight answers</div><h2 class="serif">Questions people ask</h2></div>
+<div class="faq"><details><summary>Does Sentra open the links I check?</summary><p>No. It reads the address itself, looking for lookalike domains, shorteners and tricks, and never visits it. That is why checking a dangerous link here is safe.</p></details><details><summary>Is the message I paste stored?</summary><p>Sentra does not save the text you check. The History screen keeps only the result, the type and the time, and only in your own browser. You can clear it any time.</p></details><details><summary>Can Sentra tell me a payment QR is safe?</summary><p>No, and it never claims to. It shows who the QR says it will pay, whether it sends or receives money, and any warning signs. Your UPI app shows the account's registered name, so compare the two before you pay.</p></details><details><summary>What can Sentra miss?</summary><p>A brand-new scam with no familiar warning signs can slip through, so treat Sentra as a second opinion and not a guarantee. When in doubt, contact the sender through an official number you already trust.</p></details></div>
+<div class="band"><div><h2 class="serif" style="font-size:30px;margin:0 0 6px;font-weight:400">Got something suspicious right now?</h2><p style="margin:0;color:var(--mute)">Check it before you tap, pay or install.</p></div><button class="cta" type="button" data-nav="message">Start a check</button></div>
+<div class="foot">Built for INNOVEX 2026, problem statement PS 05: AI-Powered Cybersecurity. Sentra gives guidance based on warning signs and cannot guarantee that anything is safe.</div>
+</section>
+<section class="view" id="v-check"><h1 class="vh serif" id="chkTitle">Check something</h1><p class="vs" id="chkSub"></p>
+<div class="chk"><section class="panel single" id="inPanel" aria-label="What to check"><div class="tabs" role="tablist"><i class="pill" id="pill"></i><button type="button" role="tab" class="tab on" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Message<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg>Link<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg>QR and UPI<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>App file<b class="dot" hidden></b></button></div><div class="pane on"><h3>A message you received</h3><p>Paste the text exactly as it arrived: SMS, WhatsApp, email.</p><textarea id="text" placeholder="Paste the message here"></textarea><div class="label">Or try an example</div><div class="samples" id="samples"></div></div><div class="pane"><h3>A link you were sent</h3><p>Paste it without opening it. Sentra reads the address and never visits it.</p><input class="lnk" id="linkIn" type="text" placeholder="https://" autocomplete="off" spellcheck="false"><div class="label">Or try an example</div><div class="samples" id="lsamples"></div></div><div class="pane"><h3>A payment QR code</h3><p>Scan it or upload a photo. Sentra shows who it would pay and what it really does.</p><div class="qrrow"><button class="ghost2" id="camBtn" type="button">Scan a QR with the camera</button><label class="ghost2" for="qrPhoto">Upload a QR photo</label><input type="file" id="qrPhoto" accept="image/*" hidden></div>
 <p class="tiny">QR codes are read inside your browser. The picture is never uploaded.</p>
 <div class="qrbox" id="qrBox" hidden></div><div class="label">Or try an example</div><div class="samples" id="qsamples"></div></div><div class="pane"><h3>An Android app file</h3><p>Drop the .apk. Sentra reads its permissions and never runs it.</p><div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose an app file">
 <div id="dropText"><strong>Drop an app file</strong> or click to choose one<br><small>.apk files only, read safely and never opened</small></div>
@@ -167,21 +280,17 @@ input.lnk:focus{border-color:var(--accent2);box-shadow:0 0 0 4px #2d5bb01f;outli
 <input type="file" id="file" accept=".apk" hidden></div><div class="scanner" id="scanner" hidden><video id="cam" playsinline muted></video><div class="frame"></div><p id="scanMsg">Point the camera at the QR code</p><button id="stopCam" type="button">Close camera</button></div>
 <div class="row"><button class="go" id="go"><span id="goLabel">Check this</span></button><button class="ghost" id="clear" type="button">Clear</button></div>
 <div class="err" id="err" role="alert"></div>
-</section>
-<section class="panel" id="out" aria-live="polite"></section>
-</main>
-</div>
-<section class="how" id="how"><div class="wrap">
-<h2 class="serif">How Sentra decides</h2>
-<p>Scam checkers usually look at one thing. Scams use several at once, so Sentra connects them before it gives a verdict.</p>
-<ol class="steps">
+</section><section class="panel" id="out" aria-live="polite"></section></div><div class="looks"><h2 class="serif" id="lkTitle">What Sentra looks for</h2><div class="lkgrid" id="lkList"></div></div></section>
+<section class="view" id="v-history"><h1 class="vh serif">History</h1><p class="vs">Your recent checks, saved only in this browser. Only the result is kept, never the text you checked.</p><div id="hlist"></div><button class="ghost" id="hclear" type="button" style="padding:10px 18px;margin-top:6px">Clear history</button></section>
+<section class="view" id="v-how"><h1 class="vh serif">How Sentra decides</h1><p class="vs">Scam checkers usually look at one thing. Scams use several at once, so Sentra connects them before it gives a verdict.</p><ol class="steps">
 <li><span>1</span><b>Read</b><p>Separate readers study the message, every link, any payment QR address, and the app file. Nothing is opened or run.</p></li>
 <li><span>2</span><b>Weigh</b><p>Each warning sign gets a weight, based on how strongly it shows up and how reliable that sign usually is.</p></li>
 <li><span>3</span><b>Connect</b><p>Scams follow scripts. When signs line up, such as posing as a bank, adding pressure, then asking for a code, confidence rises.</p></li>
 <li><span>4</span><b>Explain</b><p>You get a risk level, the exact evidence, and how the scam would play out. Sentra never says something is safe.</p></li>
 </ol>
-</div></section>
-<footer><div class="wrap">Sentra gives guidance based on warning signs. It cannot guarantee that anything is safe. When in doubt, contact the sender through an official number you already trust.</div></footer>
+<div class="panel limits"><h2>What Sentra cannot do</h2><ul><li>It never says something is safe. The lowest level is "Low signals".</li><li>A name inside a payment QR is typed by whoever made it. Only your UPI app can show the account's registered name.</li><li>It reads patterns, so a brand-new scam can slip through. Treat it as a second opinion, not a guarantee.</li></ul></div></section>
+</main></div>
+<nav class="dock" id="dock" aria-label="Quick actions"><button type="button" data-d="paste"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="12" height="16" rx="2"/><path d="M9 5V4h6v1M9 11h6M9 15h4"/></svg><span>Paste</span></button><button type="button" data-d="upload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg><span>Upload</span></button><button type="button" data-d="scan" class="fab" aria-label="Scan a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg></button><button type="button" data-d="demo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg><span>Demo</span></button><button type="button" data-d="report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg><span>Report</span></button></nav><input type="file" id="anyFile" accept=".apk,image/*" hidden><div class="toast" id="toast" role="status"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
 <script>window.jsQR||document.write('<script src="/jsQR.js"><\/script>')</script>
 <script>
@@ -200,7 +309,7 @@ const LVL={"Low signals":["--low","No strong warning signs found. That is not a 
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const ARROW='<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h12M10.500 4.500L15 9l-4.500 4.500"/></svg>';
 let file=null,last=null;
-function idle(){const o=$("out");o.style.removeProperty("--lvl");o.replaceChildren();const e=el("div","empty");e.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l12 5v9c0 7-5.500 11.500-12 14C9.500 27.500 4 23 4 16V7z" fill="#1d3a6e"/><path d="M9 11l7 6M23 11l-7 6M16 24v-7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg><br>Your result will appear here.<br>Try one of the examples to see how it works.';o.append(e)}
+function idle(){const o=$("out");o.style.removeProperty("--lvl");o.replaceChildren();const e=el("div","pv");e.innerHTML='<svg viewBox="0 0 240 140" aria-hidden="true"><path class="track" d="M20 120A100 100 0 0 1 220 120" pathLength="100"/></svg><div class="pvt serif">Ready when you are</div><p>Paste a message, add a link, scan a QR or drop an app. Sentra will explain every warning sign it finds.</p><div class="pvl"><i style="width:82%"></i><i style="width:64%"></i><i style="width:74%"></i></div>';o.append(e)}
 function goLabel(busy){const b=$("go");b.disabled=busy;b.replaceChildren();if(busy){b.append(el("span","spin"),document.createTextNode("Checking everything together"))}else{b.append(document.createTextNode("Check this"));const s=el("span");s.innerHTML=ARROW;b.append(s.firstChild)}}
 for(const k in SAMPLES){const b=el("button","chip",k);b.type="button";b.onclick=()=>{$("text").value=SAMPLES[k];$("text").focus();refreshBadges()};$("samples").append(b)}
 const drop=$("drop"),inp=$("file");
@@ -214,8 +323,8 @@ drop.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)setFile(f)
 $("clear").onclick=()=>{$("linkIn").value="";qrPayload="";showQR();refreshBadges();$("text").value="";inp.value="";setFile(null);$("err").textContent="";last=null;idle()};
 $("go").onclick=async()=>{
 const text=compose();$("err").textContent="";
-if(!text&&!file){$("err").textContent="Paste a message or link, or add an app file first.";return}
-const fd=new FormData();fd.append("text",text);if(file)fd.append("apk",file);
+const useFile=(MODE==="app"||MODE==="full")?file:null;if(!text&&!useFile){$("err").textContent=EMPTY[MODE];return}
+const fd=new FormData();fd.append("text",text);if(useFile)fd.append("apk",useFile);
 goLabel(true);const o=$("out");o.style.removeProperty("--lvl");o.replaceChildren(el("div","empty pulse","Reading the message, links and app together…"));
 try{const r=await fetch("/api/scan",{method:"POST",body:fd});if(!r.ok)throw 0;const d=await r.json();last=d;render(d)}
 catch(e){idle();$("err").textContent="Sentra could not complete that check. Make sure the server is running, then try again."}
@@ -224,7 +333,7 @@ function report(d){const L=["Sentra result: "+d.level+" (risk "+Math.round(d.ris
 if(d.chain)L.push("Pattern: "+(CHAIN[d.chain]||d.chain));
 (d.signals||[]).filter(s=>s.category!=="dampener").forEach(s=>L.push("- "+s.reason+(s.evidence?" ["+s.evidence+"]":"")));
 L.push(d.disclaimer||"");return L.join("\n")}
-function render(d){
+function render(d){try{saveHistory(d)}catch(e){}
 const [cv,say]=LVL[d.level]||LVL["Low signals"];
 const out=$("out");out.classList.remove("show");out.replaceChildren();out.style.setProperty("--lvl","var("+cv+")");
 const g=el("div","gauge");
@@ -275,7 +384,7 @@ if(v.readyState===v.HAVE_ENOUGH_DATA){cv.width=v.videoWidth;cv.height=v.videoHei
 const im=cx.getImageData(0,0,cv.width,cv.height),c=jsQR(im.data,im.width,im.height);
 if(c&&c.data){stopCam();gotQR(c.data);return}}
 raf=requestAnimationFrame(scanLoop)}
-function gotQR(data){qrPayload=data;showQR();refreshBadges();pick(2);$("go").click()}
+function gotQR(data){qrPayload=data;showQR();refreshBadges();navTo("qr");$("go").click()}
 function readPhoto(f){const img=new Image();img.onload=()=>{cv.width=img.width;cv.height=img.height;cx.drawImage(img,0,0);
 const im=cx.getImageData(0,0,cv.width,cv.height),c=window.jsQR&&jsQR(im.data,im.width,im.height);URL.revokeObjectURL(img.src);
 c?gotQR(c.data):$("err").textContent="No QR code found in that photo. Try a clearer, closer picture."};img.src=URL.createObjectURL(f)}
@@ -283,9 +392,9 @@ $("camBtn").onclick=startCam;$("stopCam").onclick=stopCam;
 $("qrPhoto").onchange=e=>{const f=e.target.files[0];if(f)readPhoto(f);e.target.value=""};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")stopCam()});
 const TABS=[...document.querySelectorAll(".tab")],PANES=[...document.querySelectorAll(".pane")];
-function pick(i){TABS.forEach((t,n)=>{t.classList.toggle("on",n===i);t.setAttribute("aria-selected",n===i)});PANES.forEach((p,n)=>p.classList.toggle("on",n===i));$("pill").style.transform="translateX("+(i*100)+"%)"}
+function pick(i){TABS.forEach((t,n)=>{t.classList.toggle("on",n===i);t.setAttribute("aria-selected",n===i)});PANES.forEach((p,n)=>p.classList.toggle("on",n===i));$("pill").style.transform="translateX("+(i*100)+"%)";typeof syncDock==="function"&&syncDock()}
 TABS.forEach((t,i)=>t.onclick=()=>pick(i));
-function compose(){return [$("text").value.trim(),$("linkIn").value.trim(),qrPayload].filter(Boolean).join("\n")}
+function compose(){const m=$("text").value.trim(),l=$("linkIn").value.trim();const o={message:[m],link:[l],qr:[qrPayload],app:[],full:[m,l,qrPayload]}[MODE]||[];return o.filter(Boolean).join("\n")}
 function refreshBadges(){const has=[$("text").value.trim(),$("linkIn").value.trim(),qrPayload,file];TABS.forEach((t,i)=>t.querySelector(".dot").hidden=!has[i])}
 function showQR(){const b=$("qrBox");b.hidden=!qrPayload;b.replaceChildren();if(qrPayload){b.append(el("span",null,"QR read: "+qrPayload.slice(0,120)));const x=el("button",null,"Remove");x.type="button";x.onclick=()=>{qrPayload="";showQR();refreshBadges()};b.append(x)}}
 ["text","linkIn"].forEach(id=>$(id).addEventListener("input",refreshBadges));
@@ -293,7 +402,79 @@ const LS={"Lookalike bank":"http://sbi-kyc-update.xyz/login","Shortened link":"b
 for(const k in LS){const b=el("button","chip",k);b.type="button";b.onclick=()=>{$("linkIn").value=LS[k];refreshBadges()};$("lsamples").append(b)}
 const QS={"Fake refund QR":"upi://pay?pa=9876543210@ybl&pn=Amazon%20Refund%20Desk&am=4999","Shop QR":"upi://pay?pa=freshmart@okaxis&pn=Fresh%20Mart&am=250"};
 for(const k in QS){const b=el("button","chip",k);b.type="button";b.onclick=()=>gotQR(QS[k]);$("qsamples").append(b)}
+const st=document.querySelector(".steps");
+if("IntersectionObserver" in window){new IntersectionObserver((e,o)=>{if(e[0].isIntersecting){st.classList.add("in");o.disconnect()}},{threshold:.2}).observe(st)}else st.classList.add("in");
 goLabel(false);idle();
+</script>
+<script>
+const VIEWS=["home","message","link","qr","app","full","history","how"];
+let ROUTE="",MODE="message";
+const CHK={
+message:{t:"Check a message",s:"Paste the text exactly as it arrived: SMS, WhatsApp or email.",i:0,l:["Pressure and deadlines meant to stop you thinking","Requests for an OTP, PIN or password","Pretending to be a bank, courier or agency","Threats such as blocked accounts or legal action"]},
+link:{t:"Check a link",s:"Paste it without opening it. Sentra reads the address and never visits it.",i:1,l:["Lookalike brand names and tricks in the domain","Shortened links that hide the real destination","Fake login pages on unofficial sites","Links that download an app directly"]},
+qr:{t:"Check a QR code",s:"Scan with the camera or upload a photo to see who it would pay.",i:2,l:["Whether the code sends or receives money","The payee name and UPI ID stored in the code","Business-sounding names on personal accounts","Links hidden inside the code"]},
+app:{t:"Check an app file",s:"Drop an Android .apk. Sentra reads it and never runs it.",i:3,l:["Permissions that read your SMS or draw over other apps","Hidden icons and screen-control abuse","Names that imitate banks or agencies","Missing or invalid publisher signatures"]},
+full:{t:"Full check",s:"Add a message, a link, a QR and an app file together. Sentra connects them into one verdict, which is where it is strongest.",i:-1,l:["Signals that line up across different items","Known scam scripts completed step by step","A link that matches the brand an app claims to be","One combined risk level with the evidence"]}};
+const EMPTY={message:"Paste a message first.",link:"Paste a link first.",qr:"Scan or upload a QR code first.",app:"Choose an app file first.",full:"Add at least one thing to check."};
+function show(v){if(!VIEWS.includes(v))v="home";ROUTE=v;const c=CHK[v];
+document.querySelectorAll(".view").forEach(e=>e.classList.toggle("on",e.id===(c?"v-check":"v-"+v)));
+const on=document.querySelector(".view.on");on.style.animation="none";void on.offsetWidth;on.style.animation="";
+if(c){MODE=v;$("chkTitle").textContent=c.t;$("chkSub").textContent=c.s;
+PANES.forEach((p,n)=>p.classList.toggle("on",v==="full"||n===c.i));
+$("inPanel").classList.toggle("all",v==="full");$("inPanel").classList.toggle("single",v!=="full");
+$("lkTitle").textContent=v==="full"?"Why a full check is stronger":"What Sentra looks for in "+(v==="app"?"an app file":v==="qr"?"a QR code":"a "+v);
+const L=$("lkList");L.replaceChildren();c.l.forEach(t=>{const d=el("div","lk");d.append(document.createElement("i"),el("span",null,t));L.append(d)});
+$("err").textContent="";last=null;idle()}
+document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+closeMenu();window.scrollTo({top:0});if(v==="history")showHistory();syncDock()}
+function navTo(v){if(ROUTE!==v)show(v);if(location.hash.slice(1)!==v)location.hash=v}
+window.addEventListener("hashchange",()=>{const v=location.hash.slice(1);if(v!==ROUTE)show(v)});
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>navTo(b.dataset.v));
+document.querySelectorAll("[data-nav]").forEach(b=>b.onclick=()=>navTo(b.dataset.nav));
+document.querySelectorAll(".tile").forEach(b=>b.onclick=()=>{pick(+b.dataset.tab);navTo("check")});
+const HK="sentra_history_v1";
+function loadH(){try{return JSON.parse(localStorage.getItem(HK)||"[]")}catch(e){return[]}}
+function saveHistory(d){const m={message:["Message"],link:["Link"],qr:["QR"],app:["App file"]};let k=m[MODE];if(!k){k=[];if($("text").value.trim())k.push("Message");if($("linkIn").value.trim())k.push("Link");if(qrPayload)k.push("QR");if(file)k.push("App file")}
+const h=loadH();h.unshift({t:Date.now(),level:d.level,risk:d.risk,chain:d.chain,kinds:k});try{localStorage.setItem(HK,JSON.stringify(h.slice(0,20)))}catch(e){}}
+function showHistory(){const box=$("hlist");box.replaceChildren();const h=loadH();
+if(!h.length){box.append(el("p","note","No checks yet. Run one and it will appear here."));return}
+h.forEach(x=>{const r=el("div","hrow");r.style.setProperty("--lvl","var("+(LVL[x.level]?LVL[x.level][0]:"--mute")+")");
+r.append(el("span","badge",x.level),el("span","hk",(x.kinds||[]).join(" + ")||"Check"),el("span","hs",CHAIN[x.chain]||"No scam pattern matched"),el("span","ht",new Date(x.t).toLocaleString([],{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})));box.append(r)})}
+$("hclear").onclick=()=>{try{localStorage.removeItem(HK)}catch(e){}showHistory()};
+document.addEventListener("pointermove",e=>{const t=e.target.closest&&e.target.closest(".panel,.tile,.steps li");if(t){const r=t.getBoundingClientRect();t.style.setProperty("--mx",(e.clientX-r.left)+"px");t.style.setProperty("--my",(e.clientY-r.top)+"px")}});
+function syncDock(){}
+function closeMenu(){document.querySelector(".side").classList.remove("open");$("scrim").classList.remove("open")}
+$("menuBtn").onclick=()=>{document.querySelector(".side").classList.add("open");$("scrim").classList.add("open")};
+$("scrim").onclick=closeMenu;
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),2600)}
+function smartCheck(t){let r="message";
+if(/upi:\/\/pay\?/i.test(t))r="qr";else if(!/\s/.test(t)&&/^(https?:\/\/|www\.)|\.[a-z]{2,}(\/|$)/i.test(t))r="link";
+navTo(r);if(r==="qr"){qrPayload=t;showQR()}else if(r==="link")$("linkIn").value=t;else $("text").value=t;
+refreshBadges();toast("Checking it as "+({message:"a message",link:"a link",qr:"a payment QR"})[r]);$("go").click()}
+async function pasteCheck(){let t="";try{t=(await navigator.clipboard.readText()).trim()}catch(e){toast("Allow clipboard access, or paste on a check page.");return}
+if(!t){toast("Your clipboard is empty.");return}smartCheck(t)}
+$("anyFile").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+if(/\.apk$/i.test(f.name)){navTo("app");setFile(f);$("go").click()}else if((f.type||"").startsWith("image/")){navTo("qr");readPhoto(f)}else toast("Choose an .apk app file or a photo of a QR code.")};
+function runDemo(){navTo("message");$("text").value=SAMPLES["Fake bank KYC"];refreshBadges();$("go").click()}
+function copyReport(){if(!last){toast("Run a check first, then copy its report.");return}
+navigator.clipboard.writeText(report(last)).then(()=>toast("Report copied"),()=>toast("Copying is not allowed here"))}
+document.querySelectorAll("#dock button").forEach(b=>b.onclick=()=>{const d=b.dataset.d;
+if(d==="scan"){navTo("qr");startCam()}else if(d==="paste")pasteCheck();else if(d==="upload")$("anyFile").click();else if(d==="demo")runDemo();else copyReport()});
+const SC=[{t:"Fake bank verification",d:"Pressure, a lookalike link, then your OTP",s:["Message arrives claiming to be your bank","You trust it and tap the link","A fake page collects your card and OTP","Your account is drained"]},
+{t:"Delivery fee trap",d:"A small fee that opens the door to a bigger charge",s:["A message says your package is held","You pay a small fee through the link","Your card details are captured","A larger charge follows"]},
+{t:"Malicious app install",d:"A message pushes you to install a file",s:["A message pushes you to install a file","The app gets SMS and screen access","It reads your OTPs silently","Your banking app is controlled and emptied"]},
+{t:"Payment disguised as receiving money",d:"You scan to receive, but the QR sends",s:["You are told to scan a QR to receive money","The QR is actually a payment request","You approve under pressure","Money leaves your account"]}];
+let scT=[];
+function playScam(i){scT.forEach(clearTimeout);scT=[];const sc=SC[i];
+document.querySelectorAll(".scamBtn").forEach((b,n)=>b.classList.toggle("on",n===i));
+$("tlTitle").textContent=sc.t;const ol=$("tlSteps");ol.replaceChildren();const items=[];
+sc.s.forEach((t,n)=>{const li=el("li",n===sc.s.length-1?"end":"",t);ol.append(li);items.push(li);
+if(n===0){const c=el("li","catch","Sentra flags this pattern before you go any further");ol.append(c);items.push(c)}});
+const still=matchMedia("(prefers-reduced-motion:reduce)").matches;
+items.forEach((li,n)=>{if(still)li.classList.add("lit");else scT.push(setTimeout(()=>li.classList.add("lit"),350+n*650))})}
+const sl=$("scamlist");SC.forEach((x,i)=>{const b=el("button","scamBtn");b.type="button";b.append(el("b",null,x.t),el("span",null,x.d));b.onclick=()=>playScam(i);sl.append(b)});
+if("IntersectionObserver" in window){new IntersectionObserver((e,o)=>{if(e[0].isIntersecting){playScam(0);o.disconnect()}},{threshold:.3}).observe($("unfold"))}else playScam(0);
+show(location.hash.slice(1)||"home");
 </script>
 </body>
 </html>
