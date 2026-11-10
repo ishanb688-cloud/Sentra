@@ -36,6 +36,77 @@ CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.clou
        "frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
 
 
+
+class BodyLimitMiddleware:
+    """Buffer request bodies only up to MAX_BODY before parsing multipart data.
+
+    This catches chunked requests and misleading/missing Content-Length headers.
+    The bounded buffer is replayed to the application only after the full body
+    has been received within the configured limit.
+    """
+
+    def __init__(self, app, max_body):
+        self.app = app
+        self.max_body = max_body
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        headers = {k.lower(): v for k, v in scope.get("headers", [])}
+        raw_length = headers.get(b"content-length")
+        if raw_length:
+            try:
+                declared = int(raw_length)
+            except ValueError:
+                await self._reject(send, 400, "Invalid request.")
+                return
+            if declared < 0:
+                await self._reject(send, 400, "Invalid request.")
+                return
+            if declared > self.max_body:
+                await self._reject(send, 413, "That upload is too large.")
+                return
+
+        chunks = []
+        total = 0
+        while True:
+            message = await receive()
+            if message["type"] == "http.disconnect":
+                return
+            if message["type"] != "http.request":
+                continue
+            chunk = message.get("body", b"")
+            total += len(chunk)
+            if total > self.max_body:
+                await self._reject(send, 413, "That upload is too large.")
+                return
+            chunks.append(chunk)
+            if not message.get("more_body", False):
+                break
+
+        body = b"".join(chunks)
+        delivered = False
+
+        async def replay():
+            nonlocal delivered
+            if not delivered:
+                delivered = True
+                return {"type": "http.request", "body": body, "more_body": False}
+            return {"type": "http.disconnect"}
+
+        await self.app(scope, replay, send)
+
+    @staticmethod
+    async def _reject(send, status, message):
+        body = ('{"error":"' + message + '"}').encode("utf-8")
+        await send({"type": "http.response.start", "status": status,
+                    "headers": [(b"content-type", b"application/json"),
+                                (b"content-length", str(len(body)).encode("ascii"))]})
+        await send({"type": "http.response.body", "body": body})
+
+
 class RateLimiter:
     """Sliding-window limit per client address, kept in memory only."""
 
@@ -179,3 +250,7 @@ async def scan_case(text: str = Form(""), apk: UploadFile | None = File(None)):
 WEB = Path(__file__).parent / "web"
 if WEB.is_dir():
     app.mount("/", StaticFiles(directory=str(WEB), html=True), name="web")
+
+
+# Enforce the body cap before Starlette/FastAPI parses multipart uploads.
+app.add_middleware(BodyLimitMiddleware, max_body=MAX_BODY)
