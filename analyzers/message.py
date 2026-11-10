@@ -78,6 +78,10 @@ RULES = {
         (r"(?=.*\b(job|position|role|internship|recruitment|work from home|shortlisted|interview|employee id)\b)(?=.*\b(registration fee|joining fee|security deposit|processing fee|onboarding fee|refundable fee|employee id generation|pay.{0,35}(fee|deposit))\b).+", 1.0),
         (r"\bjoining (fee|kit|charges?)\b", 0.8),
     ],
+    "msg_job_fee": [
+        # A fee/deposit explicitly tied to recruitment is a high-confidence fraud indicator.
+        (r"(?=.*\b(job|position|role|internship|recruitment|work from home|shortlisted|interview|employee id)\b)(?=.*\b(registration fee|joining fee|security deposit|processing fee|onboarding fee|refundable fee|employee id generation|pay.{0,45}(fee|deposit))\b).+", 1.0),
+    ],
     "msg_family_impersonation": [
         (r"\bmy phone (broke|is broken|got (broken|damaged|lost))\b", 0.8),
         (r"\bthis is my new (phone )?number\b", 0.8),
