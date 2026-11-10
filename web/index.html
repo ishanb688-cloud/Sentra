@@ -579,8 +579,10 @@ function makeQRDetector(){try{return "BarcodeDetector" in window?new BarcodeDete
 async function decodeQRCanvas(){
 if(!cv.width||!cv.height)return "";
 if(!qrDetector)qrDetector=makeQRDetector();
+// Native decoding is fast on supported browsers. Fall back to jsQR once;
+// jsQR's attemptBoth mode already handles normal and inverted QR codes.
 if(qrDetector){try{const codes=await qrDetector.detect(cv);if(codes&&codes.length&&codes[0].rawValue)return codes[0].rawValue}catch(e){}}
-if(window.jsQR){try{const im=cx.getImageData(0,0,cv.width,cv.height);for(const inversionAttempts of ["attemptBoth","dontInvert","onlyInvert"]){const code=window.jsQR(im.data,im.width,im.height,{inversionAttempts});if(code&&code.data)return code.data}}catch(e){}}
+if(window.jsQR){try{const im=cx.getImageData(0,0,cv.width,cv.height);const code=window.jsQR(im.data,im.width,im.height,{inversionAttempts:"attemptBoth"});if(code&&code.data)return code.data}catch(e){}}
 return "";
 }
 async function startCam(){
@@ -598,13 +600,14 @@ async function toggleTorch(){const track=stream&&stream.getVideoTracks()[0];if(!
 async function scanLoop(){
 const v=$("cam");
 if(!stream)return;
-if(!qrFrameBusy&&performance.now()-lastScanAt>140&&v.readyState>=v.HAVE_CURRENT_DATA&&v.videoWidth&&v.videoHeight){
-lastScanAt=performance.now();
-qrFrameBusy=true;
+if(!qrFrameBusy&&performance.now()-lastScanAt>220&&v.readyState>=v.HAVE_CURRENT_DATA&&v.videoWidth&&v.videoHeight){
+lastScanAt=performance.now();qrFrameBusy=true;
 try{
-const w=v.videoWidth,h=v.videoHeight,scale=Math.min(1,1600/Math.max(w,h));
+const w=v.videoWidth,h=v.videoHeight,scale=Math.min(1,1280/Math.max(w,h));
 cv.width=Math.max(1,Math.round(w*scale));cv.height=Math.max(1,Math.round(h*scale));cx.drawImage(v,0,0,cv.width,cv.height);
-const data=await decodeQRCanvas();
+let data=await decodeQRCanvas();
+// If the QR is small in the camera frame, retry a centred crop enlarged.
+if(!data){const side=Math.min(w,h)*0.72,sx=(w-side)/2,sy=(h-side)/2;const target=Math.min(1400,Math.round(side*1.6));cv.width=target;cv.height=target;cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality="high";cx.drawImage(v,sx,sy,side,side,0,0,target,target);data=await decodeQRCanvas()}
 if(data){if(navigator.vibrate)navigator.vibrate(65);stopCam();gotQR(data);return}
 }catch(e){stopCam();$("err").textContent="The camera frame could not be processed. Try uploading a QR photo instead.";return}
 finally{qrFrameBusy=false}
@@ -629,20 +632,20 @@ if(!source)source=await new Promise((resolve,reject)=>{const img=new Image();img
 const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
 if(!width||!height)throw new Error("image");
 if(width*height>40000000){$("err").textContent="That image has too many pixels to scan safely. Resize it or take a smaller screenshot.";return}
-const maxSide=Math.max(width,height),base=Math.min(1,2000/maxSide);
-for(const scale of [base,base*.85,base*.7,base*.5]){
-cv.width=Math.max(1,Math.round(width*scale));cv.height=Math.max(1,Math.round(height*scale));
-cx.clearRect(0,0,cv.width,cv.height);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality="high";cx.drawImage(source,0,0,cv.width,cv.height);
-const decoded=await decodeQRCanvas();if(decoded){gotQR(decoded);return}
+const maxSide=Math.max(width,height),base=Math.min(1,1800/maxSide);
+const passes=[base,Math.min(2,base*1.5),Math.min(2.5,base*2)];
+const seen=new Set();
+async function tryRegion(sx,sy,sw,sh,scale){
+const outW=Math.max(1,Math.min(2200,Math.round(sw*scale))),outH=Math.max(1,Math.min(2200,Math.round(sh*scale)));
+const key=[sx,sy,sw,sh,outW,outH].join(":");if(seen.has(key))return "";seen.add(key);
+cv.width=outW;cv.height=outH;cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality="high";cx.clearRect(0,0,outW,outH);cx.drawImage(source,sx,sy,sw,sh,0,0,outW,outH);
+return await decodeQRCanvas();
 }
-// If the QR is small inside a large screenshot, retry each quadrant at a larger effective scale.
-for(const [sx,sy] of [[0,0],[width/2,0],[0,height/2],[width/2,height/2]]){
-const sw=Math.ceil(width/2),sh=Math.ceil(height/2);cv.width=Math.min(1400,sw);cv.height=Math.max(1,Math.round(sh*(cv.width/sw)));
-cx.clearRect(0,0,cv.width,cv.height);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality="high";cx.drawImage(source,sx,sy,sw,sh,0,0,cv.width,cv.height);
-const decoded=await decodeQRCanvas();if(decoded){gotQR(decoded);return}
-}
-if(!window.jsQR&&!qrDetector)$("err").textContent="The QR reader did not load. Refresh the page and try again.";
-else $("err").textContent="No QR code detected in this image. Try the original image (not a compressed chat preview), crop closer around the QR, or use the live scanner.";
+for(const scale of passes){const decoded=await tryRegion(0,0,width,height,scale);if(decoded){gotQR(decoded);return}}
+ // Scan overlapping regions so a small QR anywhere in a screenshot gets enough pixels.
+const regions=[[0,0,width,height],[0,0,width*.62,height*.62],[width*.38,0,width*.62,height*.62],[0,height*.38,width*.62,height*.62],[width*.38,height*.38,width*.62,height*.62]];
+for(const [sx,sy,sw,sh] of regions.slice(1)){const decoded=await tryRegion(sx,sy,sw,sh,Math.min(2.5,1800/Math.max(sw,sh)));if(decoded){gotQR(decoded);return}}
+$("err").textContent="No QR code detected. Try a clearer original photo with the full QR visible, good lighting and all four corners inside the image.";
 }catch(e){$("err").textContent="Sentra could not open that photo. Try a JPG or PNG image instead."}
 finally{if(source&&typeof source.close==="function")source.close();if(objectUrl)URL.revokeObjectURL(objectUrl)}
 }
