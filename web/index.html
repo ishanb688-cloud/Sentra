@@ -570,7 +570,7 @@ else if(/^BEGIN:VCARD/i.test(t)||/^MECARD:/i.test(t)){kind="Contact card";const 
 else if(/^mailto:/i.test(t)){kind="Email address";summary=t.slice(7)}
 else if(/^tel:/i.test(t)){kind="Phone number";summary=t.slice(4)}
 sec.append(el("span","qr-kicker",kind.toUpperCase()),el("div","qr-generic",summary));
-const raw=el("details","qr-raw");const sum=el("summary",null,"Show full QR data");raw.append(sum,el("pre",null,t));sec.append(raw);
+const raw=el("details","qr-raw");const sum=el("summary",null,"Show full QR data");const rawText=/^WIFI:/i.test(t)?t.replace(/P:[^;]*/i,"P:••••••"):t;raw.append(sum,el("pre",null,rawText));sec.append(raw);
 sec.append(el("p","note","QR contents are untrusted input. A decoded QR is not proof that a link, contact or payment request is legitimate."));
 return sec}
 let stream=null,raf=0,qrPayload="",qrDetector=null,qrFrameBusy=false,lastScanAt=0,torchOn=false;
