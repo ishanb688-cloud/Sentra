@@ -31,9 +31,9 @@ jobs:
           python tools/evaluate_uci_sms.py /tmp/uci-sms/SMSSpamCollection --json external_sms_results.json
           cat external_sms_results.json
           echo '## SENTRA external SMS evaluation results' >> "$GITHUB_STEP_SUMMARY"
-          echo '\`\`\`json' >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
           cat external_sms_results.json >> "$GITHUB_STEP_SUMMARY"
-          echo '\`\`\`' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
       - name: Upload external evaluation results
         uses: actions/upload-artifact@v4
         with:
