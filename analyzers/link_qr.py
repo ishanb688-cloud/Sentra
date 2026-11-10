@@ -30,6 +30,7 @@ HANDLES = {"ybl", "ibl", "axl", "okhdfcbank", "okicici", "okaxis", "oksbi", "pay
 
 # Large platforms whose domains merely contain a brand name; no lookalike signal, no trust bonus.
 NEUTRAL = {"amazonaws.com", "googleapis.com", "googleusercontent.com", "gstatic.com", "withgoogle.com"}
+GENERIC_BRAND_SUFFIXES = {"community", "fans", "fanclub", "news", "blog", "forum", "reviews", "review", "wiki", "docs", "documentation", "careers", "jobs"}
 LEET = str.maketrans({"0": "o", "1": "l", "3": "e", "4": "a", "5": "s", "$": "s", "@": "a"})
 CRED_PATH = re.compile(r"(login|log-in|signin|sign-in|verify|verification|kyc|otp|password|passcode|secure|auth|update|account|claim|redeem|unlock)", re.I)
 RECEIVE = re.compile(r"\b(receive|received|credited|refund|cashback|prize|reward|you have won|claim|collect)\b", re.I)
@@ -70,6 +71,9 @@ def brand_hits(tokens, joined=""):
                     kind = "embedded"
                 elif norm(t) == bt:
                     kind = "homoglyph"
+                elif (len(bt) >= 5 and t.startswith(bt) and len(t) > len(bt)
+                      and re.search(r"(bank|kyc|login|secure|verify|support|refund|account|update)", t[len(bt):])):
+                    kind = "brand_prefix"
                 elif len(bt) >= 5 and len(t) >= 5 and lev(t, bt) <= (1 if len(bt) < 8 else 2):
                     kind = "typo"
                 else:
@@ -86,10 +90,14 @@ def mentions(brand, ctx):
 
 def check_url(url, ctx, add):
     """Adds signals for one link. Returns (domain, https) if it is clean and official."""
-    raw = url if re.match(r"^[a-z]+://", url, re.I) else "http://" + url
+    scheme_match = re.match(r"^([a-z][a-z0-9+.-]*):", url, re.I)
+    if scheme_match and scheme_match.group(1).lower() not in ("http", "https"):
+        add("link_odd_host", 1.0, f"unsafe or unsupported URL scheme {scheme_match.group(1).lower()}")
+        return None
+    raw = url if re.match(r"^https?://", url, re.I) else "http://" + url
     try:
         p = urlparse(raw)
-        host = (p.hostname or "").lower()
+        host = unquote(p.hostname or "").lower()
         port = p.port
     except ValueError:
         add("link_odd_host", 0.6, "malformed address")
@@ -98,7 +106,7 @@ def check_url(url, ctx, add):
         return None
 
     https = raw.lower().startswith("https://")
-    path_q = (p.path or "") + "?" + (p.query or "")
+    path_q = unquote((p.path or "") + "?" + (p.query or ""))
     try:
         ipaddress.ip_address(host)
         is_ip = True
@@ -137,10 +145,14 @@ def check_url(url, ctx, add):
         for name, (kind, tok, prio, b) in brand_hits(tokens, joined).items():
             said = mentions(b, ctx)
             if kind == "embedded":
+                suffix = next((joined[len(bt):] for bt in b["tokens"] if joined.startswith(bt)), "")
+                generic_mention = suffix in GENERIC_BRAND_SUFFIXES and not said and not CRED_PATH.search(path_q)
+                if generic_mention:
+                    continue
                 add("link_lookalike_brand", 1.0 if said else 0.8,
                     f"{name} name inside unofficial domain {reg}")
             else:
-                add("link_lookalike_brand", 1.0 if said else 0.9, f"'{tok}' imitates {name}")
+                add("link_lookalike_brand", 1.0 if said else 0.9, f"'{tok}' imitates {name} on {reg}")
             brand_hit = True
         sub_tokens = [t for l in subs for t in re.split(r"[-_]", l)]
         for b in BRANDS:

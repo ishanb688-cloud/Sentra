@@ -6,7 +6,7 @@ TLDS = ("com|in|co\\.in|net|org|info|biz|xyz|top|click|work|buzz|icu|rest|cfd|sb
         "online|site|shop|live|link|app|store|tech|pro|vip|club|me|io|co|cc|ws|tk|ml|ga|cf|gq|"
         "one|page|today|fun|space|website|cloud|gov\\.in|nic\\.in|org\\.in|net\\.in|ac\\.in|edu\\.in|apk")
 
-SCHEME = re.compile(r"(?:https?|ftp)://[^\s<>\"']+", re.I)
+SCHEME = re.compile(r"(?:(?:https?|ftp)://|(?:javascript|data|file|intent):)[^\s<>\"']+", re.I)
 DOMAIN = re.compile(
     r"(?<![@\w./-])((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:" + TLDS + r"))(?![a-z0-9-])"
     r"(?::\d{2,5})?(?:[/?#][^\s<>\"']*)?", re.I)

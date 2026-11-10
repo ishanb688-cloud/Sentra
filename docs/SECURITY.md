@@ -13,19 +13,20 @@
 
 | Risk | Control |
 |---|---|
-| Oversized input | Text capped at 5,000 characters; uploads capped at 50 MB; requests declaring a huge body are refused with 413 before being read |
+| Oversized input | Text capped at 5,000 characters; APK files capped at 50 MB; a bounded ASGI body middleware rejects declared oversized requests and also counts streamed bytes before multipart parsing, returning 413 without passing an oversized body to FastAPI |
 | Fake or malicious app files | Must end in `.apk`, start with the zip signature, contain `AndroidManifest.xml`, have at most 20,000 entries, unpack to under 400 MB, and not show a decompression-bomb ratio |
 | Malformed addresses and QR payloads | Parsing is wrapped so bad URLs, bad ports, broken UPI strings, huge strings and control characters never crash a check (fuzz-style test) |
-| Abuse and flooding | In-memory sliding-window rate limit per client address on `/api/scan` (30 per minute by default, `SENTRA_RATE` to change), answered with 429 |
+| Abuse and flooding | Sliding-window rate limit on `/api/scan` (30 per minute by default, `SENTRA_RATE` to change). Optional Upstash Redis REST mode shares the limit across instances and restarts; backend failures fail closed with 503 |
 | Information leakage | Global handlers return one generic message for validation errors and crashes; no stack traces, paths or exception text reach the user (tested with a simulated crash) |
 | Leftover uploads | Temporary file removed even when reading fails (tested, including a simulated failure) |
-| Browser attacks | Content-Security-Policy (same-origin scripts plus the QR reader CDN fallback, no framing), `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`; the page builds results with `textContent`, so scanned text cannot inject markup |
+| Browser attacks | Content-Security-Policy (same-origin scripts only; QR decoder is served locally, no framing), `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`; the page builds results with `textContent`, so scanned text cannot inject markup |
 | Extra surface | Interactive API docs and the OpenAPI file are switched off in production |
 | Camera privacy | QR codes are decoded inside the browser; the picture is never uploaded |
 
 ## Residual risks (stated honestly)
-- The rate limiter is in memory and per server instance, so it resets on restart and is not shared across instances.
-  It trusts the `X-Forwarded-For` header, which is correct behind Render's proxy but spoofable elsewhere.
+- **Proxy-aware rate limiting requires deployment verification.** `X-Forwarded-For` is ignored unless the immediate peer belongs to a CIDR explicitly listed in `SENTRA_TRUSTED_PROXIES`. Verify the hosting proxy's actual addresses before configuring that allowlist; do not guess proxy ranges.
+- The ASGI middleware caps the total request payload at 51 MB before multipart parsing. A reverse-proxy/server-level request-size limit is still recommended as defense in depth, because network and protocol buffers exist before the ASGI application receives chunks.
+- Without shared-backend configuration, the rate limiter remains in memory and per server instance, so it resets on restart and is not shared across instances. To enable shared limits, configure both `UPSTASH_REDIS_REST_URL` (HTTPS REST endpoint) and `UPSTASH_REDIS_REST_TOKEN` in the deployment environment. Redis keys contain an HMAC digest of the client address, not the raw address. If only one setting is supplied, or the shared backend is unavailable, scan requests fail closed with 503 rather than silently bypassing the limit. Keep the token private.
 - App files are parsed by the Androguard library; a bug in a parser is always possible. Size and structure checks
   reduce the exposure and nothing is executed.
 - No authentication: Sentra is a public tool by design.

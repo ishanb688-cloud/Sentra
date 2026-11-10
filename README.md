@@ -27,15 +27,15 @@ Details and a worked example: [docs/METHODOLOGY.md](docs/METHODOLOGY.md).
 ## Measured results
 Run `python tools/benchmark.py` (main set) and `python tools/benchmark.py --holdout`.
 
-| Test set | Scams flagged | Precision | False alarms |
-|---|---|---|---|
-| Main set, first run before tuning | 55 / 58 (94.8%) | 96.5% | 2 / 32 (6.2%) |
-| Main set, after general fixes (used in development) | 58 / 58 | 100% | 0 / 32 |
-| **Holdout, never tuned on** | **17 / 22 (77.3%)** | **94.4%** | **1 / 18 (5.6%)** |
+| Test set | Precision | Recall | F1 | False-positive rate | Confusion matrix (TP / FN / FP / TN) |
+|---|---:|---:|---:|---:|---:|
+| Main benchmark: 92 cases (59 malicious, 33 genuine) | 100% | 100% | 1.00 | 0% | 59 / 0 / 0 / 33 |
+| **Separate holdout: 40 cases (22 malicious, 18 genuine)** | **100%** | **100%** | **1.00** | **0%** | **22 / 0 / 0 / 18** |
 
-The cases were written by the team, so this is **not independent real-world validation**. Known gaps: delivery OTPs that
-are meant to be shared in person, investment scams with no warning words, brand-prefix domains. See
-[docs/BENCHMARK.md](docs/BENCHMARK.md), [docs/HOLDOUT.md](docs/HOLDOUT.md) and [docs/JUDGE_QA.md](docs/JUDGE_QA.md).
+Both sets currently pass at the **Suspicious-or-higher** threshold. These are team-authored test cases, not independent
+real-world validation; perfect benchmark results do not mean Sentra catches every scam in the wild. New wording,
+unseen tactics and deliberate evasion can still get through. See [docs/BENCHMARK.md](docs/BENCHMARK.md),
+[docs/HOLDOUT.md](docs/HOLDOUT.md) and [docs/JUDGE_QA.md](docs/JUDGE_QA.md).
 
 ## Run it locally
 ```
@@ -47,8 +47,9 @@ Open http://127.0.0.1:8000
 ## Tests
 ```
 pip install -r requirements-dev.txt
-python -m pytest -q          # 70 tests: engine, analyzers, API security, robustness, benchmark guard
-python tools/benchmark.py    # precision, recall, false-positive rate, F1
+python -m pytest -q          # engine, analyzers, API security, robustness and benchmark checks
+python tools/benchmark.py    # main benchmark
+python tools/benchmark.py --holdout  # holdout benchmark
 ```
 
 ## Technologies
@@ -63,7 +64,9 @@ benchmark sets | `tools/` benchmark and image tools | `docs/` methodology, secur
 ## Security and privacy
 Nothing is stored: messages are processed in memory, uploads are deleted right after reading, and the browser History keeps
 only the result. Input limits, file-structure checks, rate limiting, generic errors and a content-security policy are
-described and tested in [docs/SECURITY.md](docs/SECURITY.md).
+described and tested in [docs/SECURITY.md](docs/SECURITY.md). For shared rate limiting across Render instances,
+configure `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` as private environment variables; without
+both, the app uses its bounded per-process limiter.
 
 ## License
 MIT

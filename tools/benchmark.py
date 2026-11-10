@@ -70,7 +70,12 @@ def report(res):
     L += ["| Cut-off | Precision | Recall | False-positive rate | F1 | TP | FN | FP | TN |", "|---|---|---|---|---|---|---|---|---|"]
     for cut, m in res["cutoffs"].items():
         L.append(f"| {cut} or above | {pct(m['precision'])} | {pct(m['recall'])} | {pct(m['fpr'])} | {m['f1']:.2f} | {m['tp']} | {m['fn']} | {m['fp']} | {m['tn']} |")
-    L += ["", "## By category (flagged at Suspicious or above)", "", "| Category | Cases | Malicious caught | Genuine wrongly flagged |", "|---|---|---|---|"]
+    L += ["", "## Confusion matrix (Suspicious or above)", "",
+          "| | Predicted scam | Predicted not flagged |", "|---|---:|---:|",
+          f"| Actual scam | {res['cutoffs']['Suspicious']['tp']} (TP) | {res['cutoffs']['Suspicious']['fn']} (FN) |",
+          f"| Actual genuine | {res['cutoffs']['Suspicious']['fp']} (FP) | {res['cutoffs']['Suspicious']['tn']} (TN) |",
+          "", "## By category (flagged at Suspicious or above)", "",
+          "| Category | Cases | Malicious caught | Genuine wrongly flagged |", "|---|---|---|---|"]
     for name, d in res["categories"].items():
         m = d["Suspicious"]
         mal, gen = m["tp"] + m["fn"], m["fp"] + m["tn"]

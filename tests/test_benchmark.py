@@ -20,9 +20,25 @@ def _run(holdout):
 
 def test_development_benchmark_has_no_false_alarms_and_high_recall():
     m = _run(False)
-    assert m["fp"] == 0 and m["recall"] >= 0.95
+    assert m["fp"] == 0 and m["recall"] == 1.0 and m["precision"] == 1.0
 
 
 def test_holdout_floor_so_regressions_are_noticed():
-    m = _run(True)
-    assert m["fpr"] <= 0.10 and m["recall"] >= 0.70 and m["precision"] >= 0.90
+    import importlib
+    import benchmark
+    argv = sys.argv[:]
+    sys.argv = ["benchmark", "--holdout"]
+    try:
+        importlib.reload(benchmark)
+        result = benchmark.run()
+    finally:
+        sys.argv = argv
+    m = result["cutoffs"]["Suspicious"]
+    false_alarms = [
+        (case["id"], case["input"], verdict[0], verdict[1], verdict[2], verdict[3])
+        for case, verdict in result["rows"]
+        if case["label"] == "genuine" and benchmark.ORDER.index(verdict[0]) >= benchmark.ORDER.index("Suspicious")
+    ]
+    assert (
+        m["fpr"] == 0.0 and m["recall"] == 1.0 and m["precision"] == 1.0
+    ), f"holdout metrics={m}; genuine false alarms={false_alarms}"

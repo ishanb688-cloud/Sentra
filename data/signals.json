@@ -246,9 +246,39 @@
   "reason": "Matches a genuine alert format with masked digits and no link."
  },
  {
+  "id": "msg_investment_lure",
+  "category": "financial_redirect",
+  "reliability": 0.85,
+  "reason": "Promises guaranteed or unusually high returns tied to an investment or crypto offer."
+ },
+ {
+  "id": "msg_card_charge_impersonation",
+  "category": "impersonation",
+  "reliability": 0.9,
+  "reason": "A fake transaction alert directs you to an unsolicited mobile number instead of an official dispute channel."
+ },
+ {
   "id": "msg_wrong_transfer",
   "category": "financial_redirect",
   "reliability": 0.8,
   "reason": "Claims money was sent to you by mistake and asks you to send it back."
+ },
+ {
+  "id": "msg_job_fee",
+  "category": "financial_redirect",
+  "reliability": 0.9,
+  "reason": "Requests an upfront registration, onboarding, or security fee as a condition of getting a job."
+ },
+ {
+  "id": "msg_task_scam",
+  "category": "financial_redirect",
+  "reliability": 0.9,
+  "reason": "Offers paid online tasks but asks you to recharge, deposit, or pay before tasks or withdrawals are unlocked."
+ },
+ {
+  "id": "msg_delivery_fee_scam",
+  "category": "financial_redirect",
+  "reliability": 0.75,
+  "reason": "A delivery or courier fee is demanded under pressure to release a parcel or correct delivery details."
  }
 ]

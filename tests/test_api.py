@@ -95,6 +95,70 @@ def test_oversized_upload_is_refused(monkeypatch):
     assert r.status_code == 200 and "larger than" in r.json()["notes"][0]
 
 
+
+def test_streamed_body_without_content_length_is_rejected_before_parsing():
+    import asyncio
+
+    async def scenario():
+        called = False
+        sent_messages = []
+        chunks = [b"a" * 8, b"b" * 8]
+
+        async def receive():
+            if chunks:
+                chunk = chunks.pop(0)
+                return {"type": "http.request", "body": chunk, "more_body": bool(chunks)}
+            return {"type": "http.disconnect"}
+
+        async def downstream(scope, receive, send):
+            nonlocal called
+            called = True
+
+        async def send(message):
+            sent_messages.append(message)
+
+        middleware = server.BodyLimitMiddleware(downstream, max_body=10)
+        scope = {"type": "http", "method": "POST", "path": "/api/scan", "headers": []}
+        await middleware(scope, receive, send)
+        assert not called, "oversized streamed body reached multipart parsing"
+        assert sent_messages[0]["status"] == 413
+        assert b"too large" in sent_messages[1]["body"]
+
+    asyncio.run(scenario())
+
+
+def test_streamed_body_within_limit_reaches_application():
+    import asyncio
+
+    async def scenario():
+        received = []
+        chunks = [b"hello", b"world"]
+
+        async def receive():
+            if chunks:
+                chunk = chunks.pop(0)
+                return {"type": "http.request", "body": chunk, "more_body": bool(chunks)}
+            return {"type": "http.disconnect"}
+
+        async def downstream(scope, receive, send):
+            while True:
+                message = await receive()
+                if message["type"] == "http.disconnect":
+                    break
+                received.append(message["body"])
+                if not message.get("more_body", False):
+                    break
+
+        async def send(message):
+            pass
+
+        middleware = server.BodyLimitMiddleware(downstream, max_body=10)
+        scope = {"type": "http", "method": "POST", "path": "/api/scan", "headers": []}
+        await middleware(scope, receive, send)
+        assert received == [b"hello", b"world"]
+
+    asyncio.run(scenario())
+
 def test_huge_declared_body_is_rejected_early():
     r = client.post("/api/scan", content=b"x", headers={"content-length": str(server.MAX_BODY + 10)})
     assert r.status_code == 413
@@ -135,6 +199,52 @@ def test_malformed_request_gets_a_generic_error():
     assert r.status_code in (400, 422) and "Traceback" not in r.text
 
 
+def test_forwarded_ip_is_ignored_from_untrusted_peer(monkeypatch):
+    import ipaddress
+    from starlette.requests import Request
+
+    monkeypatch.setattr(server, "TRUSTED_PROXY_NETWORKS", ())
+    request = Request({
+        "type": "http",
+        "headers": [(b"x-forwarded-for", b"203.0.113.99")],
+        "client": ("198.51.100.10", 1234),
+    })
+    assert server.client_ip(request) == "198.51.100.10"
+
+
+def test_forwarded_ip_chain_uses_nearest_untrusted_address(monkeypatch):
+    import ipaddress
+    from starlette.requests import Request
+
+    monkeypatch.setattr(server, "TRUSTED_PROXY_NETWORKS", (
+        ipaddress.ip_network("10.0.0.0/8"),
+    ))
+    request = Request({
+        "type": "http",
+        "headers": [(
+            b"x-forwarded-for",
+            b"198.51.100.99, 203.0.113.7, 10.0.0.1",
+        )],
+        "client": ("10.0.0.2", 1234),
+    })
+    assert server.client_ip(request) == "203.0.113.7"
+
+
+def test_malformed_forwarded_ip_falls_back_to_peer(monkeypatch):
+    import ipaddress
+    from starlette.requests import Request
+
+    monkeypatch.setattr(server, "TRUSTED_PROXY_NETWORKS", (
+        ipaddress.ip_network("10.0.0.0/8"),
+    ))
+    request = Request({
+        "type": "http",
+        "headers": [(b"x-forwarded-for", b"not-an-ip, 203.0.113.7")],
+        "client": ("10.0.0.2", 1234),
+    })
+    assert server.client_ip(request) == "10.0.0.2"
+
+
 def test_rate_limit_returns_429_then_recovers():
     server.LIMITER.limit = 3
     codes = [post("hi").status_code for _ in range(5)]
@@ -142,6 +252,22 @@ def test_rate_limit_returns_429_then_recovers():
     server.LIMITER.hits.clear()
     assert post("hi").status_code == 200
 
+
+def test_rate_limiter_prunes_expired_clients_when_key_limit_is_reached():
+    lim = server.RateLimiter(2, 60, max_clients=2)
+    assert lim.allow("old-a", 0)
+    assert lim.allow("old-b", 0)
+    assert lim.allow("new", 100)
+    assert list(lim.hits) == ["new"]
+
+
+def test_rate_limiter_bounds_unique_client_keys():
+    lim = server.RateLimiter(2, 60, max_clients=2)
+    assert lim.allow("a", 0)
+    assert lim.allow("b", 0)
+    assert lim.allow("c", 0)
+    assert len(lim.hits) == 2
+    assert "a" not in lim.hits
 
 def test_rate_limiter_window_expires():
     lim = server.RateLimiter(2, 60)
@@ -156,6 +282,24 @@ def test_security_headers_are_present():
     assert "frame-ancestors 'none'" in h["content-security-policy"]
 
 
+def test_csp_does_not_allow_external_script_hosts():
+    policy = client.get("/api/health").headers["content-security-policy"]
+    assert "script-src 'self' 'unsafe-inline'" in policy
+    assert "cdnjs.cloudflare.com" not in policy
+
+def test_hsts_is_only_sent_on_https_including_early_body_rejections():
+    secure = TestClient(server.app, base_url="https://testserver")
+    assert secure.get("/api/health").headers["strict-transport-security"] == "max-age=31536000"
+    assert "strict-transport-security" not in client.get("/api/health").headers
+    rejected = secure.post(
+        "/api/scan",
+        content=b"x",
+        headers={"content-length": str(server.MAX_BODY + 1)},
+    )
+    assert rejected.status_code == 413
+    assert rejected.headers["strict-transport-security"] == "max-age=31536000"
+
+
 def test_interactive_docs_are_switched_off():
     for path in ("/docs", "/redoc", "/openapi.json"):
         assert client.get(path).status_code == 404
@@ -164,3 +308,74 @@ def test_interactive_docs_are_switched_off():
 def test_messages_are_not_written_to_history_on_the_server():
     post("my secret message 98765")
     assert not any(hasattr(server, name) for name in ("HISTORY", "STORE", "DB"))
+
+
+def test_shared_rate_limiter_uses_atomic_redis_command_and_hides_client_ip(monkeypatch):
+    import json
+    from io import BytesIO
+
+    captured = {}
+
+    def fake_urlopen(request, timeout):
+        captured["url"] = request.full_url
+        captured["timeout"] = timeout
+        captured["headers"] = dict(request.header_items())
+        captured["command"] = json.loads(request.data.decode("utf-8"))
+        return BytesIO(b'{"result":1}')
+
+    monkeypatch.setattr(server.urllib.request, "urlopen", fake_urlopen)
+    limiter = server.RedisRateLimiter(
+        "https://redis.example.com", "test-secret-token", limit=3, window=60
+    )
+    assert limiter.allow("203.0.113.42") is True
+    assert captured["url"] == "https://redis.example.com"
+    assert captured["timeout"] <= 2
+    assert captured["headers"]["Authorization"] == "Bearer test-secret-token"
+    assert captured["command"][0:3] == ["EVAL", limiter.LUA, "1"]
+    assert "203.0.113.42" not in captured["command"][3]
+
+
+def test_shared_rate_limiter_rejects_non_https_url():
+    with pytest.raises(ValueError):
+        server.RedisRateLimiter("http://redis.example.com", "secret")
+
+
+def test_shared_rate_limiter_returns_429_when_shared_limit_is_reached(monkeypatch):
+    class DenyAll:
+        def allow(self, key):
+            return False
+
+    monkeypatch.setattr(server, "REDIS_CONFIG_ERROR", False)
+    monkeypatch.setattr(server, "REDIS_LIMITER", DenyAll())
+    response = post("please check this")
+    assert response.status_code == 429
+    assert response.headers["retry-after"] == "60"
+
+
+def test_shared_rate_limiter_failure_fails_closed_with_503(monkeypatch):
+    class Broken:
+        def allow(self, key):
+            raise OSError("private backend details")
+
+    monkeypatch.setattr(server, "REDIS_CONFIG_ERROR", False)
+    monkeypatch.setattr(server, "REDIS_LIMITER", Broken())
+    response = post("please check this")
+    assert response.status_code == 503
+    assert response.headers["retry-after"] == "10"
+    assert "private backend details" not in response.text
+
+
+def test_partial_shared_rate_limit_configuration_fails_closed(monkeypatch):
+    monkeypatch.setattr(server, "REDIS_CONFIG_ERROR", True)
+    monkeypatch.setattr(server, "REDIS_LIMITER", None)
+    response = post("please check this")
+    assert response.status_code == 503
+
+
+def test_reproducible_malformed_apk_demo_is_rejected_without_crashing():
+    from tools.make_demo_apk import build_demo_apk
+
+    r = post("", files={"apk": ("sentra-malformed-demo.apk", build_demo_apk(), "application/vnd.android.package-archive")})
+    assert r.status_code == 200
+    assert any("not an Android app file" in note for note in r.json()["notes"])
+    assert "Traceback" not in r.text and "/tmp" not in r.text

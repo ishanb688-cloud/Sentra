@@ -13,6 +13,19 @@
             v
      server.py  (POST /api/scan)  ->  web/index.html
 
+## Data flow
+
+```mermaid
+flowchart TD
+    A[Message / URL / QR / APK] --> B[Input validation and size limits]
+    B --> C[Static analyzers]
+    C --> D[Normalized signals with evidence]
+    D --> E[Signal merge and reliability weights]
+    E --> F[Risk score and scam-chain correlation]
+    F --> G[Verdict + evidence explanations]
+    G --> H[Web UI and API response]
+```
+
 ## Signal shape
 id, category, reliability (from the catalog), strength and evidence (from the
 analyzer), and a plain-language reason.

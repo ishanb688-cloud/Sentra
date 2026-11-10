@@ -17,12 +17,22 @@ DISPUTE_SAFE = re.compile(
 ACTION_WORDS = re.compile(
     r"\b(click|tap|call|install|download|share|send|pay|reply|update|verify|visit|open|enter)\b", re.I)
 MASKED_ACCOUNT = re.compile(r"(a/c|acct|account|card)[^.\n]{0,15}(x{2,}|\*{2,})\s?\d{3,4}", re.I)
+# Sharing a delivery OTP face-to-face at the doorstep is materially different from
+# asking someone to disclose a banking OTP over a call or message.
+IN_PERSON_DELIVERY_OTP = re.compile(
+    r"\b(share|give|tell|provide)\b[^.\n]{0,35}\b(delivery\s+)?otp\b"
+    r"[^.\n]{0,80}\b(with|to)\s+(the\s+)?(delivery\s+)?agent\b"
+    r"[^.\n]{0,45}\b(at your doorstep|when the agent arrives|in person)\b", re.I)
+INDIAN_CREDENTIAL_WARNING = re.compile(
+    r"\b(?:otp|pin|cvv|password|passcode)\b[^.\n]{0,45}\b(?:share|bataye|batana|bhejein|dena)\b[^.\n]{0,12}\b(?:mat|na|nahi)\b", re.I)
 SHORT = r"(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|goo\.gl|shorturl\.at|tiny\.cc|ow\.ly)/\S+"
 
 # signal id -> list of (pattern, strength). The strongest match wins.
 RULES = {
     "msg_otp_request": [
         (r"\b(share|send|tell|give|provide|forward|read out|enter|confirm)\b[^.\n]{0,25}\b(otp|pin|cvv|password|passcode)\b", 1.0),
+        (r"\b(otp|pin|cvv|password|passcode)\b[^.\n]{0,35}\b(batao|bataye|bataiye|bhejo|bhejiye|share karo|send karo|forward karo|darj karo|likho)\b", 1.0),
+        (r"\b(batao|bataye|bataiye|bhejo|bhejiye|darj karo)\b[^.\n]{0,25}\b(otp|pin|cvv|password|passcode)\b", 1.0),
     ],
     "msg_install_request": [
         (r"\b(install|download)\b[^.\n]{0,30}\b(app|apk|file|application)\b", 1.0),
@@ -35,16 +45,23 @@ RULES = {
     "msg_kyc_update": [
         (r"\bkyc\b[^.\n]{0,40}\b(update|expire|expired|pending|verify|incomplete)\b", 1.0),
         (r"\b(update|verify|complete)\b[^.\n]{0,20}\b(kyc|pan|aadhaar|aadhar)\b", 0.9),
+        (r"\b(kyc|aadhaar|aadhar|pan)\b[^.\n]{0,35}\b(update|verify|link|complete)\s+(karo|karein|karaye|karwao)\b", 1.0),
+        (r"\b(update|verify|link|complete)\s+(karo|karein|karaye|karwao)\b[^.\n]{0,25}\b(kyc|aadhaar|aadhar|pan)\b", 1.0),
     ],
     "msg_payment_demand": [
-        (r"\b(pay|deposit|transfer|send)\b[^.\n]{0,25}(₹|rs\.?|inr)\s?\d", 1.0),
+        # Allow natural wording between the payment verb and amount, e.g. "pay a refundable
+        # registration fee of ₹499", while requiring an explicit payment/fee context.
+        (r"\b(pay(?!\s+balance\b)|deposit|transfer|send)\b[^.\n]{0,90}(₹|rs\.?|inr)\s?\d", 1.0),
         (r"\b(pay|deposit|transfer|send)\s+(rs\.?\s?|inr\s?|₹\s?)?\d{3,}\b", 0.8),
         (r"\b(fee|charge|penalty|fine)\b[^.\n]{0,25}\b(pay|due|pending)\b", 0.7),
+        (r"(₹|rs\.?\s?|inr\s?)\d[\d,]*(?:\s?(?:rupaye|rupees))?[^.\n]{0,35}\b(jama|bhejo|bhejein|bharo|pay karo|deposit karo|transfer karo)\b", 1.0),
+        (r"\b(registration fee|joining fee|security deposit|processing fee|recharge)\b[^.\n]{0,35}\b(jama|bharo|karo|bhejo|bhejein)\b", 1.0),
     ],
     "msg_threat_block": [
         (r"\bwill be (blocked|suspended|deactivated|frozen|closed|cancelled|disconnected|terminated|cut|disabled|barred|locked)\b", 1.0),
         (r"\b(legal action|arrest|police case|fir)\b", 1.0),
         (r"\b(band|block|suspend)\s+ho\s+(jayega|jaega|jayegi|jaayega)\b", 1.0),
+        (r"\b(account|sim|connection)\b[^.\n]{0,30}\b(band|block|suspend)\s+(ho\s+)?(jayega|jaega|jayegi|jaayega)\b", 1.0),
         (r"\b(illegal activity|money laundering|digital arrest|case (has been )?(registered|filed) against you)\b", 1.0),
         (r"\baccount (is )?(blocked|suspended|frozen)\b", 0.6),
     ],
@@ -52,7 +69,8 @@ RULES = {
         (r"\b(calling from|i am from|bank officer|customer care executive)\b", 1.0),
         (r"\bdear (customer|user|sir|madam|account holder)\b", 0.5),
         (r"\b(rto|echallan|challan|parivahan)\b", 0.8),
-        (r"\b(package|parcel|courier)\b[^.\n]{0,20}\b(held|stuck|pending|undelivered|returned)\b", 0.8),
+        (r"\b(package|parcel|courier|delivery|order)\b[^.\n]{0,55}\b(held|stuck|pending|undelivered|returned|failed|could not be delivered|delivery failed)\b", 0.8),
+        (r"\b(incorrect|incomplete|wrong) address\b|\baddress\b[^.\n]{0,20}\b(incorrect|incomplete|wrong)\b|\b(address details|delivery details)\b[^.\n]{0,35}\b(update|verify|confirm)\b", 0.7),
         (r"\b(sbi|hdfc|icici|axis|kotak|pnb|bank of baroda|rbi|paytm|phonepe|income tax|police|cbi|customs|trai|uidai|india post|bluedart|dtdc|delhivery)\b", 0.6),
     ],
     "msg_reward_lure": [
@@ -69,8 +87,33 @@ RULES = {
         (r"\b(return|send back|refund|give back)\b[^.\n]{0,50}\b(amount|money|payment)\b[^.\n]{0,40}\b(by mistake|wrongly)\b", 1.0),
     ],
     "msg_job_lure": [
-        (r"\b(you are|you have been) selected for\b[^.\n]{0,30}\b(job|position|role|internship)\b", 1.0),
+        # Require both a recruitment context and an upfront-fee/deposit request.
+        # Ordinary job adverts and interview invitations must not trigger this signal.
+        (r"(?=.*\b(job|position|role|internship|recruitment|work from home|shortlisted|interview|employee id)\b)(?=.*\b(registration fee|joining fee|security deposit|processing fee|onboarding fee|refundable fee|employee id generation|pay.{0,35}(fee|deposit))\b).+", 1.0),
         (r"\bjoining (fee|kit|charges?)\b", 0.8),
+    ],
+    "msg_job_fee": [
+        # A fee/deposit explicitly tied to recruitment is a high-confidence fraud indicator.
+        (r"(?=.*\b(job|position|role|internship|recruitment|work from home|shortlisted|interview|employee id)\b)(?=.*\b(registration fee|joining fee|security deposit|processing fee|onboarding fee|refundable fee|employee id generation|pay.{0,45}(fee|deposit))\b).+", 1.0),
+    ],
+    "msg_task_scam": [
+        # Task scams ask victims to recharge, deposit, or pay to unlock higher-value tasks or withdrawals.
+        (r"(?=.*\b(task|tasks|like videos|rate products|review products|telegram group)\b)(?=.*\b(recharge|top.?up|deposit|unlock (?:your )?withdrawals?|withdrawal fee|prepaid task|advance payment)\b).+", 1.0),
+        (r"(?=.*\b(task|tasks|telegram group|video like|product review|rating)\b)(?=.*\b(recharge|top.?up|paise jama|paisa jama|deposit|withdrawal unlock|withdrawal kholne)\b).+", 1.0),
+    ],
+    "msg_investment_lure": [
+        # Require both an investment/trading context and an implausible return promise.
+        (r"(?=.*\b(invest|investment|crypto|trading plan|stock tips?|forex|mutual fund|trading account)\b)(?=.*\b(guaranteed|assured|fixed|risk[- ]free|no[- ]risk)\s+(daily |weekly |monthly )?returns?\b).+", 1.0),
+        (r"(?=.*\b(invest|investment|crypto|trading plan|stock tips?|forex|trading account)\b)(?=.*\b(double|triple)\s+(your\s+)?money\b).+", 1.0),
+        (r"(?=[\s\S]*\b(invest|investment|crypto|trading plan|stock tips?|forex|mutual fund|trading account)\b)(?=[\s\S]*\b(earn|profit|return)\b)(?=[\s\S]*\b(\d{1,3}%\s*profit\s*(per|a)\s*(day|week|month)|daily profit|weekly profit|profit of \d{1,3}%)\b)[\s\S]+", 0.9),
+    ],
+    "msg_delivery_fee_scam": [
+        # Delivery context plus demanded fee and a pressure/link cue; ordinary updates stay lower risk.
+        (r"(?=.*\b(parcel|package|delivery|courier|redelivery|customs)\b)(?=.*\b(delivery fee|redelivery fee|release fee|customs fee|handling fee|re-delivery charges?)\b)(?=.*\b(pay|payment|deposit|click|link|within|immediately|urgent)\b).+", 0.9),
+    ],
+    "msg_card_charge_impersonation": [
+        # Banks use published toll-free numbers for disputes; unsolicited mobile helplines are suspicious.
+        (r"\b(credit card|debit card|card|account)\b[^\n]{0,65}\b(charged|debited|transaction|purchase)\b[^\n]{0,100}\b(if not (you|authori[sz]ed)|not you)\b[^\n]{0,55}\b(call|contact)\b[^\n]{0,35}\b[6-9]\d{9}\b", 1.0),
     ],
     "msg_family_impersonation": [
         (r"\bmy phone (broke|is broken|got (broken|damaged|lost))\b", 0.8),
@@ -83,7 +126,7 @@ COMPILED = {sid: [(re.compile(p, re.I), s) for p, s in rules] for sid, rules in 
 
 def analyze(text):
     text = text or ""
-    clean = DISPUTE_SAFE.sub(" ", WARNING.sub(" ", text))
+    clean = INDIAN_CREDENTIAL_WARNING.sub(" ", IN_PERSON_DELIVERY_OTP.sub(" ", DISPUTE_SAFE.sub(" ", WARNING.sub(" ", text))))
     signals = []
     for sid, rules in COMPILED.items():
         best = None

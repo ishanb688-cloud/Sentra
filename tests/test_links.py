@@ -56,3 +56,45 @@ def test_refund_named_payee_is_flagged_even_without_a_message():
 
 def test_ordinary_names_are_not_mistaken_for_refund_names():
     assert "qr_pay_not_receive" not in ids("upi://pay?pa=anil.sharma@ybl&pn=Anil%20Sharma&tn=Rent")
+
+
+def test_paytm_brand_prefix_kyc_domain_is_flagged():
+    assert "link_lookalike_brand" in ids("https://paytmbank-kyc.in/upload")
+
+
+
+def test_misleading_paytm_bank_kyc_domain_is_flagged_with_evidence():
+    signals = analyze("https://paytmbank-kyc.in/login")
+    hit = next(s for s in signals if s["id"] == "link_lookalike_brand")
+    assert "Paytm" in hit["evidence"] and "paytmbank-kyc.in" in hit["evidence"]
+
+
+def test_legitimate_domain_containing_brand_as_unrelated_text_is_not_flagged():
+    assert "link_lookalike_brand" not in ids("https://paytm-community.example") 
+
+
+def test_misleading_subdomain_does_not_hide_real_domain():
+    found = ids("https://paytm.com.attacker.example/login")
+    assert "link_brand_in_subdomain" in found or "link_lookalike_brand" in found
+
+
+def test_encoded_brand_host_is_decoded_before_brand_check():
+    assert "link_lookalike_brand" in ids("https://%70aytmbank-kyc.in/login")
+
+
+def test_encoded_credential_path_is_decoded_before_check():
+    assert "link_credential_form" in ids("https://example.net/%6cogin")
+
+
+def test_raw_ip_url_is_flagged():
+    assert "link_odd_host" in ids("http://192.0.2.45/login")
+
+
+def test_shortened_url_is_flagged():
+    assert "link_shortener" in ids("https://bit.ly/abc123")
+
+
+def test_unsafe_schemes_are_flagged_not_silently_ignored():
+    assert "link_odd_host" in ids("javascript:alert(1)")
+    assert "link_odd_host" in ids("file:///etc/passwd")
+    assert "link_odd_host" in ids("data:text/html,<script>alert(1)</script>")

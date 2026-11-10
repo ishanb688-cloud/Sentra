@@ -40,6 +40,9 @@
    "The QR is actually a payment request",
    "You approve under pressure",
    "Money leaves your account"
+  ],
+  "with_signals": [
+   "qr_pay_not_receive"
   ]
  },
  {
@@ -101,6 +104,39 @@
    "They pressure you to return it quickly",
    "You send real money from your own account",
    "Their payment is reversed or never existed, and your money is gone"
+  ]
+ },
+ {
+  "id": "job_recruitment_fee",
+  "need": [
+   "impersonation",
+   "financial_redirect"
+  ],
+  "with_signals": [
+   "msg_job_fee"
+  ],
+  "bonus": 0.35,
+  "replay": [
+   "A message claims you have been shortlisted or selected for a job",
+   "It asks for a registration, onboarding, or security deposit",
+   "The fee is paid to an unverified recruiter",
+   "The promised job or interview does not materialise"
+  ]
+ },
+ {
+  "id": "task_recharge",
+  "need": [
+   "financial_redirect"
+  ],
+  "with_signals": [
+   "msg_task_scam"
+  ],
+  "bonus": 0.2,
+  "replay": [
+   "A message offers easy money for likes, ratings, or simple online tasks",
+   "The first small task may appear to pay",
+   "You are asked to recharge or deposit money to unlock higher-value tasks or withdrawals",
+   "The platform blocks withdrawals or demands more deposits"
   ]
  }
 ]
