@@ -236,6 +236,12 @@ def test_security_headers_are_present():
     assert "frame-ancestors 'none'" in h["content-security-policy"]
 
 
+def test_csp_does_not_allow_external_script_hosts():
+    policy = client.get("/api/health").headers["content-security-policy"]
+    assert "script-src 'self' 'unsafe-inline'" in policy
+    assert "cdnjs.cloudflare.com" not in policy
+
+
 def test_interactive_docs_are_switched_off():
     for path in ("/docs", "/redoc", "/openapi.json"):
         assert client.get(path).status_code == 404
