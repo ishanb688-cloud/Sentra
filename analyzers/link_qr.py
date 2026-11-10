@@ -147,7 +147,7 @@ def check_url(url, ctx, add):
                 add("link_lookalike_brand", 1.0 if said else 0.8,
                     f"{name} name inside unofficial domain {reg}")
             else:
-                add("link_lookalike_brand", 1.0 if said else 0.9, f"'{tok}' imitates {name}")
+                add("link_lookalike_brand", 1.0 if said else 0.9, f"'{tok}' imitates {name} on {reg}")
             brand_hit = True
         sub_tokens = [t for l in subs for t in re.split(r"[-_]", l)]
         for b in BRANDS:
