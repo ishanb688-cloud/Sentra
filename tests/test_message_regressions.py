@@ -71,3 +71,29 @@ def test_qr_replay_appears_when_qr_pay_not_receive_signal_exists():
         make("msg_deadline_pressure", 1.0, "within 6 hours"),
     ]
     assert fuse(signals)["chain"] == "qr_reverse"
+
+
+
+def test_investment_profit_promise_without_guaranteed_keyword_is_detected():
+    text = "Join our forex investment plan. Earn 30% profit per day with our trading account."
+    assert "msg_investment_lure" in signal_ids(text)
+
+
+def test_job_registration_fee_with_employee_id_language_is_detected():
+    text = "Your work from home position is confirmed. Pay Rs 299 for employee ID generation and onboarding."
+    ids = signal_ids(text)
+    assert "msg_job_fee" in ids
+
+
+def test_delivery_registration_fee_scam_is_detected():
+    text = "Your courier parcel is held. Pay delivery fee of Rs 49 immediately using this link to release it."
+    ids = signal_ids(text)
+    assert "msg_delivery_fee_scam" in ids
+    assert "msg_payment_demand" in ids
+
+
+def test_genuine_delivery_otp_at_doorstep_is_not_credential_theft():
+    text = "Your Flipkart order is out for delivery. Share the delivery OTP 4821 with the agent only at your doorstep."
+    ids = signal_ids(text)
+    assert "msg_otp_request" not in ids
+    assert "msg_delivery_fee_scam" not in ids
