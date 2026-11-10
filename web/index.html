@@ -556,6 +556,7 @@ let stream=null,raf=0,qrPayload="",qrDetector=null,qrFrameBusy=false;
 const cv=document.createElement("canvas"),cx=cv.getContext("2d",{willReadFrequently:true});
 function makeQRDetector(){try{return "BarcodeDetector" in window?new BarcodeDetector({formats:["qr_code"]}):null}catch(e){return null}}
 async function decodeQRCanvas(){
+if(!qrDetector)qrDetector=makeQRDetector();
 if(qrDetector){try{const codes=await qrDetector.detect(cv);if(codes&&codes.length&&codes[0].rawValue)return codes[0].rawValue}catch(e){}}
 if(window.jsQR){try{const im=cx.getImageData(0,0,cv.width,cv.height),code=window.jsQR(im.data,im.width,im.height,{inversionAttempts:"attemptBoth"});if(code&&code.data)return code.data}catch(e){}}
 return "";
