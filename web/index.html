@@ -8,10 +8,12 @@
 <style>
 :root{--bg:#08080a;--side:#0c0c0f;--panel:#111114;--field:#0b0b0d;--ink:#f3efe6;--mute:#a39e92;--line:#26262c;--accent:var(--g-mid);--accent2:var(--g-mid);--low:#3ccf9b;--sus:#f2b84b;--high:#f2784b;--crit:#ff4d6d;--lvl:#2c3d5f;--r:18px}
 *{box-sizing:border-box}html{scroll-behavior:smooth;color-scheme:dark}
-button,a,label,[role="button"],.drop{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-button:focus:not(:focus-visible),a:focus:not(:focus-visible),label:focus:not(:focus-visible),[role="button"]:focus:not(:focus-visible){outline:none;box-shadow:none}
-button{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .2s ease}
-button:active{transform:scale(.985)}
+button,a,label,[role="button"],.drop{-webkit-tap-highlight-color:transparent!important;touch-action:manipulation}
+button:focus,a:focus,label:focus,[role="button"]:focus,.drop:focus{outline:none!important;box-shadow:none!important}
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible,.drop:focus-visible{outline:2px solid rgba(var(--accrgb),.5);outline-offset:3px}
+button{transition:background-color .24s ease,border-color .24s ease,color .24s ease,box-shadow .24s ease,transform .24s cubic-bezier(.2,.8,.2,1)}
+button:active{transform:scale(.99)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
 .serif{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif}
 .app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
@@ -24,7 +26,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",sy
 .nav button.on{background:linear-gradient(90deg,#27447f,#1a2d54);color:#fff;box-shadow:inset 3px 0 0 var(--accent)}
 .sidenote{margin:auto 8px 0;font-size:12px;color:#7d786d}
 .stage{padding:40px clamp(18px,4vw,56px) 64px;max-width:1240px;width:100%}
-.view{display:none}.view.on{display:block;animation:viewIn .5s cubic-bezier(.2,.8,.2,1)}
+.view{display:none}.view.on{display:block;animation:viewIn .32s ease-out both}
 @keyframes viewIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .vh{font-size:32px;margin:0 0 6px;letter-spacing:-.5px}.vs{color:var(--mute);margin:0 0 24px;max-width:60ch}
 .heroH{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:28px;align-items:center;padding:12px 0 36px;position:relative}
@@ -56,7 +58,7 @@ h2{font-size:19px;margin:0 0 12px}
 .tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tab.on{color:#fff;font-weight:600}
 .dot{position:absolute;top:7px;right:calc(50% - 20px);width:8px;height:8px;border-radius:50%;background:var(--low)}
-.pane{display:none}.pane.on{display:block;animation:viewIn .4s cubic-bezier(.2,.8,.2,1)}
+.pane{display:none}.pane.on{display:block;animation:viewIn .28s ease-out both}
 .pane h3{margin:0 0 4px;font-size:17px}.pane>p{margin:0 0 12px;color:var(--mute);font-size:14px}
 textarea,input.lnk{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px 12px;font:inherit;color:var(--ink);background:var(--field);transition:border .2s,box-shadow .2s}
 textarea{min-height:170px;resize:vertical}
@@ -405,7 +407,7 @@ html[data-theme="violet"]{--accrgb:155,123,255;--g-light:#ece5ff;--g-mid:#9b7bff
 <div class="foot">Built for INNOVEX 2026, problem statement PS 05: AI-Powered Cybersecurity. Sentra is a rule-based explainable engine, not a trained model. It gives guidance based on warning signs and cannot guarantee that anything is safe.</div>
 </section>
 <section class="view" id="v-check"><h1 class="vh serif" id="chkTitle">Check something</h1><p class="vs" id="chkSub"></p>
-<div class="chk"><section class="panel single" id="inPanel" aria-label="What to check"><div class="tabs" role="tablist"><i class="pill" id="pill"></i><button type="button" role="tab" class="tab on" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Message<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg>Link<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg>QR and UPI<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>App file<b class="dot" hidden></b></button></div><div class="pane on"><h3>A message you received</h3><p>Paste the text exactly as it arrived: SMS, WhatsApp, email.</p><textarea id="text" placeholder="Paste the message here"></textarea><div class="label">Or try an example</div><div class="samples" id="samples"></div></div><div class="pane"><h3>A link you were sent</h3><p>Paste it without opening it. Sentra reads the address and never visits it.</p><input class="lnk" id="linkIn" type="text" placeholder="https://" autocomplete="off" spellcheck="false"><div class="label">Or try an example</div><div class="samples" id="lsamples"></div></div><div class="pane"><h3>A payment QR code</h3><p>Scan it or upload a photo. Sentra shows who it would pay and what it really does.</p><div class="qrrow"><button class="ghost2" id="camBtn" type="button">Scan a QR with the camera</button><label class="ghost2" for="qrPhoto">Upload a QR photo</label><input type="file" id="qrPhoto" accept="image/*" hidden></div>
+<div class="chk"><section class="panel single" id="inPanel" aria-label="What to check"><div class="tabs" role="tablist"><i class="pill" id="pill"></i><button type="button" role="tab" class="tab on" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Message<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg>Link<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg>QR and UPI<b class="dot" hidden></b></button><button type="button" role="tab" class="tab" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>App file<b class="dot" hidden></b></button></div><div class="pane on"><h3>A message you received</h3><p>Paste the text exactly as it arrived: SMS, WhatsApp, email.</p><textarea id="text" placeholder="Paste the message here"></textarea><div class="label">Or try an example</div><div class="samples" id="samples"></div></div><div class="pane"><h3>A link you were sent</h3><p>Paste it without opening it. Sentra reads the address and never visits it.</p><input class="lnk" id="linkIn" type="text" placeholder="https://" autocomplete="off" spellcheck="false"><div class="label">Or try an example</div><div class="samples" id="lsamples"></div></div><div class="pane"><h3>A payment QR code</h3><p>Scan it or upload a photo. Sentra shows who it would pay and what it really does.</p><div class="qrrow"><button class="ghost2" id="camBtn" type="button">Scan a QR with the camera</button><button class="ghost2" id="qrUploadBtn" type="button">Upload a QR photo</button><input type="file" id="qrPhoto" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" hidden></div>
 <p class="tiny">QR codes are read inside your browser. The picture is never uploaded.</p>
 <div class="qrbox" id="qrBox" hidden></div><div class="label">Or try an example</div><div class="samples" id="qsamples"></div></div><div class="pane"><h3>An Android app file</h3><p>Drop the .apk. Sentra reads its permissions and never runs it.</p><div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose an app file">
 <div id="dropText"><strong>Drop an app file</strong> or click to choose one<br><small>.apk files only, read safely and never opened</small></div>
@@ -525,6 +527,7 @@ const im=cx.getImageData(0,0,cv.width,cv.height),c=jsQR(im.data,im.width,im.heig
 if(c&&c.data){stopCam();gotQR(c.data);return}}
 raf=requestAnimationFrame(scanLoop)}
 function gotQR(data){qrPayload=data;showQR();refreshBadges();navTo("qr");$("go").click()}
+function openPicker(input){if(!input)return;try{if(typeof input.showPicker==="function")input.showPicker();else input.click()}catch(e){input.click()}}
 async function readPhoto(f){
 if(!f)return;
 $("err").textContent="";
@@ -552,7 +555,8 @@ else $("err").textContent="No QR code found. Use a clear, straight-on photo with
 finally{if(source&&typeof source.close==="function")source.close();if(objectUrl)URL.revokeObjectURL(objectUrl)}
 }
 $("camBtn").onclick=startCam;$("stopCam").onclick=stopCam;
-$("qrPhoto").onchange=e=>{const f=e.target.files[0];if(f)readPhoto(f);e.target.value=""};
+$("qrUploadBtn").onclick=()=>openPicker($("qrPhoto"));
+$("qrPhoto").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];if(f)readPhoto(f);e.target.value=""});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")stopCam()});
 const TABS=[...document.querySelectorAll(".tab")],PANES=[...document.querySelectorAll(".pane")];
 function pick(i){TABS.forEach((t,n)=>{t.classList.toggle("on",n===i);t.setAttribute("aria-selected",n===i)});PANES.forEach((p,n)=>p.classList.toggle("on",n===i));$("pill").style.transform="translateX("+(i*100)+"%)";typeof syncDock==="function"&&syncDock()}
@@ -616,13 +620,13 @@ navTo(r);if(r==="qr"){qrPayload=t;showQR()}else if(r==="link")$("linkIn").value=
 refreshBadges();toast("Checking it as "+({message:"a message",link:"a link",qr:"a payment QR"})[r]);$("go").click()}
 async function pasteCheck(){let t="";try{t=(await navigator.clipboard.readText()).trim()}catch(e){toast("Allow clipboard access, or paste on a check page.");return}
 if(!t){toast("Your clipboard is empty.");return}smartCheck(t)}
-$("anyFile").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
-if(/\.apk$/i.test(f.name)){navTo("app");setFile(f);$("go").click()}else if((f.type||"").startsWith("image/")||/\.(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(f.name||"")){navTo("qr");readPhoto(f)}else toast("Choose an .apk app file or a photo of a QR code.")};
+$("anyFile").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;
+if(/\.apk$/i.test(f.name)){navTo("app");setFile(f);$("go").click()}else if((f.type||"").startsWith("image/")||/\.(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(f.name||"")){navTo("qr");readPhoto(f)}else toast("Choose an .apk app file or a JPG, PNG or WebP QR photo.")});
 function runDemo(){navTo("message");$("text").value=SAMPLES["Fake bank KYC"];refreshBadges();$("go").click()}
 function copyReport(){if(!last){toast("Run a check first, then copy its report.");return}
 navigator.clipboard.writeText(report(last)).then(()=>toast("Report copied"),()=>toast("Copying is not allowed here"))}
 document.querySelectorAll("#dock button").forEach(b=>b.onclick=()=>{const d=b.dataset.d;
-if(d==="scan"){navTo("qr");startCam()}else if(d==="paste")pasteCheck();else if(d==="upload")$("anyFile").click();else if(d==="demo")runDemo();else copyReport()});
+if(d==="scan"){navTo("qr");startCam()}else if(d==="paste")pasteCheck();else if(d==="upload")openPicker($("anyFile"));else if(d==="demo")runDemo();else copyReport()});
 const SC=[{t:"Fake bank verification",d:"Pressure, a lookalike link, then your OTP",s:["Message arrives claiming to be your bank","You trust it and tap the link","A fake page collects your card and OTP","Your account is drained"]},
 {t:"Delivery fee trap",d:"A small fee that opens the door to a bigger charge",s:["A message says your package is held","You pay a small fee through the link","Your card details are captured","A larger charge follows"]},
 {t:"Malicious app install",d:"A message pushes you to install a file",s:["A message pushes you to install a file","The app gets SMS and screen access","It reads your OTPs silently","Your banking app is controlled and emptied"]},
