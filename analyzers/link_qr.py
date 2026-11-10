@@ -145,7 +145,7 @@ def check_url(url, ctx, add):
         for name, (kind, tok, prio, b) in brand_hits(tokens, joined).items():
             said = mentions(b, ctx)
             if kind == "embedded":
-                suffix = joined[len(tok):] if joined.startswith(tok) else ""
+                suffix = next((joined[len(bt):] for bt in b["tokens"] if joined.startswith(bt)), "")
                 generic_mention = suffix in GENERIC_BRAND_SUFFIXES and not said and not CRED_PATH.search(path_q)
                 if generic_mention:
                     continue
