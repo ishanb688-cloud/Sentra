@@ -24,6 +24,7 @@
 | Camera privacy | QR codes are decoded inside the browser; the picture is never uploaded |
 
 ## Residual risks (stated honestly)
+- **Proxy-aware rate limiting requires deployment verification.** The current client-IP helper uses the first `X-Forwarded-For` value. This is only trustworthy when the hosting proxy overwrites/sanitizes that header. Verify the Render proxy behavior and configure a trusted-proxy allowlist before reusing this server behind any other proxy or direct internet-facing ASGI server; otherwise clients may spoof rate-limit identities.
 - The ASGI body cap caps the total request payload at 51 MB before multipart parsing. A reverse-proxy/server-level request-size limit is still recommended as defense in depth, because network and protocol buffers exist before the ASGI application receives chunks.
 - The rate limiter is in memory and per server instance, so it resets on restart and is not shared across instances.
   It trusts the `X-Forwarded-For` header, which is correct behind Render's proxy but spoofable elsewhere.
