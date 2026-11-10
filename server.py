@@ -102,9 +102,17 @@ class BodyLimitMiddleware:
     @staticmethod
     async def _reject(send, status, message):
         body = ('{"error":"' + message + '"}').encode("utf-8")
-        await send({"type": "http.response.start", "status": status,
-                    "headers": [(b"content-type", b"application/json"),
-                                (b"content-length", str(len(body)).encode("ascii"))]})
+        headers = [
+            (b"content-type", b"application/json"),
+            (b"content-length", str(len(body)).encode("ascii")),
+            (b"x-content-type-options", b"nosniff"),
+            (b"x-frame-options", b"DENY"),
+            (b"referrer-policy", b"no-referrer"),
+            (b"content-security-policy", CSP.encode("latin-1")),
+            (b"permissions-policy", b"camera=(self), microphone=(), geolocation=()"),
+            (b"cache-control", b"no-store"),
+        ]
+        await send({"type": "http.response.start", "status": status, "headers": headers})
         await send({"type": "http.response.body", "body": body})
 
 
