@@ -1,6 +1,7 @@
 """Sentra API. Validates every input, limits abuse, and keeps nothing:
 messages are processed in memory and uploaded files are deleted right after reading."""
 import io
+import ipaddress
 import logging
 import os
 import tempfile
@@ -157,9 +158,55 @@ class RateLimiter:
 LIMITER = RateLimiter(int(os.environ.get("SENTRA_RATE", "30")), 60)
 
 
+def _trusted_proxy_networks():
+    """Parse explicitly configured proxy CIDRs; never trust forwarded headers by default."""
+    networks = []
+    for item in os.environ.get("SENTRA_TRUSTED_PROXIES", "").split(","):
+        item = item.strip()
+        if not item:
+            continue
+        try:
+            networks.append(ipaddress.ip_network(item, strict=False))
+        except ValueError:
+            log.warning("Ignoring invalid SENTRA_TRUSTED_PROXIES entry")
+    return tuple(networks)
+
+
+TRUSTED_PROXY_NETWORKS = _trusted_proxy_networks()
+
+
+def _is_trusted_proxy(address):
+    return any(address in network for network in TRUSTED_PROXY_NETWORKS)
+
+
 def client_ip(request: Request):
-    fwd = request.headers.get("x-forwarded-for", "")
-    return fwd.split(",")[0].strip() or (request.client.host if request.client else "unknown")
+    """Use X-Forwarded-For only when the immediate peer is explicitly trusted.
+
+    Walk the chain from right to left so attacker-supplied entries on the
+    left cannot spoof the client address when a trusted proxy appends its peer.
+    """
+    peer = request.client.host if request.client else ""
+    try:
+        peer_ip = ipaddress.ip_address(peer)
+    except ValueError:
+        return peer or "unknown"
+
+    if not _is_trusted_proxy(peer_ip):
+        return str(peer_ip)
+
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if not forwarded:
+        return str(peer_ip)
+
+    try:
+        chain = [ipaddress.ip_address(part.strip()) for part in forwarded.split(",")]
+    except ValueError:
+        return str(peer_ip)
+
+    chain.append(peer_ip)
+    while len(chain) > 1 and _is_trusted_proxy(chain[-1]):
+        chain.pop()
+    return str(chain[-1])
 
 
 @app.middleware("http")
