@@ -17,6 +17,12 @@ DISPUTE_SAFE = re.compile(
 ACTION_WORDS = re.compile(
     r"\b(click|tap|call|install|download|share|send|pay|reply|update|verify|visit|open|enter)\b", re.I)
 MASKED_ACCOUNT = re.compile(r"(a/c|acct|account|card)[^.\n]{0,15}(x{2,}|\*{2,})\s?\d{3,4}", re.I)
+# Sharing a delivery OTP face-to-face at the doorstep is materially different from
+# asking someone to disclose a banking OTP over a call or message.
+IN_PERSON_DELIVERY_OTP = re.compile(
+    r"\b(share|give|tell|provide)\b[^.\n]{0,35}\b(delivery\s+)?otp\b"
+    r"[^.\n]{0,80}\b(with|to)\s+(the\s+)?(delivery\s+)?agent\b"
+    r"[^.\n]{0,45}\b(at your doorstep|when the agent arrives|in person)\b", re.I)
 SHORT = r"(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|goo\.gl|shorturl\.at|tiny\.cc|ow\.ly)/\S+"
 
 # signal id -> list of (pattern, strength). The strongest match wins.
@@ -39,8 +45,7 @@ RULES = {
     "msg_payment_demand": [
         # Allow natural wording between the payment verb and amount, e.g. "pay a refundable
         # registration fee of ₹499", while requiring an explicit payment/fee context.
-        (r"\b(pay|deposit|transfer|send)\b[^.\n]{0,90}(₹|rs\.?|inr)\s?\d", 1.0),
-        (r"\b(fee|deposit|charge|charges|penalty|fine)\b[^.\n]{0,50}(₹|rs\.?|inr)\s?\d", 0.9),
+        (r"\b(pay(?!\s+balance\b)|deposit|transfer|send)\b[^.\n]{0,90}(₹|rs\.?|inr)\s?\d", 1.0),
         (r"\b(pay|deposit|transfer|send)\s+(rs\.?\s?|inr\s?|₹\s?)?\d{3,}\b", 0.8),
         (r"\b(fee|charge|penalty|fine)\b[^.\n]{0,25}\b(pay|due|pending)\b", 0.7),
     ],
@@ -57,7 +62,7 @@ RULES = {
         (r"\b(rto|echallan|challan|parivahan)\b", 0.8),
         (r"\b(package|parcel|courier|delivery|order)\b[^.\n]{0,55}\b(held|stuck|pending|undelivered|returned|failed|could not be delivered|delivery failed)\b", 0.8),
         (r"\b(incorrect|incomplete|wrong) address\b|\b(address details|delivery details)\b[^.\n]{0,35}\b(update|verify|confirm)\b", 0.7),
-        (r"\b(sbi|hdfc|icici|axis|kotak|pnb|bank of baroda|rbi|paytm|phonepe|amazon|income tax|police|cbi|customs|trai|uidai|india post|bluedart|dtdc|delhivery)\b", 0.6),
+        (r"\b(sbi|hdfc|icici|axis|kotak|pnb|bank of baroda|rbi|paytm|phonepe|income tax|police|cbi|customs|trai|uidai|india post|bluedart|dtdc|delhivery)\b", 0.6),
     ],
     "msg_reward_lure": [
         (r"\b(you have won|lottery|lucky winner|claim your (prize|reward|gift))\b", 1.0),
@@ -93,7 +98,7 @@ COMPILED = {sid: [(re.compile(p, re.I), s) for p, s in rules] for sid, rules in 
 
 def analyze(text):
     text = text or ""
-    clean = DISPUTE_SAFE.sub(" ", WARNING.sub(" ", text))
+    clean = IN_PERSON_DELIVERY_OTP.sub(" ", DISPUTE_SAFE.sub(" ", WARNING.sub(" ", text)))
     signals = []
     for sid, rules in COMPILED.items():
         best = None
