@@ -12,3 +12,5 @@ jobs:
       - run: python -m pytest -q
       - run: python tools/benchmark.py
       - run: python tools/benchmark.py --holdout
+      - name: Verify deployed Render security headers
+        run: python tools/check_deployment.py
