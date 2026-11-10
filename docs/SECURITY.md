@@ -24,6 +24,7 @@
 | Camera privacy | QR codes are decoded inside the browser; the picture is never uploaded |
 
 ## Residual risks (stated honestly)
+- **Request-body enforcement is incomplete.** The middleware rejects requests whose declared `Content-Length` exceeds the configured limit, but it does not count streamed request bytes. Multipart parsing happens before the `/api/scan` handler, so a chunked request or a request with a misleading/missing length may consume memory or temporary disk before the handler's 50 MB APK read cap is applied. Enforce a hard body limit at the reverse proxy and add an ASGI receive-layer byte counter before treating the upload cap as a complete denial-of-service control.
 - The rate limiter is in memory and per server instance, so it resets on restart and is not shared across instances.
   It trusts the `X-Forwarded-For` header, which is correct behind Render's proxy but spoofable elsewhere.
 - App files are parsed by the Androguard library; a bug in a parser is always possible. Size and structure checks
