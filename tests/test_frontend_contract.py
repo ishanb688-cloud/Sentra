@@ -29,3 +29,18 @@ def test_frontend_does_not_claim_qr_payee_identity_is_verified():
     source = WEB.read_text(encoding="utf-8")
     assert "NOT VERIFIED" in source
     assert "cannot query the bank or confirm the account holder" in source
+
+
+def test_camera_and_photo_share_native_and_jsqr_decoder():
+    source = WEB.read_text(encoding="utf-8")
+    assert "function makeQRDetector()" in source
+    assert "async function decodeQRCanvas()" in source
+    assert "const data=await decodeQRCanvas()" in source
+    assert "const decoded=await decodeQRCanvas()" in source
+    assert "qrFrameBusy" in source
+
+
+def test_file_picker_uses_native_show_picker_with_click_fallback():
+    source = WEB.read_text(encoding="utf-8")
+    assert 'typeof input.showPicker==="function"' in source
+    assert "input.click()" in source
