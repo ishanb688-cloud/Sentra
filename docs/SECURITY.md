@@ -19,7 +19,7 @@
 | Abuse and flooding | In-memory sliding-window rate limit per client address on `/api/scan` (30 per minute by default, `SENTRA_RATE` to change), answered with 429 |
 | Information leakage | Global handlers return one generic message for validation errors and crashes; no stack traces, paths or exception text reach the user (tested with a simulated crash) |
 | Leftover uploads | Temporary file removed even when reading fails (tested, including a simulated failure) |
-| Browser attacks | Content-Security-Policy (same-origin scripts plus the QR reader CDN fallback, no framing), `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`; the page builds results with `textContent`, so scanned text cannot inject markup |
+| Browser attacks | Content-Security-Policy (same-origin scripts only; QR decoder is served locally, no framing), `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`; the page builds results with `textContent`, so scanned text cannot inject markup |
 | Extra surface | Interactive API docs and the OpenAPI file are switched off in production |
 | Camera privacy | QR codes are decoded inside the browser; the picture is never uploaded |
 
