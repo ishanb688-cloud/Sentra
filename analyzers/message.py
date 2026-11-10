@@ -61,7 +61,7 @@ RULES = {
         (r"\bdear (customer|user|sir|madam|account holder)\b", 0.5),
         (r"\b(rto|echallan|challan|parivahan)\b", 0.8),
         (r"\b(package|parcel|courier|delivery|order)\b[^.\n]{0,55}\b(held|stuck|pending|undelivered|returned|failed|could not be delivered|delivery failed)\b", 0.8),
-        (r"\b(incorrect|incomplete|wrong) address\b|\b(address details|delivery details)\b[^.\n]{0,35}\b(update|verify|confirm)\b", 0.7),
+        (r"\b(incorrect|incomplete|wrong) address\b|\baddress\b[^.\n]{0,20}\b(incorrect|incomplete|wrong)\b|\b(address details|delivery details)\b[^.\n]{0,35}\b(update|verify|confirm)\b", 0.7),
         (r"\b(sbi|hdfc|icici|axis|kotak|pnb|bank of baroda|rbi|paytm|phonepe|income tax|police|cbi|customs|trai|uidai|india post|bluedart|dtdc|delhivery)\b", 0.6),
     ],
     "msg_reward_lure": [
