@@ -68,3 +68,7 @@ def test_card_charge_alert_with_mobile_helpline_is_suspicious():
 def test_genuine_bank_dispute_toll_free_number_is_not_flagged_as_mobile_helpline():
     text = "Alert: Rs 15,000 debited from your A/c XX7712 at ATM on 08-11. Not you? Call 1800-425-1111 now. -Axis Bank"
     assert "msg_card_charge_impersonation" not in ids(text)
+
+
+def test_parcel_address_is_incorrect_is_impersonation_context():
+    assert "msg_authority_claim" in ids("Hello sir, your parcel address is incorrect. Update here to avoid return.")
