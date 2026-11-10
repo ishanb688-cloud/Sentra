@@ -8,6 +8,10 @@
 <style>
 :root{--bg:#08080a;--side:#0c0c0f;--panel:#111114;--field:#0b0b0d;--ink:#f3efe6;--mute:#a39e92;--line:#26262c;--accent:var(--g-mid);--accent2:var(--g-mid);--low:#3ccf9b;--sus:#f2b84b;--high:#f2784b;--crit:#ff4d6d;--lvl:#2c3d5f;--r:18px}
 *{box-sizing:border-box}html{scroll-behavior:smooth;color-scheme:dark}
+button,a,label,[role="button"],.drop{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:focus:not(:focus-visible),a:focus:not(:focus-visible),label:focus:not(:focus-visible),[role="button"]:focus:not(:focus-visible){outline:none;box-shadow:none}
+button{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .2s ease}
+button:active{transform:scale(.985)}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
 .serif{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif}
 .app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
@@ -116,7 +120,7 @@ ol.replay li:last-child{font-weight:600;color:#ff8aa0}ol.replay li:last-child::b
 @media(max-width:980px){.chk,.heroH{grid-template-columns:1fr}.motif{display:none}.tiles,.steps{grid-template-columns:1fr 1fr}#out{position:static}}
 @media(max-width:860px){.app{grid-template-columns:1fr}.side{position:fixed;inset:auto 0 0 0;height:auto;flex-direction:row;padding:8px;z-index:20;border-right:0;border-top:1px solid var(--line)}.brand,.sidenote{display:none}.nav{flex-direction:row;width:100%;justify-content:space-around}.nav button{flex-direction:column;gap:2px;font-size:12px;padding:8px 10px}.nav button.on{box-shadow:none}.stage{padding-bottom:96px}.hrow{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.tiles,.steps{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){html:not([data-motion="on"]) *,html:not([data-motion="on"]) *::before,html:not([data-motion="on"]) *::after{animation:none!important;transition:none!important}html:not([data-motion="on"]) .motif .ln{stroke-dashoffset:0}html:not([data-motion="on"]) ol.replay li{opacity:1;transform:none}html:not([data-motion="on"]) .bar i{width:var(--w)!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
 body::before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(900px 600px at 10% -10%,rgba(var(--accrgb),0.11),transparent 60%),radial-gradient(800px 520px at 100% 0,#7a5cff16,transparent 60%),radial-gradient(700px 500px at 60% 115%,rgba(var(--accrgb),0.06),transparent 60%),#08080a}
 body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -521,9 +525,38 @@ const im=cx.getImageData(0,0,cv.width,cv.height),c=jsQR(im.data,im.width,im.heig
 if(c&&c.data){stopCam();gotQR(c.data);return}}
 raf=requestAnimationFrame(scanLoop)}
 function gotQR(data){qrPayload=data;showQR();refreshBadges();navTo("qr");$("go").click()}
-function readPhoto(f){const img=new Image();img.onload=()=>{cv.width=img.width;cv.height=img.height;cx.drawImage(img,0,0);
-const im=cx.getImageData(0,0,cv.width,cv.height),c=window.jsQR&&jsQR(im.data,im.width,im.height);URL.revokeObjectURL(img.src);
-c?gotQR(c.data):$("err").textContent="No QR code found in that photo. Try a clearer, closer picture."};img.src=URL.createObjectURL(f)}
+async function readPhoto(f){
+if(!f)return;
+$("err").textContent="";
+if(!f.type||!f.type.startsWith("image/")){$("err").textContent="Choose an image file containing a QR code.";return}
+if(f.size>20*1024*1024){$("err").textContent="That photo is larger than 20 MB. Choose a smaller image.";return}
+let source=null,objectUrl="";
+try{
+if("createImageBitmap" in window){source=await createImageBitmap(f)}
+else{
+objectUrl=URL.createObjectURL(f);
+source=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("image"));img.src=objectUrl})
+}
+const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
+if(!width||!height)throw new Error("image");
+const maxSide=Math.max(width,height),base=Math.min(1,1800/maxSide);
+const scales=[base,base*.75,base*.5];
+for(const scale of scales){
+cv.width=Math.max(1,Math.round(width*scale));cv.height=Math.max(1,Math.round(height*scale));
+cx.clearRect(0,0,cv.width,cv.height);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality="high";cx.drawImage(source,0,0,cv.width,cv.height);
+if("BarcodeDetector" in window){
+try{const detector=new BarcodeDetector({formats:["qr_code"]}),codes=await detector.detect(cv);if(codes.length&&codes[0].rawValue){gotQR(codes[0].rawValue);return}}catch(e){}
+}
+if(window.jsQR){
+const pixels=cx.getImageData(0,0,cv.width,cv.height);
+const code=window.jsQR(pixels.data,pixels.width,pixels.height,{inversionAttempts:"attemptBoth"});
+if(code&&code.data){gotQR(code.data);return}
+}
+}
+$("err").textContent="No QR code found. Use a clear, straight-on photo with the whole code visible and good lighting.";
+}catch(e){$("err").textContent="Sentra could not read that photo. Try another image in JPG or PNG format."}
+finally{if(source&&typeof source.close==="function")source.close();if(objectUrl)URL.revokeObjectURL(objectUrl)}
+}
 $("camBtn").onclick=startCam;$("stopCam").onclick=stopCam;
 $("qrPhoto").onchange=e=>{const f=e.target.files[0];if(f)readPhoto(f);e.target.value=""};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")stopCam()});
