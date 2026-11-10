@@ -72,3 +72,24 @@ def test_genuine_bank_dispute_toll_free_number_is_not_flagged_as_mobile_helpline
 
 def test_parcel_address_is_incorrect_is_impersonation_context():
     assert "msg_authority_claim" in ids("Hello sir, your parcel address is incorrect. Update here to avoid return.")
+
+
+def test_online_task_recharge_scam_is_detected_and_explained():
+    from engine.fusion import fuse
+    text = (
+        "Earn Rs 3,000 daily by liking videos in our Telegram task group. "
+        "Recharge Rs 1,000 to unlock VIP prepaid tasks and withdraw your earnings."
+    )
+    signals = analyze(text)
+    assert "msg_task_scam" in {s["id"] for s in signals}
+    result = fuse(signals)
+    assert result["chain"] == "task_recharge"
+    assert result["level"] in ("Suspicious", "High risk", "Critical")
+
+
+def test_legitimate_task_list_without_payment_request_is_not_task_scam():
+    text = (
+        "Complete the online training tasks by Friday: watch the lesson, "
+        "review the worksheet, and submit your answers. No payment is required."
+    )
+    assert "msg_task_scam" not in {s["id"] for s in analyze(text)}
