@@ -199,6 +199,52 @@ def test_malformed_request_gets_a_generic_error():
     assert r.status_code in (400, 422) and "Traceback" not in r.text
 
 
+def test_forwarded_ip_is_ignored_from_untrusted_peer(monkeypatch):
+    import ipaddress
+    from starlette.requests import Request
+
+    monkeypatch.setattr(server, "TRUSTED_PROXY_NETWORKS", ())
+    request = Request({
+        "type": "http",
+        "headers": [(b"x-forwarded-for", b"203.0.113.99")],
+        "client": ("198.51.100.10", 1234),
+    })
+    assert server.client_ip(request) == "198.51.100.10"
+
+
+def test_forwarded_ip_chain_uses_nearest_untrusted_address(monkeypatch):
+    import ipaddress
+    from starlette.requests import Request
+
+    monkeypatch.setattr(server, "TRUSTED_PROXY_NETWORKS", (
+        ipaddress.ip_network("10.0.0.0/8"),
+    ))
+    request = Request({
+        "type": "http",
+        "headers": [(
+            b"x-forwarded-for",
+            b"198.51.100.99, 203.0.113.7, 10.0.0.1",
+        )],
+        "client": ("10.0.0.2", 1234),
+    })
+    assert server.client_ip(request) == "203.0.113.7"
+
+
+def test_malformed_forwarded_ip_falls_back_to_peer(monkeypatch):
+    import ipaddress
+    from starlette.requests import Request
+
+    monkeypatch.setattr(server, "TRUSTED_PROXY_NETWORKS", (
+        ipaddress.ip_network("10.0.0.0/8"),
+    ))
+    request = Request({
+        "type": "http",
+        "headers": [(b"x-forwarded-for", b"not-an-ip, 203.0.113.7")],
+        "client": ("10.0.0.2", 1234),
+    })
+    assert server.client_ip(request) == "10.0.0.2"
+
+
 def test_rate_limit_returns_429_then_recovers():
     server.LIMITER.limit = 3
     codes = [post("hi").status_code for _ in range(5)]
