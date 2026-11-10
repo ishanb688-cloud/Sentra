@@ -10,7 +10,7 @@
 | APK | `tests/test_app_rules.py`, `tests/test_api.py` | Sensitive permission combinations, package/name mismatch, malformed ZIPs, missing manifest, entry-count/unpacked-size limits, oversized uploads and temporary-file cleanup |
 | API security | `tests/test_api.py` | Invalid multipart requests, generic errors, no traceback/path leakage, request-body limits, rate limiting, proxy-header trust, security headers and shared limiter failure behaviour |
 | Browser demo | `tests/test_frontend_contract.py` | QR upload byte/pixel caps before canvas sizing, camera failure fallback, repeatable demo examples and explicit unverified-payee warning |
-| Public deployment | `tools/check_deployment.py` | Live HTTPS health endpoint, HSTS, CSP, nosniff and frame-denial headers; runs in CI against the Render URL |
+| Public deployment | `tools/check_deployment.py` | Live HTTPS health endpoint, HSTS, CSP, nosniff and frame-denial headers; runs on pushes to `main` against the Render URL after merge/deployment |
 | APK demo fixture | `tools/make_demo_apk.py`, `tests/test_api.py` | Reproducible intentionally malformed `.apk` upload demonstrates graceful rejection; it is not an installable app or malware sample |
 
 ## Reproduce locally
