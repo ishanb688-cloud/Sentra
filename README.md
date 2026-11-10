@@ -52,6 +52,16 @@ python tools/benchmark.py    # main benchmark
 python tools/benchmark.py --holdout  # holdout benchmark
 ```
 
+## External evaluation and presentation
+
+A reproducible evaluator for the public UCI SMS Spam Collection is available at
+[docs/EXTERNAL_VALIDATION.md](docs/EXTERNAL_VALIDATION.md):
+`python tools/evaluate_uci_sms.py /path/to/SMSSpamCollection`.
+No external score is claimed until this is run on the downloaded corpus.
+
+The judge-ready talk track, demo order, fallback checklist and concise Q&A are in
+[docs/PITCH_SCRIPT.md](docs/PITCH_SCRIPT.md).
+
 ## Technologies
 Python, FastAPI, Androguard (static app analysis), jsQR (in-browser QR decoding), plain HTML/CSS/JavaScript,
 pytest, GitHub Actions, Render.
