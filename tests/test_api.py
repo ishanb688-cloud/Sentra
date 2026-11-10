@@ -370,3 +370,12 @@ def test_partial_shared_rate_limit_configuration_fails_closed(monkeypatch):
     monkeypatch.setattr(server, "REDIS_LIMITER", None)
     response = post("please check this")
     assert response.status_code == 503
+
+
+def test_reproducible_malformed_apk_demo_is_rejected_without_crashing():
+    from tools.make_demo_apk import build_demo_apk
+
+    r = post("", files={"apk": ("sentra-malformed-demo.apk", build_demo_apk(), "application/vnd.android.package-archive")})
+    assert r.status_code == 200
+    assert any("not an Android app file" in note for note in r.json()["notes"])
+    assert "Traceback" not in r.text and "/tmp" not in r.text
