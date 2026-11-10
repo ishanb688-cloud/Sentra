@@ -250,5 +250,11 @@
   "category": "financial_redirect",
   "reliability": 0.8,
   "reason": "Claims money was sent to you by mistake and asks you to send it back."
+ },
+ {
+  "id": "msg_job_fee",
+  "category": "financial_redirect",
+  "reliability": 0.9,
+  "reason": "Requests an upfront registration, onboarding, or security fee as a condition of getting a job."
  }
 ]
