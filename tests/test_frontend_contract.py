@@ -73,7 +73,7 @@ def test_qr_results_show_upi_payee_and_explicit_user_initiated_handoff():
 def test_qr_photo_upload_retries_full_image_and_quadrants():
     source = WEB.read_text(encoding="utf-8")
     assert "const maxSide=Math.max(width,height),base=Math.min(1,1800/maxSide)" in source
-    assert "for(const [sx,sy] of [[0,0],[width/2,0],[0,height/2],[width/2,height/2]])" in source
+    assert "const regions=[[0,0,width,height]" in source
     assert 'inversionAttempts:"attemptBoth"' in source
 
 
