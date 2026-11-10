@@ -27,10 +27,10 @@ Details and a worked example: [docs/METHODOLOGY.md](docs/METHODOLOGY.md).
 ## Measured results
 Run `python tools/benchmark.py` (main set) and `python tools/benchmark.py --holdout`.
 
-| Test set | Scams flagged | Precision | False alarms |
-|---|---:|---:|---:|
-| Main benchmark: 59 malicious, 33 genuine | 59 / 59 (100%) | 100% | 0 / 33 |
-| **Holdout benchmark: 22 malicious, 18 genuine** | **22 / 22 (100%)** | **100%** | **0 / 18** |
+| Test set | Precision | Recall | F1 | False-positive rate | Confusion matrix (TP / FN / FP / TN) |
+|---|---:|---:|---:|---:|---:|
+| Main benchmark: 92 cases (59 malicious, 33 genuine) | 100% | 100% | 1.00 | 0% | 59 / 0 / 0 / 33 |
+| **Separate holdout: 40 cases (22 malicious, 18 genuine)** | **100%** | **100%** | **1.00** | **0%** | **22 / 0 / 0 / 18** |
 
 Both sets currently pass at the **Suspicious-or-higher** threshold. These are team-authored test cases, not independent
 real-world validation; perfect benchmark results do not mean Sentra catches every scam in the wild. New wording,
