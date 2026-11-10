@@ -101,7 +101,7 @@ def test_streamed_body_without_content_length_is_rejected_before_parsing():
 
     async def scenario():
         called = False
-        sent = []
+        sent_messages = []
         chunks = [b"a" * 8, b"b" * 8]
 
         async def receive():
@@ -115,14 +115,14 @@ def test_streamed_body_without_content_length_is_rejected_before_parsing():
             called = True
 
         async def send(message):
-            sent.append(message)
+            sent_messages.append(message)
 
         middleware = server.BodyLimitMiddleware(downstream, max_body=10)
         scope = {"type": "http", "method": "POST", "path": "/api/scan", "headers": []}
         await middleware(scope, receive, send)
         assert not called, "oversized streamed body reached multipart parsing"
-        assert sent[0]["status"] == 413
-        assert b"too large" in sent[1]["body"]
+        assert sent_messages[0]["status"] == 413
+        assert b"too large" in sent_messages[1]["body"]
 
     asyncio.run(scenario())
 
