@@ -246,6 +246,18 @@
   "reason": "Matches a genuine alert format with masked digits and no link."
  },
  {
+  "id": "msg_investment_lure",
+  "category": "financial_redirect",
+  "reliability": 0.85,
+  "reason": "Promises guaranteed or unusually high returns tied to an investment or crypto offer."
+ },
+ {
+  "id": "msg_card_charge_impersonation",
+  "category": "impersonation",
+  "reliability": 0.9,
+  "reason": "A fake transaction alert directs you to an unsolicited mobile number instead of an official dispute channel."
+ },
+ {
   "id": "msg_wrong_transfer",
   "category": "financial_redirect",
   "reliability": 0.8,
