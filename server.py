@@ -60,13 +60,13 @@ class BodyLimitMiddleware:
             try:
                 declared = int(raw_length)
             except ValueError:
-                await self._reject(send, 400, "Invalid request.")
+                await self._reject(send, 400, "Invalid request.", scope.get("scheme") == "https")
                 return
             if declared < 0:
-                await self._reject(send, 400, "Invalid request.")
+                await self._reject(send, 400, "Invalid request.", scope.get("scheme") == "https")
                 return
             if declared > self.max_body:
-                await self._reject(send, 413, "That upload is too large.")
+                await self._reject(send, 413, "That upload is too large.", scope.get("scheme") == "https")
                 return
 
         chunks = []
@@ -80,7 +80,7 @@ class BodyLimitMiddleware:
             chunk = message.get("body", b"")
             total += len(chunk)
             if total > self.max_body:
-                await self._reject(send, 413, "That upload is too large.")
+                await self._reject(send, 413, "That upload is too large.", scope.get("scheme") == "https")
                 return
             chunks.append(chunk)
             if not message.get("more_body", False):
@@ -100,7 +100,7 @@ class BodyLimitMiddleware:
         await self.app(scope, replay, send)
 
     @staticmethod
-    async def _reject(send, status, message):
+    async def _reject(send, status, message, secure=False):
         body = ('{"error":"' + message + '"}').encode("utf-8")
         headers = [
             (b"content-type", b"application/json"),
@@ -112,6 +112,8 @@ class BodyLimitMiddleware:
             (b"permissions-policy", b"camera=(self), microphone=(), geolocation=()"),
             (b"cache-control", b"no-store"),
         ]
+        if secure:
+            headers.append((b"strict-transport-security", b"max-age=31536000"))
         await send({"type": "http.response.start", "status": status, "headers": headers})
         await send({"type": "http.response.body", "body": body})
 
@@ -176,6 +178,8 @@ async def guard(request: Request, call_next):
     resp.headers["Referrer-Policy"] = "no-referrer"
     resp.headers["Content-Security-Policy"] = CSP
     resp.headers["Permissions-Policy"] = "camera=(self), microphone=(), geolocation=()"
+    if request.url.scheme == "https":
+        resp.headers["Strict-Transport-Security"] = "max-age=31536000"
     return resp
 
 
