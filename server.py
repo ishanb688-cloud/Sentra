@@ -6,7 +6,7 @@ import os
 import tempfile
 import time
 import zipfile
-from collections import defaultdict, deque
+from collections import OrderedDict, deque
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
@@ -117,23 +117,38 @@ class BodyLimitMiddleware:
 
 
 class RateLimiter:
-    """Sliding-window limit per client address, kept in memory only."""
+    """Sliding-window limit per client address, with a bounded in-memory key set."""
 
-    def __init__(self, limit=30, window=60):
+    def __init__(self, limit=30, window=60, max_clients=5000):
         self.limit, self.window = limit, window
-        self.hits = defaultdict(deque)
+        self.max_clients = max_clients
+        self.hits = OrderedDict()
 
     def allow(self, key, now=None):
         now = time.monotonic() if now is None else now
-        q = self.hits[key]
-        while q and now - q[0] > self.window:
+        q = self.hits.get(key)
+        if q is None:
+            q = deque()
+            self.hits[key] = q
+        else:
+            self.hits.move_to_end(key)
+
+        while q and now - q[0] >= self.window:
             q.popleft()
         if len(q) >= self.limit:
             return False
+
         q.append(now)
-        if len(self.hits) > 5000:  # forget idle clients
-            for k in [k for k, v in self.hits.items() if not v]:
-                del self.hits[k]
+        if len(self.hits) > self.max_clients:
+            # Prune expired entries for every client, not just the current one.
+            for client, timestamps in list(self.hits.items()):
+                while timestamps and now - timestamps[0] >= self.window:
+                    timestamps.popleft()
+                if not timestamps:
+                    del self.hits[client]
+            # A burst of unique addresses must never grow memory without bound.
+            while len(self.hits) > self.max_clients:
+                self.hits.popitem(last=False)
         return True
 
 
