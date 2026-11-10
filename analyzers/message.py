@@ -23,12 +23,15 @@ IN_PERSON_DELIVERY_OTP = re.compile(
     r"\b(share|give|tell|provide)\b[^.\n]{0,35}\b(delivery\s+)?otp\b"
     r"[^.\n]{0,80}\b(with|to)\s+(the\s+)?(delivery\s+)?agent\b"
     r"[^.\n]{0,45}\b(at your doorstep|when the agent arrives|in person)\b", re.I)
+INDIAN_CREDENTIAL_WARNING = re.compile(
+    r"\b(?:otp|pin|cvv|password|passcode)\b[^.\n]{0,45}\b(?:share|bataye|batana|bhejein|dena)\b[^.\n]{0,12}\b(?:mat|na|nahi)\b", re.I)
 SHORT = r"(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|goo\.gl|shorturl\.at|tiny\.cc|ow\.ly)/\S+"
 
 # signal id -> list of (pattern, strength). The strongest match wins.
 RULES = {
     "msg_otp_request": [
-        (r"\b(share|send|tell|give|provide|forward|read out|enter|confirm)\b[^.\n]{0,25}\b(otp|pin|cvv|password|passcode)\b", 1.0),
+        (r"\b(otp|pin|cvv|password|passcode)\b[^.\n]{0,35}\b(batao|bataye|bataiye|bhejo|bhejiye|share karo|send karo|forward karo|darj karo|likho)\b", 1.0),
+        (r"\b(batao|bataye|bataiye|bhejo|bhejiye|darj karo)\b[^.\n]{0,25}\b(otp|pin|cvv|password|passcode)\b", 1.0),
     ],
     "msg_install_request": [
         (r"\b(install|download)\b[^.\n]{0,30}\b(app|apk|file|application)\b", 1.0),
@@ -41,6 +44,8 @@ RULES = {
     "msg_kyc_update": [
         (r"\bkyc\b[^.\n]{0,40}\b(update|expire|expired|pending|verify|incomplete)\b", 1.0),
         (r"\b(update|verify|complete)\b[^.\n]{0,20}\b(kyc|pan|aadhaar|aadhar)\b", 0.9),
+        (r"\b(kyc|aadhaar|aadhar|pan)\b[^.\n]{0,35}\b(update|verify|link|complete)\s+(karo|karein|karaye|karwao)\b", 1.0),
+        (r"\b(update|verify|link|complete)\s+(karo|karein|karaye|karwao)\b[^.\n]{0,25}\b(kyc|aadhaar|aadhar|pan)\b", 1.0),
     ],
     "msg_payment_demand": [
         # Allow natural wording between the payment verb and amount, e.g. "pay a refundable
@@ -48,11 +53,14 @@ RULES = {
         (r"\b(pay(?!\s+balance\b)|deposit|transfer|send)\b[^.\n]{0,90}(₹|rs\.?|inr)\s?\d", 1.0),
         (r"\b(pay|deposit|transfer|send)\s+(rs\.?\s?|inr\s?|₹\s?)?\d{3,}\b", 0.8),
         (r"\b(fee|charge|penalty|fine)\b[^.\n]{0,25}\b(pay|due|pending)\b", 0.7),
+        (r"(₹|rs\.?\s?|inr\s?)\d[\d,]*(?:\s?(?:rupaye|rupees))?[^.\n]{0,35}\b(jama|bhejo|bhejein|bharo|pay karo|deposit karo|transfer karo)\b", 1.0),
+        (r"\b(registration fee|joining fee|security deposit|processing fee|recharge)\b[^.\n]{0,35}\b(jama|bharo|karo|bhejo|bhejein)\b", 1.0),
     ],
     "msg_threat_block": [
         (r"\bwill be (blocked|suspended|deactivated|frozen|closed|cancelled|disconnected|terminated|cut|disabled|barred|locked)\b", 1.0),
         (r"\b(legal action|arrest|police case|fir)\b", 1.0),
         (r"\b(band|block|suspend)\s+ho\s+(jayega|jaega|jayegi|jaayega)\b", 1.0),
+        (r"\b(account|sim|connection)\b[^.\n]{0,30}\b(band|block|suspend)\s+(ho\s+)?(jayega|jaega|jayegi|jaayega)\b", 1.0),
         (r"\b(illegal activity|money laundering|digital arrest|case (has been )?(registered|filed) against you)\b", 1.0),
         (r"\baccount (is )?(blocked|suspended|frozen)\b", 0.6),
     ],
@@ -90,6 +98,7 @@ RULES = {
     "msg_task_scam": [
         # Task scams ask victims to recharge, deposit, or pay to unlock higher-value tasks or withdrawals.
         (r"(?=.*\b(task|tasks|like videos|rate products|review products|telegram group)\b)(?=.*\b(recharge|top.?up|deposit|unlock (?:your )?withdrawals?|withdrawal fee|prepaid task|advance payment)\b).+", 1.0),
+        (r"(?=.*\b(task|tasks|telegram group|video like|product review|rating)\b)(?=.*\b(recharge|top.?up|paise jama|paisa jama|deposit|withdrawal unlock|withdrawal kholne)\b).+", 1.0),
     ],
     "msg_investment_lure": [
         # High-return guarantees tied to an investment or crypto offer are a strong scam pattern.
