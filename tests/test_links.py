@@ -70,7 +70,7 @@ def test_misleading_paytm_bank_kyc_domain_is_flagged_with_evidence():
 
 
 def test_legitimate_domain_containing_brand_as_unrelated_text_is_not_flagged():
-    assert "link_lookalike_brand" not in ids("https://example.com/paytm-community") 
+    assert "link_lookalike_brand" not in ids("https://paytm-community.example") 
 
 
 def test_misleading_subdomain_does_not_hide_real_domain():
