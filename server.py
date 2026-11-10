@@ -1,12 +1,20 @@
 """Sentra API. Validates every input, limits abuse, and keeps nothing:
 messages are processed in memory and uploaded files are deleted right after reading."""
+import asyncio
+import hashlib
+import hmac
 import io
 import ipaddress
+import json
 import logging
 import os
 import tempfile
 import time
+import urllib.error
+import urllib.request
+import uuid
 import zipfile
+from urllib.parse import urlsplit
 from collections import OrderedDict, deque
 from pathlib import Path
 
@@ -157,6 +165,79 @@ class RateLimiter:
 
 LIMITER = RateLimiter(int(os.environ.get("SENTRA_RATE", "30")), 60)
 
+# Optional shared rate limiting via Upstash Redis REST. When configured, all
+# SENTRA instances use one atomic sliding window. No client IP is stored in
+# Redis: the key is an HMAC digest keyed by the Redis token.
+REDIS_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").strip().rstrip("/")
+REDIS_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "").strip()
+REDIS_CONFIG_ERROR = bool(REDIS_URL) != bool(REDIS_TOKEN)
+
+
+class RedisRateLimiter:
+    LUA = """
+local key = KEYS[1]
+local now = tonumber(ARGV[1])
+local window = tonumber(ARGV[2])
+local limit = tonumber(ARGV[3])
+local member = ARGV[4]
+local ttl = tonumber(ARGV[5])
+redis.call('ZREMRANGEBYSCORE', key, '-inf', now - window)
+if redis.call('ZCARD', key) >= limit then
+  redis.call('EXPIRE', key, ttl)
+  return 0
+end
+redis.call('ZADD', key, now, member)
+redis.call('EXPIRE', key, ttl)
+return 1
+"""
+
+    def __init__(self, url, token, limit=30, window=60, timeout=1.5):
+        parsed = urlsplit(url)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise ValueError("UPSTASH_REDIS_REST_URL must be an HTTPS URL")
+        self.url, self.token = url, token
+        self.limit, self.window, self.timeout = limit, window, timeout
+
+    def allow(self, client_key):
+        digest = hmac.new(self.token.encode("utf-8"), client_key.encode("utf-8"),
+                          hashlib.sha256).hexdigest()
+        redis_key = "sentra:rate:" + digest
+        now_ms = int(time.time() * 1000)
+        member = f"{now_ms}:{uuid.uuid4().hex}"
+        command = ["EVAL", self.LUA, "1", redis_key, str(now_ms),
+                   str(self.window * 1000), str(self.limit), member, str(self.window + 5)]
+        request = urllib.request.Request(
+            self.url,
+            data=json.dumps(command).encode("utf-8"),
+            headers={"Authorization": "Bearer " + self.token,
+                     "Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=self.timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        if not isinstance(payload, dict) or payload.get("error") or "result" not in payload:
+            raise RuntimeError("Redis rate-limit response was invalid")
+        return int(payload["result"]) == 1
+
+
+REDIS_LIMITER = None
+if REDIS_URL and REDIS_TOKEN:
+    try:
+        REDIS_LIMITER = RedisRateLimiter(
+            REDIS_URL, REDIS_TOKEN, int(os.environ.get("SENTRA_RATE", "30")), 60
+        )
+    except (TypeError, ValueError):
+        REDIS_CONFIG_ERROR = True
+        log.error("Invalid shared rate-limit configuration")
+
+
+async def rate_limit_allowed(key):
+    if REDIS_CONFIG_ERROR:
+        raise RuntimeError("Shared rate-limit configuration is incomplete")
+    if REDIS_LIMITER is not None:
+        return await asyncio.to_thread(REDIS_LIMITER.allow, key)
+    return LIMITER.allow(key)
+
 
 def _trusted_proxy_networks():
     """Parse explicitly configured proxy CIDRs; never trust forwarded headers by default."""
@@ -216,9 +297,18 @@ async def guard(request: Request, call_next):
             return JSONResponse({"error": "That upload is too large."}, status_code=413)
     except ValueError:
         return JSONResponse({"error": "Invalid request."}, status_code=400)
-    if request.url.path == "/api/scan" and not LIMITER.allow(client_ip(request)):
-        return JSONResponse({"error": "Too many checks. Please wait a minute."}, status_code=429,
-                            headers={"Retry-After": "60"})
+    if request.url.path == "/api/scan":
+        try:
+            allowed = await rate_limit_allowed(client_ip(request))
+        except Exception as e:
+            log.error("rate limiter unavailable: %s", type(e).__name__)
+            return JSONResponse(
+                {"error": "Checks are temporarily unavailable. Please try again shortly."},
+                status_code=503, headers={"Retry-After": "10"},
+            )
+        if not allowed:
+            return JSONResponse({"error": "Too many checks. Please wait a minute."}, status_code=429,
+                                headers={"Retry-After": "60"})
     resp = await call_next(request)
     resp.headers["X-Content-Type-Options"] = "nosniff"
     resp.headers["X-Frame-Options"] = "DENY"
