@@ -58,8 +58,8 @@ user to compare it with the name their UPI app shows. We never call a payment sa
 
 It may slip through, and we say so on the website. Partial protection comes from the fact that most scams share general
 tells (impersonation, pressure, requests for codes or money, lookalike links), which the signals capture without needing
-the exact wording. On our **unseen holdout set** (never used to adjust the rules) Sentra flagged 17 of 22 scams, so roughly
-one in four was missed. Updating is cheap: signals and scam scripts are data files, not code. The longer-term answer is a
+the exact wording. On our **unseen holdout set** (never used to adjust the rules) Sentra flagged all 22 of 22 scams at the Suspicious-or-higher cut-off in this run. This is a team-authored holdout,
+not independent real-world validation; a new scam can still evade the rules. Updating is cheap: signals and scam scripts are data files, not code. The longer-term answer is a
 learned component plus a reporting loop.
 
 ---
@@ -71,12 +71,12 @@ learned component plus a reporting loop.
 40-case **holdout** set, never tuned on: **77.3% flagged, 94.4% precision, 1 false alarm in 18 genuine (5.6%)**. The cases
 were written by our team, so this is **not independent real-world validation**. We say that on the site.
 
-**What are the false positives?** A delivery or ride OTP that is *meant* to be shared in person is flagged (one of the
-holdout cases). Mitigation today: the evidence is shown so the user can judge. Next step: recognise "share with the
-delivery agent at your door" context.
+**What are the false positives?** None at the Suspicious-or-higher cut-off in the current team-authored main and holdout
+benchmarks. That does not establish a zero false-positive rate in real-world use.
 
-**Which scams does it miss?** Investment and crypto scams with no warning words; lookalike domains that only add a prefix to
-a brand (for example `paytmbank-kyc.in`); vishing that gives a mobile number without other pressure.
+**Which scams does it miss?** The rules can miss novel wording, scams with no observable indicators in the submitted
+content, and tactics designed to evade static pattern matching. The current benchmark covers selected examples only; it
+cannot establish coverage of every scam category.
 
 **Why not follow redirects and open links?** Opening an unknown link from a server can expose us and the user, and it breaks
 the promise that Sentra never visits what you give it. A shortened link is flagged because it *hides* the destination. We
