@@ -241,6 +241,18 @@ def test_csp_does_not_allow_external_script_hosts():
     assert "script-src 'self' 'unsafe-inline'" in policy
     assert "cdnjs.cloudflare.com" not in policy
 
+def test_hsts_is_only_sent_on_https_including_early_body_rejections():
+    secure = TestClient(server.app, base_url="https://testserver")
+    assert secure.get("/api/health").headers["strict-transport-security"] == "max-age=31536000"
+    assert "strict-transport-security" not in client.get("/api/health").headers
+    rejected = secure.post(
+        "/api/scan",
+        content=b"x",
+        headers={"content-length": str(server.MAX_BODY + 1)},
+    )
+    assert rejected.status_code == 413
+    assert rejected.headers["strict-transport-security"] == "max-age=31536000"
+
 
 def test_interactive_docs_are_switched_off():
     for path in ("/docs", "/redoc", "/openapi.json"):
