@@ -549,10 +549,14 @@ return sec}
 let stream=null,raf=0,qrPayload="";
 const cv=document.createElement("canvas"),cx=cv.getContext("2d",{willReadFrequently:true});
 async function startCam(){
-if(!window.jsQR){$("err").textContent="The QR reader could not load. Check your internet connection.";return}
-try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})}
-catch(e){$("err").textContent="Camera access was blocked. Allow the camera for this site, or upload a photo of the QR instead.";return}
-const v=$("cam");v.srcObject=stream;await v.play();$("scanner").hidden=false;scanLoop()}
+$("err").textContent="";
+if(!window.jsQR){$("err").textContent="The QR reader could not load. Refresh the page or upload a QR photo.";return}
+if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){$("err").textContent="This browser does not support camera access. Upload a QR photo instead.";return}
+try{
+stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+const v=$("cam");v.srcObject=stream;await v.play();$("scanner").hidden=false;scanLoop();
+}catch(e){stopCam();$("err").textContent="Camera access failed or was blocked. Allow camera permission, use HTTPS, or upload a QR photo instead."}
+}
 function stopCam(){cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$("scanner").hidden=true}
 function scanLoop(){const v=$("cam");
 if(v.readyState===v.HAVE_ENOUGH_DATA){cv.width=v.videoWidth;cv.height=v.videoHeight;cx.drawImage(v,0,0);
@@ -568,6 +572,7 @@ const imageName=(f.name||"").toLowerCase();
 const isImage=(f.type||"").toLowerCase().startsWith("image/")||/\.(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(imageName);
 if(!isImage){$("err").textContent="Choose a photo file (JPG, PNG or WebP) containing a QR code.";return}
 if(f.size>20*1024*1024){$("err").textContent="That photo is larger than 20 MB. Choose a smaller image.";return}
+$("err").textContent="Reading QR image…";
 let source=null,objectUrl="";
 try{
 objectUrl=URL.createObjectURL(f);
@@ -575,6 +580,7 @@ if("createImageBitmap" in window){try{source=await createImageBitmap(f)}catch(e)
 if(!source)source=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("image"));img.src=objectUrl});
 const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
 if(!width||!height)throw new Error("image");
+if(width*height>40000000){$("err").textContent="That image has too many pixels to scan safely. Resize it or take a smaller screenshot.";return}
 const maxSide=Math.max(width,height),base=Math.min(1,1800/maxSide);
 for(const scale of [base,base*.75,base*.5]){
 cv.width=Math.max(1,Math.round(width*scale));cv.height=Math.max(1,Math.round(height*scale));
