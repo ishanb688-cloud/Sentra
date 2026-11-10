@@ -1,1 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><style>.sh{fill:#9b7bff;stroke:#ece5ff;stroke-width:1.2}.dr{fill:#0b0a12}.ey{fill:#ece5ff}.wg{fill:#5b3fd0}.nd{fill:#ece5ff}.tr{stroke:#ece5ff;stroke-width:.8;fill:none;stroke-linecap:round}</style><path class="sh" d="M32 2l24 9v19c0 15-10 26-24 32C18 56 8 45 8 30V11z"/><g transform="translate(6.2 7) scale(.86)"><g class="dr"><path d="M17 25Q10 16 6 8Q17 12 26 22Z"/><path d="M27 22Q24 15 23 10Q31 14 35 23Z"/><path d="M14 34L15 24L25 21L37 23L51 27L54 31L45 33L34 34L22 37Z"/><path d="M20 41L33 39L46 41L40 46L29 49L19 47Z"/><path d="M14 34L22 38L19 47L10 49Z"/><path d="M14 31L7 33L14 37Z"/><path d="M12 41L6 46L15 45Z"/><path d="M40 33.5L44 33L42 38.5Z"/><path d="M35 39.5L39 39.5L37 35Z"/></g><g class="ey"><path d="M28 26L36 25L33 28.5Z"/><circle cx="49" cy="29" r="1.2"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+<title id="title">Sentra dragon shield</title><desc id="desc">Sentra cybersecurity dragon shield browser icon.</desc>
+<defs>
+ <linearGradient id="shield" x1="18" y1="12" x2="108" y2="118" gradientUnits="userSpaceOnUse"><stop stop-color="#9B7BFF"/><stop offset=".52" stop-color="#6848E8"/><stop offset="1" stop-color="#11D6E8"/></linearGradient>
+ <linearGradient id="edge" x1="24" y1="18" x2="105" y2="108" gradientUnits="userSpaceOnUse"><stop stop-color="#F4F0FF"/><stop offset=".48" stop-color="#A78BFA"/><stop offset="1" stop-color="#39E6F4"/></linearGradient>
+ <linearGradient id="dragon" x1="28" y1="23" x2="101" y2="98" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFFFF"/><stop offset=".38" stop-color="#DCD4FF"/><stop offset="1" stop-color="#72F3FF"/></linearGradient>
+ <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<path d="M64 5 111 23v36c0 29-18 51-47 64C35 110 17 88 17 59V23L64 5Z" fill="#090B16" stroke="url(#edge)" stroke-width="3"/>
+<path d="M64 13 103 28v30c0 24-14 42-39 54C39 100 25 82 25 58V28l39-15Z" fill="url(#shield)" opacity=".2"/>
+<path d="M32 48 18 37l5 21 12 3M96 48l14-11-5 21-12 3" fill="none" stroke="#6C5BFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<g fill="none" stroke="#45DDF0" stroke-width="2" opacity=".8"><path d="M35 73h12l7-7M93 73H81l-7-7M42 88h12l5-6M86 88H74l-5-6"/><circle cx="35" cy="73" r="2" fill="#45DDF0"/><circle cx="93" cy="73" r="2" fill="#45DDF0"/></g>
+<g filter="url(#glow)">
+ <path d="M34 54 25 29l25 15 12 2 17-13 21-3-13 17 12 8-13 15-19 3-8 13-13-6-11 8 3-17-12-9 15-8 8-14Z" fill="url(#dragon)" stroke="#F7F4FF" stroke-width="1.6" stroke-linejoin="round"/>
+ <path d="m50 45-5-15 16 13M77 43l13-16-1 20" fill="#9B7BFF" stroke="#EDE8FF" stroke-width="1.5" stroke-linejoin="round"/>
+ <path d="m70 52 13-2-8 8Z" fill="#101322"/><path d="m81 53 4-1-3 3Z" fill="#07101B"/>
+ <path d="m40 61-13 2 9 7M53 72l-7 14 16-7M80 68l12 7-14 3" fill="none" stroke="#6D55E8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<path d="M64 89v17M56 97l8 8 8-8" fill="none" stroke="#E9E3FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+</svg>
