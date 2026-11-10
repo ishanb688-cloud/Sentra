@@ -141,8 +141,13 @@ def test_streamed_body_within_limit_reaches_application():
             return {"type": "http.disconnect"}
 
         async def downstream(scope, receive, send):
-            message = await receive()
-            received.append(message["body"])
+            while True:
+                message = await receive()
+                if message["type"] == "http.disconnect":
+                    break
+                received.append(message["body"])
+                if not message.get("more_body", False):
+                    break
 
         async def send(message):
             pass
@@ -150,7 +155,7 @@ def test_streamed_body_within_limit_reaches_application():
         middleware = server.BodyLimitMiddleware(downstream, max_body=10)
         scope = {"type": "http", "method": "POST", "path": "/api/scan", "headers": []}
         await middleware(scope, receive, send)
-        assert received == [b"helloworld"]
+        assert received == [b"hello", b"world"]
 
     asyncio.run(scenario())
 
