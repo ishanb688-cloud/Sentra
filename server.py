@@ -30,7 +30,7 @@ MAX_UNPACKED = 400 * 1024 * 1024
 MAX_RATIO = 200
 GENERIC_ERROR = "Sentra could not analyse that input."
 
-CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; "
        "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; "
        "connect-src 'self'; media-src 'self' blob:; manifest-src 'self'; "
        "frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
