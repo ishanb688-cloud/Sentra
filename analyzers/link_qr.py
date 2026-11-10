@@ -70,6 +70,9 @@ def brand_hits(tokens, joined=""):
                     kind = "embedded"
                 elif norm(t) == bt:
                     kind = "homoglyph"
+                elif (len(bt) >= 5 and t.startswith(bt) and len(t) > len(bt)
+                      and re.search(r"(bank|kyc|login|secure|verify|support|refund|account|update)", t[len(bt):])):
+                    kind = "brand_prefix"
                 elif len(bt) >= 5 and len(t) >= 5 and lev(t, bt) <= (1 if len(bt) < 8 else 2):
                     kind = "typo"
                 else:
