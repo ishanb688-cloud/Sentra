@@ -122,5 +122,21 @@
    "The fee is paid to an unverified recruiter",
    "The promised job or interview does not materialise"
   ]
+ },
+ {
+  "id": "task_recharge",
+  "need": [
+   "financial_redirect"
+  ],
+  "with_signals": [
+   "msg_task_scam"
+  ],
+  "bonus": 0.2,
+  "replay": [
+   "A message offers easy money for likes, ratings, or simple online tasks",
+   "The first small task may appear to pay",
+   "You are asked to recharge or deposit money to unlock higher-value tasks or withdrawals",
+   "The platform blocks withdrawals or demands more deposits"
+  ]
  }
 ]
