@@ -27,7 +27,7 @@ def test_repeatable_demo_examples_are_present():
 
 def test_frontend_does_not_claim_qr_payee_identity_is_verified():
     source = WEB.read_text(encoding="utf-8")
-    assert "NOT VERIFIED" in source
+    assert "identity not verified" in source
     assert "not bank-verified" in source
     assert "Sentra never sends money or approves the payment" in source
 
