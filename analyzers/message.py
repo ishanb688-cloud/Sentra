@@ -89,7 +89,7 @@ RULES = {
     ],
     "msg_task_scam": [
         # Task scams ask victims to recharge, deposit, or pay to unlock higher-value tasks or withdrawals.
-        (r"(?=.*\\b(task|tasks|like videos|rate products|review products|telegram group)\\b)(?=.*\\b(recharge|top.?up|deposit|unlock (?:your )?withdrawals?|withdrawal fee|prepaid task|advance payment)\\b).+", 1.0),
+        (r"(?=.*\b(task|tasks|like videos|rate products|review products|telegram group)\b)(?=.*\b(recharge|top.?up|deposit|unlock (?:your )?withdrawals?|withdrawal fee|prepaid task|advance payment)\b).+", 1.0),
     ],
     "msg_investment_lure": [
         # High-return guarantees tied to an investment or crypto offer are a strong scam pattern.
