@@ -456,7 +456,7 @@ html:not(.pointer-mode) button:focus-visible,html:not(.pointer-mode) a:focus-vis
 <div class="panel limits"><h2>What Sentra cannot do</h2><ul><li>It never says something is safe. The lowest level is "Low signals".</li><li>It is not machine learning, so it recognises known patterns and does not learn new scams by itself.</li><li>Its test results come from cases written by the team, not independent real-world data.</li><li>A name inside a payment QR is typed by whoever made it. Only your UPI app can show the account's registered name.</li><li>It reads patterns, so a brand-new scam can slip through. Treat it as a second opinion, not a guarantee.</li></ul></div></section>
 </main></div>
 <nav class="dock" id="dock" aria-label="Quick actions"><button type="button" data-d="paste"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="12" height="16" rx="2"/><path d="M9 5V4h6v1M9 11h6M9 15h4"/></svg><span>Paste</span></button><button type="button" data-d="upload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg><span>Upload</span></button><button type="button" data-d="scan" class="fab" aria-label="Scan a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg></button><button type="button" data-d="demo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg><span>Demo</span></button><button type="button" data-d="report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg><span>Report</span></button></nav><input type="file" id="anyFile" class="file-picker" accept=".apk,image/*" aria-hidden="true" tabindex="-1"><div class="toast" id="toast" role="status"></div>
-<script src="/jsQR.js"></script>
+<script src="/jsQR.js?v=sentra-qr-20261110"></script>
 <script>
 const $=id=>document.getElementById(id);
 const SAMPLES={
@@ -575,20 +575,42 @@ sec.append(el("p","note","QR contents are untrusted input. A decoded QR is not p
 return sec}
 let stream=null,raf=0,qrPayload="",qrDetector=null,qrFrameBusy=false,lastScanAt=0,torchOn=false;
 const cv=document.createElement("canvas"),cx=cv.getContext("2d",{willReadFrequently:true});
+let qrLibraryPromise=null;
+function ensureQRLibrary(){
+if(typeof window.jsQR==="function")return Promise.resolve(true);
+if(qrLibraryPromise)return qrLibraryPromise;
+qrLibraryPromise=new Promise(resolve=>{
+const script=document.createElement("script");
+script.src="/jsQR.js?v=sentra-qr-20261110";
+script.async=true;
+script.onload=()=>resolve(typeof window.jsQR==="function");
+script.onerror=()=>resolve(false);
+document.head.appendChild(script);
+});
+return qrLibraryPromise;
+}
 function makeQRDetector(){try{return "BarcodeDetector" in window?new BarcodeDetector({formats:["qr_code"]}):null}catch(e){return null}}
 async function decodeQRCanvas(){
-if(!cv.width||!cv.height)return "";
+if(!cv.width||!cv.height||!cx)return "";
 if(!qrDetector)qrDetector=makeQRDetector();
-// Native decoding is fast on supported browsers. Fall back to jsQR once;
-// jsQR's attemptBoth mode already handles normal and inverted QR codes.
+// Try the browser's native decoder first, then always fall back to the bundled
+// jsQR decoder. A native detector miss must never block the fallback.
 if(qrDetector){try{const codes=await qrDetector.detect(cv);if(codes&&codes.length&&codes[0].rawValue)return codes[0].rawValue}catch(e){}}
-if(window.jsQR){try{const im=cx.getImageData(0,0,cv.width,cv.height);const code=window.jsQR(im.data,im.width,im.height,{inversionAttempts:"attemptBoth"});if(code&&code.data)return code.data}catch(e){}}
+if(await ensureQRLibrary()){
+try{
+const im=cx.getImageData(0,0,cv.width,cv.height);
+const code=window.jsQR(im.data,im.width,im.height,{inversionAttempts:"attemptBoth"});
+if(code&&code.data)return code.data;
+}catch(e){}
+}
 return "";
 }
 async function startCam(){
-$("err").textContent="";
+$("err").textContent="Loading QR reader…";
+const libraryReady=await ensureQRLibrary();
 qrDetector=makeQRDetector();
-if(!qrDetector&&!window.jsQR){$("err").textContent="The QR reader could not load. Refresh the page or upload a QR photo.";return}
+if(!qrDetector&&!libraryReady){$("err").textContent="Sentra could not load its QR decoder. Refresh the page and try again.";return}
+$("err").textContent="";
 if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){$("err").textContent="This browser does not support camera access. Upload a QR photo instead.";return}
 try{
 stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}});
@@ -615,9 +637,12 @@ finally{qrFrameBusy=false}
 if(stream)raf=requestAnimationFrame(scanLoop);
 }
 function gotQR(data){qrPayload=data;showQR();refreshBadges();navTo("qr");$("go").click()}
-function openPicker(input){if(!input)return;try{if(typeof input.showPicker==="function")input.showPicker();else input.click()}catch(e){try{input.click()}catch(err){$("err").textContent="Your browser blocked the file picker. Try refreshing the page or using another browser."}}}
+function openPicker(input){if(!input)return;try{input.value="";input.click()}catch(e){$("err").textContent="Your browser blocked the file picker. Try refreshing the page or using another browser."}}
 async function readPhoto(f){
 if(!f)return;
+$("err").textContent="Loading QR reader…";
+const libraryReady=await ensureQRLibrary();
+if(!qrDetector&&!libraryReady){$("err").textContent="Sentra could not load its QR decoder. Refresh the page and try again.";return}
 $("err").textContent="";
 const imageName=(f.name||"").toLowerCase();
 const isImage=(f.type||"").toLowerCase().startsWith("image/")||/\.(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(imageName);
