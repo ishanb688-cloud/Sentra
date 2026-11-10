@@ -30,6 +30,7 @@ SHORT = r"(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|goo\.gl|shorturl\
 # signal id -> list of (pattern, strength). The strongest match wins.
 RULES = {
     "msg_otp_request": [
+        (r"\b(share|send|tell|give|provide|forward|read out|enter|confirm)\b[^.\n]{0,25}\b(otp|pin|cvv|password|passcode)\b", 1.0),
         (r"\b(otp|pin|cvv|password|passcode)\b[^.\n]{0,35}\b(batao|bataye|bataiye|bhejo|bhejiye|share karo|send karo|forward karo|darj karo|likho)\b", 1.0),
         (r"\b(batao|bataye|bataiye|bhejo|bhejiye|darj karo)\b[^.\n]{0,25}\b(otp|pin|cvv|password|passcode)\b", 1.0),
     ],
