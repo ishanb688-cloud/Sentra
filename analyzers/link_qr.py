@@ -89,10 +89,14 @@ def mentions(brand, ctx):
 
 def check_url(url, ctx, add):
     """Adds signals for one link. Returns (domain, https) if it is clean and official."""
-    raw = url if re.match(r"^[a-z]+://", url, re.I) else "http://" + url
+    scheme_match = re.match(r"^([a-z][a-z0-9+.-]*):", url, re.I)
+    if scheme_match and scheme_match.group(1).lower() not in ("http", "https"):
+        add("link_odd_host", 1.0, f"unsafe or unsupported URL scheme {scheme_match.group(1).lower()}")
+        return None
+    raw = url if re.match(r"^https?://", url, re.I) else "http://" + url
     try:
         p = urlparse(raw)
-        host = (p.hostname or "").lower()
+        host = unquote(p.hostname or "").lower()
         port = p.port
     except ValueError:
         add("link_odd_host", 0.6, "malformed address")
@@ -101,7 +105,7 @@ def check_url(url, ctx, add):
         return None
 
     https = raw.lower().startswith("https://")
-    path_q = (p.path or "") + "?" + (p.query or "")
+    path_q = unquote((p.path or "") + "?" + (p.query or ""))
     try:
         ipaddress.ip_address(host)
         is_ip = True
