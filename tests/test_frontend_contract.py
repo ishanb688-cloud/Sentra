@@ -37,7 +37,7 @@ def test_camera_and_photo_share_native_and_jsqr_decoder():
     assert "function makeQRDetector()" in source
     assert "async function decodeQRCanvas()" in source
     assert "let data=await decodeQRCanvas()" in source
-    assert "const decoded=await decodeQRCanvas()" in source
+    assert "const decoded=await tryRegion(0,0,width,height,scale)" in source
     assert "const passes=[base,Math.min(2,base*1.5),Math.min(2.5,base*2)]" in source
     assert "Scan overlapping regions" in source
     assert "const target=Math.min(1400,Math.round(side*1.6))" in source
