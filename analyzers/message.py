@@ -105,7 +105,7 @@ RULES = {
         # Require both an investment/trading context and an implausible return promise.
         (r"(?=.*\b(invest|investment|crypto|trading plan|stock tips?|forex|mutual fund|trading account)\b)(?=.*\b(guaranteed|assured|fixed|risk[- ]free|no[- ]risk)\s+(daily |weekly |monthly )?returns?\b).+", 1.0),
         (r"(?=.*\b(invest|investment|crypto|trading plan|stock tips?|forex|trading account)\b)(?=.*\b(double|triple)\s+(your\s+)?money\b).+", 1.0),
-        (r"(?=.*\b(invest|investment|crypto|trading plan|stock tips?|forex)\b)(?=.*\b(earn|profit|return)\b.{0,35}\b(\d{1,3}%\s*(?:profit\s*)?(per|a)\s*(day|week|month)|daily profit|weekly profit)\b).+", 0.9),
+        (r"(?=[\s\S]*\b(invest|investment|crypto|trading plan|stock tips?|forex|mutual fund|trading account)\b)(?=[\s\S]*\b(earn|profit|return)\b)(?=[\s\S]*\b(\d{1,3}%\s*profit\s*(per|a)\s*(day|week|month)|daily profit|weekly profit|profit of \d{1,3}%)\b)[\s\S]+", 0.9),
     ],
     "msg_delivery_fee_scam": [
         # Delivery context plus demanded fee and a pressure/link cue; ordinary updates stay lower risk.
