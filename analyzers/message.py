@@ -1,26 +1,25 @@
+"""Reads message wording and turns it into signals."""
 import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from analyzers.urls import find_urls
 from engine.fusion import make
 
-# Warnings that genuine banks include; remove them so they never trigger a signal.
+# Warnings that genuine banks include; removed so they never trigger a signal.
 WARNING = re.compile(r"\b(do not|don't|dont|never)\s+(share|disclose|reveal|give)\b[^.\n]*", re.I)
-
-URL = re.compile(
-    r"https?://\S+|www\.\S+|\b\S+\.(?:com|in|xyz|top|apk|co|net|org)/\S*"
-    r"|\b(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|goo\.gl|shorturl\.at)/\S+",
-    re.I,
-)
-
+# Genuine alerts tell you to call a toll-free helpline if a payment was not yours.
+# Scams give a mobile number or a link instead, so only the toll-free form is ignored.
+DISPUTE_SAFE = re.compile(
+    r"\bif (?:this was |it was )?not (?:you|done by you)[,:]?\s*(?:please\s+)?call\s+(?:our\s+)?(?:toll[- ]free\s+)?(?:number\s+)?(?:1800|1860)(?:[\s\-]?\d+)*(?:\s+(?:immediately|now|at once))?",
+    re.I)
 ACTION_WORDS = re.compile(
-    r"\b(click|tap|call|install|download|share|send|pay|reply|update|verify|visit|open|enter)\b", re.I
-)
-
+    r"\b(click|tap|call|install|download|share|send|pay|reply|update|verify|visit|open|enter)\b", re.I)
 MASKED_ACCOUNT = re.compile(r"(a/c|acct|account|card)[^.\n]{0,15}(x{2,}|\*{2,})\s?\d{3,4}", re.I)
+SHORT = r"(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|goo\.gl|shorturl\.at|tiny\.cc|ow\.ly)/\S+"
 
-# signal id -> list of (pattern, strength). The best match wins.
+# signal id -> list of (pattern, strength). The strongest match wins.
 RULES = {
     "msg_otp_request": [
         (r"\b(share|send|tell|give|provide|forward|read out|enter|confirm)\b[^.\n]{0,25}\b(otp|pin|cvv|password|passcode)\b", 1.0),
@@ -43,14 +42,15 @@ RULES = {
         (r"\b(fee|charge|penalty|fine)\b[^.\n]{0,25}\b(pay|due|pending)\b", 0.7),
     ],
     "msg_threat_block": [
-        (r"\bwill be (blocked|suspended|deactivated|frozen|closed|cancelled|disconnected|terminated)\b", 1.0),
+        (r"\bwill be (blocked|suspended|deactivated|frozen|closed|cancelled|disconnected|terminated|cut|disabled|barred|locked)\b", 1.0),
         (r"\b(legal action|arrest|police case|fir)\b", 1.0),
         (r"\b(band|block|suspend)\s+ho\s+(jayega|jaega|jayegi|jaayega)\b", 1.0),
         (r"\b(illegal activity|money laundering|digital arrest|case (has been )?(registered|filed) against you)\b", 1.0),
         (r"\baccount (is )?(blocked|suspended|frozen)\b", 0.6),
     ],
     "msg_authority_claim": [
-        (r"\b(calling from|i am from|bank officer|customer care executive|dear customer)\b", 1.0),
+        (r"\b(calling from|i am from|bank officer|customer care executive)\b", 1.0),
+        (r"\bdear (customer|user|sir|madam|account holder)\b", 0.5),
         (r"\b(rto|echallan|challan|parivahan)\b", 0.8),
         (r"\b(package|parcel|courier)\b[^.\n]{0,20}\b(held|stuck|pending|undelivered|returned)\b", 0.8),
         (r"\b(sbi|hdfc|icici|axis|kotak|pnb|bank of baroda|rbi|paytm|phonepe|income tax|police|cbi|customs|trai|uidai|india post|bluedart|dtdc|delhivery)\b", 0.6),
@@ -63,8 +63,10 @@ RULES = {
         (r"\bwithin\s+\d+\s*(hours|hrs|minutes|mins)\b", 1.0),
         (r"\b(immediately|urgent(ly)?|last chance|today only|expires today)\b", 0.8),
     ],
-    "msg_unknown_shortlink": [
-        (r"\b(bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|goo\.gl|shorturl\.at)/\S+", 1.0),
+    "msg_unknown_shortlink": [(r"\b" + SHORT, 1.0)],
+    "msg_wrong_transfer": [
+        (r"\b(by mistake|wrongly|wrong number|wrong account)\b.{0,80}\b(return|send back|refund|transfer back|give back)\b", 1.0),
+        (r"\b(return|send back|refund|give back)\b[^.\n]{0,50}\b(amount|money|payment)\b[^.\n]{0,40}\b(by mistake|wrongly)\b", 1.0),
     ],
     "msg_job_lure": [
         (r"\b(you are|you have been) selected for\b[^.\n]{0,30}\b(job|position|role|internship)\b", 1.0),
@@ -76,14 +78,13 @@ RULES = {
         (r"\b(hi|hello)\s+(mom|mum|dad|mummy|papa)\b", 0.7),
     ],
 }
-
 COMPILED = {sid: [(re.compile(p, re.I), s) for p, s in rules] for sid, rules in RULES.items()}
 
 
 def analyze(text):
-    clean = WARNING.sub(" ", text)
+    text = text or ""
+    clean = DISPUTE_SAFE.sub(" ", WARNING.sub(" ", text))
     signals = []
-
     for sid, rules in COMPILED.items():
         best = None
         for pattern, strength in rules:
@@ -93,13 +94,12 @@ def analyze(text):
         if best:
             signals.append(make(sid, best[0], best[1]))
 
-    # Dampeners: only when there is no link and nothing serious was found.
-    has_link = bool(URL.search(clean))
+    # Reassuring signs apply only when there is no link and nothing serious was found.
+    has_link = bool(find_urls(text))
     serious = {"credential_theft", "device_takeover", "financial_redirect", "urgency"}
     if not has_link and not any(s["category"] in serious for s in signals):
-        if MASKED_ACCOUNT.search(text):
+        if MASKED_ACCOUNT.search(text or ""):
             signals.append(make("known_sender_format", 1.0, "masked account number, no link"))
         if not ACTION_WORDS.search(clean):
             signals.append(make("no_action_requested", 1.0, "no action requested"))
-
     return signals

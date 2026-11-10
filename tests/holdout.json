@@ -1,0 +1,291 @@
+{
+ "meta": {
+  "note": "Holdout set written after the main benchmark and NOT used to tune rules. Still authored by the Sentra team, so not independent real-world data."
+ },
+ "cases": [
+  {
+   "id": "H01",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Hello sir, your parcel address is incorrect. Update here to avoid return: trackmypkg-india.com/update"
+  },
+  {
+   "id": "H02",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Congrats! You are selected for Amazon part time job. Earn 3000/day. Registration fee Rs 499 to confirm your slot."
+  },
+  {
+   "id": "H03",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Sir your electricity bill payment of last month is not updated. Your power will be disconnected at 9:30PM today. Contact officer 9876512345"
+  },
+  {
+   "id": "H04",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Dear customer your Airtel number will be deactivated today. Update Aadhaar KYC: airtel-kyc-verify.in"
+  },
+  {
+   "id": "H05",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Aapka SBI account freeze ho gaya hai. KYC update ke liye link par click karein: sbi-yono-update.co.in"
+  },
+  {
+   "id": "H06",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your credit card has been charged Rs 49,999 for iPhone. If not authorised, call our helpline 7011223344 immediately."
+  },
+  {
+   "id": "H07",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Mum, I lost my phone, this is my friend's number. Send Rs 12,000 to this UPI now, will return tonight."
+  },
+  {
+   "id": "H08",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your Netflix subscription is on hold. Update payment details: netflix-billing-support.xyz"
+  },
+  {
+   "id": "H09",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Customs duty pending for your gift parcel from UK. Pay Rs 3,800 via UPI to release it: 9812312345@ybl"
+  },
+  {
+   "id": "H10",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Last reminder: your PAN will be deactivated if not linked with Aadhaar by today. Link now at pan-aadhaar-link.in"
+  },
+  {
+   "id": "H11",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "You have been selected for a government subsidy of Rs 10,000. Share your bank details and OTP to receive it."
+  },
+  {
+   "id": "H12",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "SBI: Your YONO is blocked. Install the new YONO app from this link to continue: yono-sbi-app.apk"
+  },
+  {
+   "id": "H13",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Hi, I saw your profile. Invest Rs 5,000 in our crypto plan and get Rs 20,000 in 2 days. Guaranteed returns."
+  },
+  {
+   "id": "H14",
+   "category": "Holdout: messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Police case registered on your name for sending obscene content. Pay Rs 25,000 settlement to close the case, else arrest tonight."
+  },
+  {
+   "id": "H15",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your KYC has been successfully updated. No further action is required. -SBI"
+  },
+  {
+   "id": "H16",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your Flipkart order is out for delivery. Share the delivery OTP 4821 with the agent only at your doorstep."
+  },
+  {
+   "id": "H17",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your Uber ride OTP is 5521. Share it with your driver to start the trip."
+  },
+  {
+   "id": "H18",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your electricity bill of Rs 1,240 is due on 14-Nov. Pay on the BESCOM app or at bescom.karnataka.gov.in. Ignore if already paid."
+  },
+  {
+   "id": "H19",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Alert: Rs 15,000 debited from your A/c XX7712 at ATM on 08-11. Not you? Call 1800-425-1111 now. -Axis Bank"
+  },
+  {
+   "id": "H20",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your Google account was signed in on a new device. If this was you, no action is needed. If not, secure your account at accounts.google.com"
+  },
+  {
+   "id": "H21",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your SBI Life policy premium of Rs 20,000 is due on 25-Nov. Pay at https://www.sbilife.co.in"
+  },
+  {
+   "id": "H22",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your Amazon Pay balance was credited with Rs 100 cashback for your recent purchase."
+  },
+  {
+   "id": "H23",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your Paytm KYC verification is complete. Your wallet limit is now Rs 1,00,000."
+  },
+  {
+   "id": "H24",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Reminder: your Netflix subscription renews tomorrow for Rs 649. Manage it at netflix.com/account"
+  },
+  {
+   "id": "H25",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Hello, I am at your gate with the parcel. Please come down to collect it."
+  },
+  {
+   "id": "H26",
+   "category": "Holdout: messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Dear parent, school fee of Rs 15,000 is due by 30 Nov. Pay on the school portal. A late fee of Rs 500 applies after the due date."
+  },
+  {
+   "id": "H27",
+   "category": "Holdout: links",
+   "label": "malicious",
+   "kind": "link",
+   "input": "https://hdfc-bank.secure-login.top/"
+  },
+  {
+   "id": "H28",
+   "category": "Holdout: links",
+   "label": "malicious",
+   "kind": "link",
+   "input": "http://192.0.2.45/sbi/"
+  },
+  {
+   "id": "H29",
+   "category": "Holdout: links",
+   "label": "malicious",
+   "kind": "link",
+   "input": "https://www.sbi-co-in.com/login"
+  },
+  {
+   "id": "H30",
+   "category": "Holdout: links",
+   "label": "malicious",
+   "kind": "link",
+   "input": "tinyurl.com/3xp9"
+  },
+  {
+   "id": "H31",
+   "category": "Holdout: links",
+   "label": "malicious",
+   "kind": "link",
+   "input": "https://paytmbank-kyc.in/upload"
+  },
+  {
+   "id": "H32",
+   "category": "Holdout: links",
+   "label": "genuine",
+   "kind": "link",
+   "input": "https://www.paytm.com/recharge-and-pay-bills"
+  },
+  {
+   "id": "H33",
+   "category": "Holdout: links",
+   "label": "genuine",
+   "kind": "link",
+   "input": "https://myaccount.google.com/security"
+  },
+  {
+   "id": "H34",
+   "category": "Holdout: links",
+   "label": "genuine",
+   "kind": "link",
+   "input": "https://www.flipkart.com/account/orders"
+  },
+  {
+   "id": "H35",
+   "category": "Holdout: links",
+   "label": "genuine",
+   "kind": "link",
+   "input": "https://www.npci.org.in/what-we-do/upi/product-overview"
+  },
+  {
+   "id": "H36",
+   "category": "Holdout: QR / UPI",
+   "label": "malicious",
+   "kind": "qr",
+   "input": "upi://pay?pa=9090909090@okaxis&pn=Flipkart%20Delivery&am=299",
+   "context": "Pay Rs 299 delivery charge by scanning this QR to receive your Flipkart order"
+  },
+  {
+   "id": "H37",
+   "category": "Holdout: QR / UPI",
+   "label": "malicious",
+   "kind": "qr",
+   "input": "upi://pay?pa=support.refund@icici&pn=Amazon%20Support&am=1",
+   "context": "Scan this QR to get your Amazon refund"
+  },
+  {
+   "id": "H38",
+   "category": "Holdout: QR / UPI",
+   "label": "malicious",
+   "kind": "qr",
+   "input": "upi://pay?pa=lucky7788@upi&pn=Lucky%20Draw&am=500",
+   "context": "You won a lucky draw! Scan to receive Rs 50,000 prize, pay Rs 500 verification fee"
+  },
+  {
+   "id": "H39",
+   "category": "Holdout: QR / UPI",
+   "label": "genuine",
+   "kind": "qr",
+   "input": "upi://pay?pa=chaiwala@okhdfcbank&pn=Gupta%20Chai&am=20"
+  },
+  {
+   "id": "H40",
+   "category": "Holdout: QR / UPI",
+   "label": "genuine",
+   "kind": "qr",
+   "input": "upi://pay?pa=anil.sharma@ybl&pn=Anil%20Sharma&tn=Rent",
+   "context": "Rent for November"
+  }
+ ]
+}

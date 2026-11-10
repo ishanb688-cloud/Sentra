@@ -1,8 +1,14 @@
+import io
+import tempfile
+import zipfile
+from pathlib import Path
+
+import pytest
 from fastapi.testclient import TestClient
 
-from server import app
+import server
 
-client = TestClient(app)
+client = TestClient(server.app)
 
 KYC = ("Dear customer, your SBI account will be blocked today. Update your KYC "
        "immediately: http://sbi-kyc-update.xyz/login and share the OTP you receive.")
@@ -10,45 +16,151 @@ GENUINE = ("Rs 2,500.00 debited from A/c XX1234 on 06-11-26. If not you, call "
            "1800-000-000. Do not share OTP with anyone. -SBI")
 
 
+@pytest.fixture(autouse=True)
+def fresh_limiter():
+    server.LIMITER.hits.clear()
+    server.LIMITER.limit = 1000
+    yield
+    server.LIMITER.limit = 30
+
+
 def post(text="", files=None):
     return client.post("/api/scan", data={"text": text}, files=files)
+
+
+def zip_bytes(names):
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        for n in names:
+            z.writestr(n, b"x")
+    return buf.getvalue()
 
 
 def test_health():
     assert client.get("/api/health").json() == {"status": "ok"}
 
 
-def test_scam_is_critical_with_chain():
+def test_scam_is_critical_with_chain_and_replay():
     r = post(KYC).json()
-    assert r["level"] == "Critical"
-    assert r["chain"] == "fake_kyc"
+    assert r["level"] == "Critical" and r["chain"] == "fake_kyc" and r["replay"]
 
 
 def test_genuine_alert_is_low():
     assert post(GENUINE).json()["level"] == "Low signals"
 
 
+def test_bare_domain_link_is_analysed():
+    r = post("Your KYC is pending, update at hdfc-kyc-update.com/login").json()
+    assert any(s["id"] == "link_lookalike_brand" for s in r["signals"])
+
+
 def test_empty_input_does_not_crash():
     r = post("")
-    assert r.status_code == 200
-    assert r.json()["level"] == "Low signals"
+    assert r.status_code == 200 and r.json()["level"] == "Low signals"
 
 
-def test_very_long_text_is_handled():
+def test_very_long_text_is_capped_not_rejected():
     assert post("hello " * 5000).status_code == 200
 
 
-def test_fake_app_file_is_skipped_with_a_note():
+def test_result_always_carries_the_disclaimer_and_never_says_safe():
+    r = post(GENUINE).json()
+    assert "cannot guarantee" in r["disclaimer"] and r["level"] != "Safe"
+
+
+def test_non_apk_file_is_skipped_with_a_note():
+    r = post("", files={"apk": ("notes.txt", b"hello", "text/plain")})
+    assert r.status_code == 200 and r.json()["notes"]
+
+
+def test_fake_apk_that_is_not_a_zip_is_skipped():
     r = post("", files={"apk": ("evil.apk", b"not a zip", "application/octet-stream")})
+    assert r.status_code == 200 and "not an Android app file" in r.json()["notes"][0]
+
+
+def test_zip_without_manifest_is_skipped():
+    r = post("", files={"apk": ("x.apk", zip_bytes(["readme.txt"]), "application/octet-stream")})
+    assert "no Android manifest" in r.json()["notes"][0]
+
+
+def test_zip_with_too_many_entries_is_skipped(monkeypatch):
+    monkeypatch.setattr(server, "MAX_ZIP_ENTRIES", 3)
+    r = post("", files={"apk": ("x.apk", zip_bytes([f"f{i}" for i in range(10)] + ["AndroidManifest.xml"]), "a/b")})
+    assert "unusual number of files" in r.json()["notes"][0]
+
+
+def test_oversized_upload_is_refused(monkeypatch):
+    monkeypatch.setattr(server, "MAX_APK", 100)
+    r = post("", files={"apk": ("x.apk", b"PK" + b"0" * 500, "a/b")})
+    assert r.status_code == 200 and "larger than" in r.json()["notes"][0]
+
+
+def test_huge_declared_body_is_rejected_early():
+    r = client.post("/api/scan", content=b"x", headers={"content-length": str(server.MAX_BODY + 10)})
+    assert r.status_code == 413
+
+
+def test_odd_app_file_leaves_no_trace_on_disk_and_leaks_nothing():
+    before = set(Path(tempfile.gettempdir()).glob("tmp*.apk"))
+    r = post("", files={"apk": ("x.apk", zip_bytes(["AndroidManifest.xml"]), "a/b")})
+    after = set(Path(tempfile.gettempdir()).glob("tmp*.apk"))
     assert r.status_code == 200
-    assert r.json()["notes"]
+    assert after == before, "uploaded file was retained on disk"
+    for forbidden in ("Traceback", "/tmp", "site-packages", "androguard"):
+        assert forbidden not in r.text
+
+
+def test_unreadable_app_is_reported_safely_and_temp_file_is_deleted(monkeypatch):
+    def boom(path):
+        raise RuntimeError("cannot read " + path)
+    monkeypatch.setattr(server, "analyze_apk", boom)
+    before = set(Path(tempfile.gettempdir()).glob("tmp*.apk"))
+    r = post("", files={"apk": ("x.apk", zip_bytes(["AndroidManifest.xml"]), "a/b")})
+    after = set(Path(tempfile.gettempdir()).glob("tmp*.apk"))
+    assert r.status_code == 200 and "could not be read" in r.json()["notes"][0]
+    assert after == before and "/tmp" not in r.text
+
+
+def test_server_errors_never_expose_internal_paths(monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("/srv/secret/path.py exploded with token=abc123")
+    monkeypatch.setattr(server, "scan_with_notes", boom)
+    r = post("hello")
+    assert r.status_code == 500 and r.json() == {"error": server.GENERIC_ERROR}
+    assert "secret" not in r.text and "abc123" not in r.text
+
+
+def test_malformed_request_gets_a_generic_error():
+    r = client.post("/api/scan", content=b"not multipart", headers={"content-type": "multipart/form-data; boundary=x"})
+    assert r.status_code in (400, 422) and "Traceback" not in r.text
+
+
+def test_rate_limit_returns_429_then_recovers():
+    server.LIMITER.limit = 3
+    codes = [post("hi").status_code for _ in range(5)]
+    assert codes[:3] == [200, 200, 200] and codes[3] == 429
+    server.LIMITER.hits.clear()
+    assert post("hi").status_code == 200
+
+
+def test_rate_limiter_window_expires():
+    lim = server.RateLimiter(2, 60)
+    assert lim.allow("a", 0) and lim.allow("a", 1) and not lim.allow("a", 2)
+    assert lim.allow("a", 100)
 
 
 def test_security_headers_are_present():
     h = client.get("/api/health").headers
-    assert h["x-content-type-options"] == "nosniff"
-    assert h["x-frame-options"] == "DENY"
+    assert h["x-content-type-options"] == "nosniff" and h["x-frame-options"] == "DENY"
+    assert "default-src 'self'" in h["content-security-policy"]
+    assert "frame-ancestors 'none'" in h["content-security-policy"]
 
 
-def test_result_always_carries_the_disclaimer():
-    assert "cannot guarantee" in post(KYC).json()["disclaimer"]
+def test_interactive_docs_are_switched_off():
+    for path in ("/docs", "/redoc", "/openapi.json"):
+        assert client.get(path).status_code == 404
+
+
+def test_messages_are_not_written_to_history_on_the_server():
+    post("my secret message 98765")
+    assert not any(hasattr(server, name) for name in ("HISTORY", "STORE", "DB"))

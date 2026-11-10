@@ -1,0 +1,711 @@
+{
+ "meta": {
+  "note": "Authored by the Sentra team. Not independent real-world data. APK profiles are synthetic permission sets, not real malware."
+ },
+ "cases": [
+  {
+   "id": "P01",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Dear SBI user, your YONO account is temporarily suspended due to incomplete KYC. Re-activate now: https://yono-sbi-kyc.in/verify"
+  },
+  {
+   "id": "P02",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "HDFC Bank Alert: Your NetBanking will be blocked today. Update PAN immediately: hdfc-netbanking-update.com"
+  },
+  {
+   "id": "P03",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your ICICI debit card has been deactivated. Call 9876543210 immediately to reactivate and verify your card number and CVV."
+  },
+  {
+   "id": "P04",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Axis Bank: Rs 24,999 debited. If not you, click axisb-secure.xyz/dispute to cancel the transaction within 2 hours."
+  },
+  {
+   "id": "P05",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Congratulations! You have received a Paytm cashback of Rs 5000. Claim before it expires: paytm-reward-claim.top"
+  },
+  {
+   "id": "P06",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Income Tax Dept: Refund of Rs 15,430 approved. Confirm your bank account at incometax-refund-india.com to receive it."
+  },
+  {
+   "id": "P07",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your Aadhaar is linked to a SIM used in illegal activity. Your number will be disconnected. Press 1 to speak to CBI officer."
+  },
+  {
+   "id": "P08",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "URGENT: KYC pending for your Kotak account. Account will be frozen in 24 hours. Click bit.ly/kotak-kyc to update"
+  },
+  {
+   "id": "P09",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Dear Customer your PNB account has been suspended. Share OTP received on your phone to restore access."
+  },
+  {
+   "id": "P10",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "SIM KYC expired. Your SIM will be blocked in 2 hours. Complete verification: jio-kyc-update.in"
+  },
+  {
+   "id": "P11",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your electricity connection will be cut tonight at 9.30 PM as previous month bill was not updated. Call 8123456789 immediately."
+  },
+  {
+   "id": "P12",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "We noticed a login to your Amazon account from Russia. Verify your identity now: amazon-secure-login.online"
+  },
+  {
+   "id": "P13",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your PhonePe wallet KYC is incomplete. Limit will be reduced. Update PAN card details here: phonepe-kyc.co.in/upload"
+  },
+  {
+   "id": "P14",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "RBI Notice: Your account is flagged for money laundering. Contact officer immediately and do not tell anyone."
+  },
+  {
+   "id": "P15",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Dear customer, your Bank of Baroda account will be blocked. Update KYC now at bob-kyc-verify.com/login"
+  },
+  {
+   "id": "P16",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your credit card reward points worth Rs 9,850 will expire today. Redeem now: hdfc-points-redeem.com"
+  },
+  {
+   "id": "P17",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your SBI card is locked due to suspicious activity. Enter your card PIN and OTP at the link: sbi-card-unlock.top/pin"
+  },
+  {
+   "id": "P18",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "TRAI: Your mobile number will be disconnected within 2 hours due to illegal activity. Press 9 to talk to customer care executive."
+  },
+  {
+   "id": "P19",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Digital arrest notice: a case has been registered against you. Stay on the call and do not inform your family."
+  },
+  {
+   "id": "P20",
+   "category": "Phishing / KYC messages",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your Gmail storage is full. Account will be deleted. Verify password here: google-account-verify.xyz/signin"
+  },
+  {
+   "id": "S01",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your package from Amazon is stuck at the warehouse. Pay Rs 29 redelivery fee: amazon-delivery-fee.top/pay"
+  },
+  {
+   "id": "S02",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "India Post: Parcel undelivered due to incomplete address. Update within 24 hours: indiapost-redelivery.com"
+  },
+  {
+   "id": "S03",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Delhivery: Your parcel is held at customs. Pay Rs 150 clearance charge to release: bit.ly/3dlv99"
+  },
+  {
+   "id": "S04",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your FedEx package is pending. A small fee of Rs 49 is required. Pay at https://fedex-india-parcel.xyz"
+  },
+  {
+   "id": "S05",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Hi, I am from HR. You are selected for the work from home job. Pay Rs 2,000 registration fee to confirm your joining."
+  },
+  {
+   "id": "S06",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Earn Rs 5,000 daily by liking videos. Join now. Deposit Rs 1,000 to activate your task account."
+  },
+  {
+   "id": "S07",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Hi Dad, this is my new number as my phone fell in water. Please send Rs 25000 urgently to this account, I will explain later."
+  },
+  {
+   "id": "S08",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Congratulations, you won the Kaun Banega lottery of Rs 25 lakh. Pay Rs 5,000 processing fee to claim your prize."
+  },
+  {
+   "id": "S09",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your electricity bill is overdue. Pay now through this link to avoid disconnection tonight: bescom-pay-now.xyz"
+  },
+  {
+   "id": "S10",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Instant personal loan approved up to Rs 2 lakh with no documents. Install the loan app: quickloan-india.apk"
+  },
+  {
+   "id": "S11",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your FASTag balance is low and the tag will be blocked. Recharge now: fastag-recharge-help.com"
+  },
+  {
+   "id": "S12",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Sir, I sent Rs 10,000 to your number by mistake. Please return the amount immediately to this UPI ID."
+  },
+  {
+   "id": "S13",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "RTO Challan of Rs 500 pending for your vehicle. Pay now to avoid court case: echallan-parivahan.xyz/pay"
+  },
+  {
+   "id": "S14",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Refund of Rs 3,299 initiated for your cancelled order. Share your UPI PIN to receive the amount."
+  },
+  {
+   "id": "S15",
+   "category": "Parcel and payment scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Your gas connection will be cancelled. Pay Rs 10 to update KYC at gas-kyc-update.in and avoid disconnection."
+  },
+  {
+   "id": "G01",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Rs 4,500.00 debited from A/c XX4521 on 07-11-26 via UPI to SWIGGY. If not you, call 1800-1234 immediately. -HDFC Bank"
+  },
+  {
+   "id": "G02",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your OTP for transaction of Rs 1,299 at Amazon is 458213. Do not share this OTP with anyone. -ICICI Bank"
+  },
+  {
+   "id": "G03",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Dear customer, your credit card statement for Oct 2026 is generated. Total due Rs 8,420, due date 15-Nov. Pay via the app. -Axis Bank"
+  },
+  {
+   "id": "G04",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Salary credit: Rs 52,000.00 credited to A/c XX9981 on 01-11-26. Available balance Rs 61,730.10. -SBI"
+  },
+  {
+   "id": "G05",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your Amazon order #408-123 has been shipped and will arrive by Tuesday. Track at amazon.in/orders"
+  },
+  {
+   "id": "G06",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your Zomato order is on the way. Delivery partner Imran will reach you in 10 minutes."
+  },
+  {
+   "id": "G07",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Dr. Rao's clinic: your appointment is confirmed for Mon 9 Nov at 5:30 PM. Reply C to cancel."
+  },
+  {
+   "id": "G08",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your Jio recharge of Rs 299 was successful. Plan valid for 28 days. Thank you for choosing Jio."
+  },
+  {
+   "id": "G09",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Hey, I'm running 10 mins late, start without me. Will call you when I reach."
+  },
+  {
+   "id": "G10",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "IRCTC: PNR 4521367890 confirmed, coach B2 seat 34. Train 12627 departs 22:15 on 10-Nov. Happy journey."
+  },
+  {
+   "id": "G11",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Reminder: Your LIC premium of Rs 12,000 is due on 20-Nov. Pay online at licindia.in or at the branch."
+  },
+  {
+   "id": "G12",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your Airtel postpaid bill of Rs 749 is generated. Due 12-Nov. Pay in the Airtel Thanks app. Ignore if already paid."
+  },
+  {
+   "id": "G13",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Mom: Can you pick up milk on the way back? Also call the plumber about the tap."
+  },
+  {
+   "id": "G14",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your verification code is 604192. It expires in 10 minutes. Never share this code with anyone. -Google"
+  },
+  {
+   "id": "G15",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Dear student, the semester fee payment window closes on 30 Nov. Pay via the university portal. -Registrar office"
+  },
+  {
+   "id": "G16",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Rs 1,200.00 sent via UPI to Ramesh Kumar on 07-11-26. UPI Ref 631245987012. -Axis Bank"
+  },
+  {
+   "id": "G17",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your parcel was delivered today at 2:40 PM and left with the security guard. Rate your delivery in the Delhivery app."
+  },
+  {
+   "id": "G18",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Scheduled maintenance: net banking will be unavailable on 09-Nov from 1 AM to 3 AM. Sorry for the inconvenience. -Kotak Bank"
+  },
+  {
+   "id": "G19",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Your Swiggy One membership renews on 12-Nov for Rs 299. Manage your plan in the app settings."
+  },
+  {
+   "id": "G20",
+   "category": "Genuine messages",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Thanks for banking with us. Your cheque book request is processed and will be delivered in 5 working days. -PNB"
+  },
+  {
+   "id": "U01",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "http://sbi-kyc-update.com/login"
+  },
+  {
+   "id": "U02",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "https://secure-hdfcbank.verify-account.in/netbanking"
+  },
+  {
+   "id": "U03",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "http://192.168.77.12/paytm/login.php"
+  },
+  {
+   "id": "U04",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "https://xn--paytm-9x2a.com/kyc"
+  },
+  {
+   "id": "U05",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "hdfcbank-rewards.xyz"
+  },
+  {
+   "id": "U06",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "http://amaz0n-india.shop/offer"
+  },
+  {
+   "id": "U07",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "bit.ly/3Xk9Qp"
+  },
+  {
+   "id": "U08",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "https://icici-bank.co.in.account-check.top/secure"
+  },
+  {
+   "id": "U09",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "www.income-tax-refund.in/claim"
+  },
+  {
+   "id": "U10",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "https://flipkart-bigbillion-sale.click/win"
+  },
+  {
+   "id": "U11",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "http://rto-challan-pay.apk"
+  },
+  {
+   "id": "U12",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "http://sbi.co.in@secure-login.ru/verify"
+  },
+  {
+   "id": "U13",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "https://paytm.com.kyc-verify.net/login"
+  },
+  {
+   "id": "U14",
+   "category": "Suspicious URLs",
+   "label": "malicious",
+   "kind": "link",
+   "input": "tinyurl.com/yc8xk2p9"
+  },
+  {
+   "id": "U15",
+   "category": "Suspicious URLs",
+   "label": "genuine",
+   "kind": "link",
+   "input": "https://www.sbi.co.in/web/personal-banking"
+  },
+  {
+   "id": "U16",
+   "category": "Suspicious URLs",
+   "label": "genuine",
+   "kind": "link",
+   "input": "https://www.hdfcbank.com/personal/pay/cards"
+  },
+  {
+   "id": "U17",
+   "category": "Suspicious URLs",
+   "label": "genuine",
+   "kind": "link",
+   "input": "https://www.amazon.in/gp/your-account/order-history"
+  },
+  {
+   "id": "U18",
+   "category": "Suspicious URLs",
+   "label": "genuine",
+   "kind": "link",
+   "input": "https://www.irctc.co.in/nget/train-search"
+  },
+  {
+   "id": "U19",
+   "category": "Suspicious URLs",
+   "label": "genuine",
+   "kind": "link",
+   "input": "https://www.incometax.gov.in/iec/foportal/"
+  },
+  {
+   "id": "U20",
+   "category": "Suspicious URLs",
+   "label": "genuine",
+   "kind": "link",
+   "input": "https://parivahan.gov.in/parivahan/"
+  },
+  {
+   "id": "Q01",
+   "category": "QR / UPI examples",
+   "label": "malicious",
+   "kind": "qr",
+   "input": "upi://pay?pa=9876501234@ybl&pn=Amazon%20Refund%20Desk&am=4999",
+   "context": "You have a refund of Rs 4999 from Amazon. Scan this QR to receive the money."
+  },
+  {
+   "id": "Q02",
+   "category": "QR / UPI examples",
+   "label": "malicious",
+   "kind": "qr",
+   "input": "upi://pay?pa=cashback.reward@okaxis&pn=Paytm%20Cashback&am=2500",
+   "context": "Scan to claim your Paytm cashback of Rs 2500"
+  },
+  {
+   "id": "Q03",
+   "category": "QR / UPI examples",
+   "label": "malicious",
+   "kind": "qr",
+   "input": "upi://pay?pa=8800112233@paytm&pn=OLX%20Buyer&am=15000",
+   "context": "I will pay you for the sofa. Scan this QR code to receive the advance payment."
+  },
+  {
+   "id": "Q04",
+   "category": "QR / UPI examples",
+   "label": "malicious",
+   "kind": "qr",
+   "input": "upi://pay?pa=sbi.support@ybl&pn=SBI%20Support&am=1",
+   "context": "SBI KYC verification: scan this QR and enter your PIN to complete verification urgently"
+  },
+  {
+   "id": "Q05",
+   "category": "QR / UPI examples",
+   "label": "malicious",
+   "kind": "qr",
+   "input": "upi://pay?pa=electricity-board@oksbi&pn=Electricity%20Dept&am=8450",
+   "context": "Your electricity will be disconnected tonight. Pay the pending bill immediately by scanning this QR."
+  },
+  {
+   "id": "Q06",
+   "category": "QR / UPI examples",
+   "label": "malicious",
+   "kind": "qr",
+   "input": "upi://pay?pa=refund99@unknownbank&pn=Customer%20Care&am=1999",
+   "context": "Your refund is ready. Scan to receive it."
+  },
+  {
+   "id": "Q07",
+   "category": "QR / UPI examples",
+   "label": "genuine",
+   "kind": "qr",
+   "input": "upi://pay?pa=freshmart@okaxis&pn=Fresh%20Mart&am=250"
+  },
+  {
+   "id": "Q08",
+   "category": "QR / UPI examples",
+   "label": "genuine",
+   "kind": "qr",
+   "input": "upi://pay?pa=ramesh.kumar@oksbi&pn=Ramesh%20Kumar",
+   "context": "Pay me for lunch"
+  },
+  {
+   "id": "Q09",
+   "category": "QR / UPI examples",
+   "label": "genuine",
+   "kind": "qr",
+   "input": "upi://pay?pa=sharmakirana@paytm&pn=Sharma%20Kirana%20Store&tn=Groceries"
+  },
+  {
+   "id": "Q10",
+   "category": "QR / UPI examples",
+   "label": "genuine",
+   "kind": "qr",
+   "input": "upi://pay?pa=9812345678@ybl&pn=Priya%20Nair",
+   "context": "Splitting the cab fare"
+  },
+  {
+   "id": "A01",
+   "category": "APK permission profiles",
+   "label": "malicious",
+   "kind": "app",
+   "input": "synthetic: fake KYC app",
+   "facts": {
+    "name": "SBI KYC Update",
+    "package": "com.kyc.update.service",
+    "permissions": [
+     "android.permission.READ_SMS",
+     "android.permission.RECEIVE_SMS",
+     "android.permission.SYSTEM_ALERT_WINDOW",
+     "android.permission.READ_CONTACTS",
+     "android.permission.CALL_PHONE",
+     "android.permission.READ_PHONE_STATE"
+    ],
+    "manifest": "BIND_ACCESSIBILITY_SERVICE",
+    "has_launcher": true,
+    "signed": false,
+    "debug_cert": true
+   }
+  },
+  {
+   "id": "A02",
+   "category": "APK permission profiles",
+   "label": "malicious",
+   "kind": "app",
+   "input": "synthetic: challan dropper",
+   "facts": {
+    "name": "Parivahan e-Challan",
+    "package": "com.pay.fine.app",
+    "permissions": [
+     "android.permission.READ_SMS",
+     "android.permission.SYSTEM_ALERT_WINDOW",
+     "android.permission.REQUEST_INSTALL_PACKAGES"
+    ],
+    "manifest": "",
+    "has_launcher": false,
+    "signed": true,
+    "payload_files": [
+     "assets/update.apk"
+    ]
+   }
+  },
+  {
+   "id": "A03",
+   "category": "APK permission profiles",
+   "label": "malicious",
+   "kind": "app",
+   "input": "synthetic: fake HDFC rewards app with a lookalike package",
+   "facts": {
+    "name": "HDFC Rewards",
+    "package": "com.snapwork.hdfc.rewards",
+    "permissions": [
+     "android.permission.READ_SMS",
+     "android.permission.SYSTEM_ALERT_WINDOW"
+    ],
+    "manifest": "",
+    "has_launcher": true,
+    "signed": true,
+    "sms_priority": 1000
+   }
+  },
+  {
+   "id": "A04",
+   "category": "APK permission profiles",
+   "label": "genuine",
+   "kind": "app",
+   "input": "synthetic: genuine bank app profile",
+   "facts": {
+    "name": "SBI YONO",
+    "package": "com.sbi.lotusintouch",
+    "permissions": [
+     "android.permission.READ_SMS",
+     "android.permission.CAMERA",
+     "android.permission.ACCESS_FINE_LOCATION"
+    ],
+    "manifest": "",
+    "has_launcher": true,
+    "signed": true
+   }
+  },
+  {
+   "id": "A05",
+   "category": "APK permission profiles",
+   "label": "genuine",
+   "kind": "app",
+   "input": "synthetic: ordinary notes app",
+   "facts": {
+    "name": "Daily Notes",
+    "package": "com.example.dailynotes",
+    "permissions": [
+     "android.permission.READ_EXTERNAL_STORAGE",
+     "android.permission.WRITE_EXTERNAL_STORAGE"
+    ],
+    "manifest": "",
+    "has_launcher": true,
+    "signed": true
+   }
+  }
+ ]
+}

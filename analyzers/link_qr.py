@@ -1,11 +1,14 @@
+"""Reads link addresses and UPI payment payloads. Static analysis only:
+Sentra never visits a link, so there is no redirect following."""
 import ipaddress
 import json
 import re
 import sys
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from analyzers.urls import UPI, find_urls, strip_urls
 from engine.fusion import make
 
 DATA = Path(__file__).resolve().parent.parent / "data"
@@ -16,21 +19,23 @@ OFFICIAL = {d for b in BRANDS for d in b["domains"]}
 SHORTENERS = {"bit.ly", "tinyurl.com", "cutt.ly", "rb.gy", "is.gd", "t.co",
               "goo.gl", "shorturl.at", "tiny.cc", "ow.ly"}
 BAD_TLDS = {"xyz", "top", "click", "work", "buzz", "icu", "rest", "gq", "tk",
-            "ml", "cf", "ga", "monster", "cfd", "sbs", "cyou"}
-TWO_LEVEL = {"co.in", "gov.in", "nic.in", "org.in", "net.in", "ac.in",
+            "ml", "cf", "ga", "monster", "cfd", "sbs", "cyou", "vip", "fun"}
+TWO_LEVEL = {"co.in", "gov.in", "nic.in", "org.in", "net.in", "ac.in", "edu.in",
              "res.in", "co.uk", "com.au"}
+HANDLES = {"ybl", "ibl", "axl", "okhdfcbank", "okicici", "okaxis", "oksbi", "paytm", "apl",
+           "upi", "sbi", "hdfcbank", "icici", "axisbank", "pnb", "boi", "cnrb", "unionbank",
+           "idfcfirst", "fbl", "kotak", "airtel", "jio", "postbank", "yesbank", "freecharge",
+           "waicici", "wasbi", "waaxis", "wahdfcbank", "okbizaxis", "okbizicici", "indus",
+           "rbl", "federal", "dbs", "aubank", "ikwik", "ptyes", "pthdfc", "ptaxis", "ptsbi"}
 
+# Large platforms whose domains merely contain a brand name; no lookalike signal, no trust bonus.
+NEUTRAL = {"amazonaws.com", "googleapis.com", "googleusercontent.com", "gstatic.com", "withgoogle.com"}
 LEET = str.maketrans({"0": "o", "1": "l", "3": "e", "4": "a", "5": "s", "$": "s", "@": "a"})
-CRED_PATH = re.compile(r"(login|log-in|signin|sign-in|verify|verification|kyc|otp|password|passcode|secure|auth|update|account)", re.I)
+CRED_PATH = re.compile(r"(login|log-in|signin|sign-in|verify|verification|kyc|otp|password|passcode|secure|auth|update|account|claim|redeem|unlock)", re.I)
 RECEIVE = re.compile(r"\b(receive|received|credited|refund|cashback|prize|reward|you have won|claim|collect)\b", re.I)
-
-URL_RE = re.compile(
-    r"(?:https?://|www\.)[^\s<>\"']+"
-    r"|\b(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|goo\.gl|shorturl\.at|tiny\.cc|ow\.ly)/[^\s<>\"']+"
-    r"|\b[a-z0-9][a-z0-9-]*(?:\.[a-z0-9-]+)*\.(?:xyz|top|click|work|buzz|icu|rest|cfd|sbs|cyou|apk)\b(?:/[^\s<>\"']*)?",
-    re.I,
-)
-UPI_RE = re.compile(r"upi://pay\?[^\s<>\"']+", re.I)
+# Names that promise money TO you. A code that pays someone with such a name is contradictory.
+RECEIVE_NAME = re.compile(r"\b(refund|cashback|reward|prize|lucky|winner|claim|bonus)s?\b", re.I)
+BUSINESS = re.compile(r"(store|shop|mart|traders|enterprise|pvt|ltd|official|support|refund|bank|care|helpdesk|rewards?)", re.I)
 
 
 def lev(a, b):
@@ -56,14 +61,14 @@ def split_host(host):
     return host, [], host
 
 
-def brand_hits(tokens):
+def brand_hits(tokens, joined=""):
     hits = {}
     for b in BRANDS:
         for bt in b["tokens"]:
             for t in tokens:
-                if t == bt:
+                if t == bt or (len(bt) >= 6 and joined and bt in joined and t == joined):
                     kind = "embedded"
-                elif t != bt and norm(t) == bt:
+                elif norm(t) == bt:
                     kind = "homoglyph"
                 elif len(bt) >= 5 and len(t) >= 5 and lev(t, bt) <= (1 if len(bt) < 8 else 2):
                     kind = "typo"
@@ -80,12 +85,14 @@ def mentions(brand, ctx):
 
 
 def check_url(url, ctx, add):
-    raw = url if re.match(r"^https?://", url, re.I) else "http://" + url
+    """Adds signals for one link. Returns (domain, https) if it is clean and official."""
+    raw = url if re.match(r"^[a-z]+://", url, re.I) else "http://" + url
     try:
         p = urlparse(raw)
         host = (p.hostname or "").lower()
         port = p.port
     except ValueError:
+        add("link_odd_host", 0.6, "malformed address")
         return None
     if not host:
         return None
@@ -119,23 +126,22 @@ def check_url(url, ctx, add):
         add("link_shortener", 1.0, host)
     if tld in BAD_TLDS:
         add("link_suspicious_tld", 1.0, "." + tld)
-    if p.path.lower().endswith(".apk") or host.endswith(".apk"):
+    if (p.path or "").lower().endswith(".apk") or host.endswith(".apk"):
         add("link_apk_download", 1.0, "direct app-file download")
 
     brand_hit = False
-    if not official and not is_ip and reg not in SHORTENERS:
+    if not official and not is_ip and reg not in SHORTENERS and reg not in NEUTRAL:
         label = reg.split(".")[0]
-        tokens = list({*re.split(r"[-_]", label), label.replace("-", "")})
-        for name, (kind, tok, prio, b) in brand_hits(tokens).items():
+        joined = label.replace("-", "").replace("_", "")
+        tokens = list({*re.split(r"[-_]", label), joined})
+        for name, (kind, tok, prio, b) in brand_hits(tokens, joined).items():
             said = mentions(b, ctx)
             if kind == "embedded":
                 add("link_lookalike_brand", 1.0 if said else 0.8,
                     f"{name} name inside unofficial domain {reg}")
             else:
-                add("link_lookalike_brand", 1.0 if said else 0.9,
-                    f"'{tok}' imitates {name}")
+                add("link_lookalike_brand", 1.0 if said else 0.9, f"'{tok}' imitates {name}")
             brand_hit = True
-
         sub_tokens = [t for l in subs for t in re.split(r"[-_]", l)]
         for b in BRANDS:
             if any(t in b["tokens"] for t in sub_tokens):
@@ -153,38 +159,45 @@ def check_url(url, ctx, add):
 
 
 def check_upi(uri, ctx, add):
-    q = parse_qs(urlparse(uri).query)
-    pa = q.get("pa", [""])[0]
-    pn = q.get("pn", [""])[0]
+    try:
+        q = parse_qs(urlparse(uri).query)
+    except ValueError:
+        return
+    pa = (q.get("pa", [""])[0] or "").strip()
+    pn = unquote(q.get("pn", [""])[0] or "").strip()
     payee = re.sub(r"[^a-z0-9]", "", (pn + pa).lower())
 
     if RECEIVE.search(ctx):
         add("qr_pay_not_receive", 1.0, "payment request, but the message talks about receiving money")
+    if RECEIVE_NAME.search(pn):
+        add("qr_pay_not_receive", 0.9, f"the payee is named '{pn}', but this code sends money instead of receiving it")
     for b in BRANDS:
         if mentions(b, ctx) and not any(t in payee for t in b["tokens"]):
             add("qr_payee_mismatch", 1.0, f"message mentions {b['name']} but the payee is {pn or pa}")
             break
+    user, _, handle = pa.partition("@")
+    pnl = pn.lower()
+    business = BUSINESS.search(pnl) or any(t in pnl for b in BRANDS for t in b["tokens"])
+    if pa and user.isdigit() and len(user) >= 10 and business:
+        add("qr_name_handle_mismatch", 0.8, f"'{pn}' is paid through a personal number ({pa})")
+    if pa and (not handle or handle.lower() not in HANDLES):
+        add("qr_unknown_handle", 1.0, f"UPI ID {pa} has an unfamiliar format or handle")
 
 
 def analyze(text, context=None):
+    text = text or ""
     context = text if context is None else context
-    ctx = URL_RE.sub(" ", UPI_RE.sub(" ", context)).lower()
+    ctx = strip_urls(context).lower()
     found = {}
 
     def add(sid, strength, evidence):
         if sid not in found or strength > found[sid][0]:
             found[sid] = (strength, evidence)
 
-    for uri in UPI_RE.findall(text):
+    for uri in UPI.findall(text):
         check_upi(uri, ctx, add)
 
-    results = []
-    for url in URL_RE.findall(text):
-        results.append(check_url(url.rstrip(".,;:!?)\"'"), ctx, add))
-
-    # Dampener only when every link in the case is clean and official.
+    results = [check_url(u, ctx, add) for u in find_urls(text)]
     if results and all(r is not None for r in results):
-        all_https = all(r[1] for r in results)
-        add("official_domain_match", 1.0 if all_https else 0.6, results[0][0])
-
+        add("official_domain_match", 1.0 if all(r[1] for r in results) else 0.6, results[0][0])
     return [make(sid, s, e) for sid, (s, e) in found.items()]

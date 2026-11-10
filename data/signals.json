@@ -1,43 +1,254 @@
 [
-  {"id":"msg_otp_request","category":"credential_theft","reliability":0.90,"reason":"Asks you to share a one-time password, which no real bank does."},
-  {"id":"msg_install_request","category":"device_takeover","reliability":0.80,"reason":"Tells you to install an app or file from a message."},
-  {"id":"msg_secrecy_isolation","category":"obfuscation","reliability":0.75,"reason":"Pushes you to stay secret or stay on the line."},
-  {"id":"msg_kyc_update","category":"credential_theft","reliability":0.70,"reason":"Demands an urgent KYC or account detail update."},
-  {"id":"msg_payment_demand","category":"financial_redirect","reliability":0.65,"reason":"Asks for a fee, deposit, or transfer."},
-  {"id":"msg_threat_block","category":"urgency","reliability":0.65,"reason":"Threatens blocking, legal action, or arrest."},
-  {"id":"msg_authority_claim","category":"impersonation","reliability":0.60,"reason":"Claims to be a bank, police, courier, or government body."},
-  {"id":"msg_reward_lure","category":"financial_redirect","reliability":0.60,"reason":"Dangles a refund, prize, or cashback."},
-  {"id":"msg_deadline_pressure","category":"urgency","reliability":0.55,"reason":"Creates a tight deadline to stop you thinking."},
-  {"id":"msg_unknown_shortlink","category":"obfuscation","reliability":0.50,"reason":"Shortened link from an unknown sender."},
-
-  {"id":"qr_payee_mismatch","category":"financial_redirect","reliability":0.90,"reason":"The payee name does not match the merchant mentioned."},
-  {"id":"link_lookalike_brand","category":"impersonation","reliability":0.85,"reason":"The domain is a near-copy of a known brand."},
-  {"id":"link_punycode","category":"impersonation","reliability":0.85,"reason":"Look-alike characters are used in the domain."},
-  {"id":"qr_pay_not_receive","category":"financial_redirect","reliability":0.85,"reason":"The QR sends money, but you were told you would receive it."},
-  {"id":"link_brand_in_subdomain","category":"impersonation","reliability":0.80,"reason":"A brand name is placed in front of an unrelated domain."},
-  {"id":"link_credential_form","category":"credential_theft","reliability":0.80,"reason":"A login or OTP form sits on a non-official domain."},
-  {"id":"link_odd_host","category":"obfuscation","reliability":0.70,"reason":"The link points to a raw IP address or odd host."},
-  {"id":"link_redirect_chain","category":"obfuscation","reliability":0.60,"reason":"The link bounces through several hops."},
-  {"id":"link_suspicious_tld","category":"obfuscation","reliability":0.50,"reason":"The domain ending is often abused by scammers."},
-  {"id":"link_shortener","category":"obfuscation","reliability":0.45,"reason":"A shortener hides the real destination."},
-  {"id":"link_apk_download","category":"device_takeover","reliability":0.80,"reason":"The link downloads an app file directly instead of opening a page."},
-
-  {"id":"app_sms_plus_overlay","category":"device_takeover","reliability":0.90,"reason":"Can read your SMS and draw over other apps, enough to steal OTPs."},
-  {"id":"app_name_mimics_bank","category":"impersonation","reliability":0.80,"reason":"Name or icon imitates a bank or government service."},
-  {"id":"app_accessibility_service","category":"device_takeover","reliability":0.75,"reason":"Asks for accessibility control of your screen."},
-  {"id":"app_hides_icon","category":"obfuscation","reliability":0.75,"reason":"Tries to hide itself from your app list."},
-  {"id":"app_package_mismatch","category":"impersonation","reliability":0.70,"reason":"Its package identity does not match its claimed purpose."},
-  {"id":"app_device_admin","category":"device_takeover","reliability":0.70,"reason":"Requests device-administrator rights."},
-  {"id":"app_call_forwarding","category":"credential_theft","reliability":0.70,"reason":"Can redirect your calls."},
-  {"id":"app_sms_read","category":"device_takeover","reliability":0.40,"reason":"Can read your text messages."},
-  {"id":"app_excess_permissions","category":"device_takeover","reliability":0.50,"reason":"Asks for far more permissions than its purpose needs."},
-  {"id":"app_unverified_signer","category":"obfuscation","reliability":0.40,"reason":"No recognized publisher signature."},
-
-  {"id":"official_domain_match","category":"dampener","reliability":0.30,"reason":"The link is on a verified official domain."},
-  {"id":"no_action_requested","category":"dampener","reliability":0.25,"reason":"The message asks you to do nothing."},
-  {"id":"known_sender_format","category":"dampener","reliability":0.25,"reason":"Matches a genuine alert format with masked digits and no link."},
-  {"id":"msg_job_lure","category":"impersonation","reliability":0.55,"reason":"Offers a job and asks for an upfront fee."},
-  {"id":"msg_family_impersonation","category":"impersonation","reliability":0.65,"reason":"Pretends to be a family member on a new number."},
-  {"id":"msg_legal_threat","category":"urgency","reliability":0.60,"reason":"Threatens legal action or arrest."},
-  {"id":"msg_subsidy_request","category":"financial_redirect","reliability":0.55,"reason":"Asks for bank OTP to receive a subsidy or benefit."}
+ {
+  "id": "msg_otp_request",
+  "category": "credential_theft",
+  "reliability": 0.9,
+  "reason": "Asks you to share a one-time password, which no real bank does."
+ },
+ {
+  "id": "msg_install_request",
+  "category": "device_takeover",
+  "reliability": 0.8,
+  "reason": "Tells you to install an app or file from a message."
+ },
+ {
+  "id": "msg_secrecy_isolation",
+  "category": "obfuscation",
+  "reliability": 0.75,
+  "reason": "Pushes you to stay secret or stay on the line."
+ },
+ {
+  "id": "msg_kyc_update",
+  "category": "credential_theft",
+  "reliability": 0.7,
+  "reason": "Demands an urgent KYC or account detail update."
+ },
+ {
+  "id": "msg_payment_demand",
+  "category": "financial_redirect",
+  "reliability": 0.65,
+  "reason": "Asks for a fee, deposit, or transfer."
+ },
+ {
+  "id": "msg_threat_block",
+  "category": "urgency",
+  "reliability": 0.65,
+  "reason": "Threatens blocking, disconnection, legal action, or arrest."
+ },
+ {
+  "id": "msg_authority_claim",
+  "category": "impersonation",
+  "reliability": 0.6,
+  "reason": "Claims to be a bank, police, courier, or government body."
+ },
+ {
+  "id": "msg_reward_lure",
+  "category": "financial_redirect",
+  "reliability": 0.6,
+  "reason": "Dangles a refund, prize, or cashback."
+ },
+ {
+  "id": "msg_deadline_pressure",
+  "category": "urgency",
+  "reliability": 0.55,
+  "reason": "Creates a tight deadline to stop you thinking."
+ },
+ {
+  "id": "msg_unknown_shortlink",
+  "category": "obfuscation",
+  "reliability": 0.5,
+  "reason": "Shortened link from an unknown sender."
+ },
+ {
+  "id": "msg_job_lure",
+  "category": "impersonation",
+  "reliability": 0.55,
+  "reason": "Offers a job and asks for an upfront fee."
+ },
+ {
+  "id": "msg_family_impersonation",
+  "category": "impersonation",
+  "reliability": 0.65,
+  "reason": "Pretends to be a family member on a new number."
+ },
+ {
+  "id": "qr_payee_mismatch",
+  "category": "financial_redirect",
+  "reliability": 0.9,
+  "reason": "The payee name does not match the merchant mentioned."
+ },
+ {
+  "id": "link_lookalike_brand",
+  "category": "impersonation",
+  "reliability": 0.85,
+  "reason": "The domain is a near-copy of a known brand."
+ },
+ {
+  "id": "link_punycode",
+  "category": "impersonation",
+  "reliability": 0.85,
+  "reason": "Look-alike characters are used in the domain."
+ },
+ {
+  "id": "qr_pay_not_receive",
+  "category": "financial_redirect",
+  "reliability": 0.85,
+  "reason": "The QR sends money, but you were told you would receive it."
+ },
+ {
+  "id": "link_brand_in_subdomain",
+  "category": "impersonation",
+  "reliability": 0.8,
+  "reason": "A brand name is placed in front of an unrelated domain."
+ },
+ {
+  "id": "link_credential_form",
+  "category": "credential_theft",
+  "reliability": 0.8,
+  "reason": "A login or OTP form sits on a non-official domain."
+ },
+ {
+  "id": "link_apk_download",
+  "category": "device_takeover",
+  "reliability": 0.8,
+  "reason": "The link downloads an app file directly instead of opening a page."
+ },
+ {
+  "id": "link_odd_host",
+  "category": "obfuscation",
+  "reliability": 0.7,
+  "reason": "The link points to a raw IP address or an unusual host."
+ },
+ {
+  "id": "qr_name_handle_mismatch",
+  "category": "financial_redirect",
+  "reliability": 0.6,
+  "reason": "The payee name sounds like a business, but the UPI ID is a personal phone number."
+ },
+ {
+  "id": "link_suspicious_tld",
+  "category": "obfuscation",
+  "reliability": 0.5,
+  "reason": "The domain ending is often abused by scammers."
+ },
+ {
+  "id": "link_shortener",
+  "category": "obfuscation",
+  "reliability": 0.45,
+  "reason": "A shortener hides the real destination."
+ },
+ {
+  "id": "qr_unknown_handle",
+  "category": "obfuscation",
+  "reliability": 0.4,
+  "reason": "The UPI ID uses a handle Sentra does not recognise."
+ },
+ {
+  "id": "app_sms_plus_overlay",
+  "category": "device_takeover",
+  "reliability": 0.9,
+  "reason": "Can read your SMS and draw over other apps, enough to steal OTPs."
+ },
+ {
+  "id": "app_name_mimics_bank",
+  "category": "impersonation",
+  "reliability": 0.8,
+  "reason": "Name or icon imitates a bank or government service."
+ },
+ {
+  "id": "app_sms_interceptor",
+  "category": "device_takeover",
+  "reliability": 0.8,
+  "reason": "Registers to intercept incoming SMS ahead of other apps."
+ },
+ {
+  "id": "app_embedded_payload",
+  "category": "device_takeover",
+  "reliability": 0.8,
+  "reason": "Carries another app or code file hidden inside it."
+ },
+ {
+  "id": "app_accessibility_service",
+  "category": "device_takeover",
+  "reliability": 0.75,
+  "reason": "Asks for accessibility control of your screen."
+ },
+ {
+  "id": "app_hides_icon",
+  "category": "obfuscation",
+  "reliability": 0.75,
+  "reason": "Tries to hide itself from your app list."
+ },
+ {
+  "id": "app_package_mismatch",
+  "category": "impersonation",
+  "reliability": 0.7,
+  "reason": "Its package identity does not match the real app it imitates."
+ },
+ {
+  "id": "app_device_admin",
+  "category": "device_takeover",
+  "reliability": 0.7,
+  "reason": "Requests device-administrator rights."
+ },
+ {
+  "id": "app_call_forwarding",
+  "category": "credential_theft",
+  "reliability": 0.7,
+  "reason": "Can redirect your calls."
+ },
+ {
+  "id": "app_sms_read",
+  "category": "device_takeover",
+  "reliability": 0.4,
+  "reason": "Can read your text messages."
+ },
+ {
+  "id": "app_debug_certificate",
+  "category": "obfuscation",
+  "reliability": 0.55,
+  "reason": "Signed with a developer debug certificate, never used by real published apps."
+ },
+ {
+  "id": "app_installer_permission",
+  "category": "device_takeover",
+  "reliability": 0.55,
+  "reason": "Can install other apps on your phone."
+ },
+ {
+  "id": "app_excess_permissions",
+  "category": "device_takeover",
+  "reliability": 0.5,
+  "reason": "Asks for far more permissions than its purpose needs."
+ },
+ {
+  "id": "app_unverified_signer",
+  "category": "obfuscation",
+  "reliability": 0.4,
+  "reason": "No valid publisher signature."
+ },
+ {
+  "id": "official_domain_match",
+  "category": "dampener",
+  "reliability": 0.3,
+  "reason": "The link is on a verified official domain."
+ },
+ {
+  "id": "no_action_requested",
+  "category": "dampener",
+  "reliability": 0.25,
+  "reason": "The message asks you to do nothing."
+ },
+ {
+  "id": "known_sender_format",
+  "category": "dampener",
+  "reliability": 0.25,
+  "reason": "Matches a genuine alert format with masked digits and no link."
+ },
+ {
+  "id": "msg_wrong_transfer",
+  "category": "financial_redirect",
+  "reliability": 0.8,
+  "reason": "Claims money was sent to you by mistake and asks you to send it back."
+ }
 ]

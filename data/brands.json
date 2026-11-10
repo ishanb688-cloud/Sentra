@@ -1,22 +1,282 @@
 [
-  {"name":"SBI","tokens":["sbi","onlinesbi"],"domains":["sbi.co.in","onlinesbi.sbi","onlinesbi.com","sbicard.com"]},
-  {"name":"HDFC Bank","tokens":["hdfc","hdfcbank"],"domains":["hdfcbank.com","hdfc.com"]},
-  {"name":"ICICI Bank","tokens":["icici","icicibank"],"domains":["icicibank.com"]},
-  {"name":"Axis Bank","tokens":["axis","axisbank"],"domains":["axisbank.com"]},
-  {"name":"Kotak","tokens":["kotak"],"domains":["kotak.com"]},
-  {"name":"PNB","tokens":["pnb","pnbindia"],"domains":["pnbindia.in"]},
-  {"name":"Paytm","tokens":["paytm"],"domains":["paytm.com"]},
-  {"name":"PhonePe","tokens":["phonepe"],"domains":["phonepe.com"]},
-  {"name":"Amazon","tokens":["amazon"],"domains":["amazon.in","amazon.com"]},
-  {"name":"Flipkart","tokens":["flipkart"],"domains":["flipkart.com"]},
-  {"name":"IRCTC","tokens":["irctc"],"domains":["irctc.co.in"]},
-  {"name":"Income Tax","tokens":["incometax"],"domains":["incometax.gov.in"]},
-  {"name":"UIDAI","tokens":["uidai","aadhaar","aadhar"],"domains":["uidai.gov.in"]},
-  {"name":"Parivahan","tokens":["parivahan","echallan","rto"],"domains":["parivahan.gov.in"]},
-  {"name":"India Post","tokens":["indiapost"],"domains":["indiapost.gov.in"]},
-  {"name":"Google","tokens":["google"],"domains":["google.com"]},
-  {"name":"WhatsApp","tokens":["whatsapp"],"domains":["whatsapp.com"]},
-  {"name":"Delhivery","tokens":["delhivery"],"domains":["delhivery.com"]},
-  {"name":"DTDC","tokens":["dtdc"],"domains":["dtdc.in","dtdc.com"]},
-  {"name":"Blue Dart","tokens":["bluedart"],"domains":["bluedart.com"]}
+ {
+  "name": "SBI",
+  "tokens": [
+   "sbi",
+   "onlinesbi"
+  ],
+  "domains": [
+   "sbi.co.in",
+   "onlinesbi.sbi",
+   "onlinesbi.com",
+   "sbicard.com"
+  ],
+  "packages": [
+   "com.sbi.lotusintouch"
+  ]
+ },
+ {
+  "name": "HDFC Bank",
+  "tokens": [
+   "hdfc",
+   "hdfcbank"
+  ],
+  "domains": [
+   "hdfcbank.com",
+   "hdfc.com"
+  ],
+  "packages": [
+   "com.snapwork.hdfc"
+  ]
+ },
+ {
+  "name": "ICICI Bank",
+  "tokens": [
+   "icici",
+   "icicibank"
+  ],
+  "domains": [
+   "icicibank.com"
+  ],
+  "packages": [
+   "com.csam.icici.bank.imobile"
+  ]
+ },
+ {
+  "name": "Axis Bank",
+  "tokens": [
+   "axis",
+   "axisbank"
+  ],
+  "domains": [
+   "axisbank.com"
+  ],
+  "packages": [
+   "com.axis.mobile"
+  ]
+ },
+ {
+  "name": "Kotak",
+  "tokens": [
+   "kotak"
+  ],
+  "domains": [
+   "kotak.com"
+  ],
+  "packages": [
+   "com.msf.kbank.mobile"
+  ]
+ },
+ {
+  "name": "PNB",
+  "tokens": [
+   "pnb",
+   "pnbindia"
+  ],
+  "domains": [
+   "pnbindia.in"
+  ],
+  "packages": []
+ },
+ {
+  "name": "Paytm",
+  "tokens": [
+   "paytm"
+  ],
+  "domains": [
+   "paytm.com"
+  ],
+  "packages": [
+   "net.one97.paytm"
+  ]
+ },
+ {
+  "name": "PhonePe",
+  "tokens": [
+   "phonepe"
+  ],
+  "domains": [
+   "phonepe.com"
+  ],
+  "packages": [
+   "com.phonepe.app"
+  ]
+ },
+ {
+  "name": "Amazon",
+  "tokens": [
+   "amazon"
+  ],
+  "domains": [
+   "amazon.in",
+   "amazon.com"
+  ],
+  "packages": [
+   "in.amazon.mShop.android.shopping"
+  ]
+ },
+ {
+  "name": "Flipkart",
+  "tokens": [
+   "flipkart"
+  ],
+  "domains": [
+   "flipkart.com"
+  ],
+  "packages": [
+   "com.flipkart.android"
+  ]
+ },
+ {
+  "name": "IRCTC",
+  "tokens": [
+   "irctc"
+  ],
+  "domains": [
+   "irctc.co.in"
+  ],
+  "packages": [
+   "cris.org.in.prs.ima"
+  ]
+ },
+ {
+  "name": "Income Tax",
+  "tokens": [
+   "incometax"
+  ],
+  "domains": [
+   "incometax.gov.in"
+  ],
+  "packages": []
+ },
+ {
+  "name": "UIDAI",
+  "tokens": [
+   "uidai",
+   "aadhaar",
+   "aadhar"
+  ],
+  "domains": [
+   "uidai.gov.in"
+  ],
+  "packages": []
+ },
+ {
+  "name": "Parivahan",
+  "tokens": [
+   "parivahan",
+   "echallan",
+   "rto"
+  ],
+  "domains": [
+   "parivahan.gov.in"
+  ],
+  "packages": [
+   "com.nic.mparivahan"
+  ]
+ },
+ {
+  "name": "India Post",
+  "tokens": [
+   "indiapost"
+  ],
+  "domains": [
+   "indiapost.gov.in"
+  ],
+  "packages": []
+ },
+ {
+  "name": "Google",
+  "tokens": [
+   "google"
+  ],
+  "domains": [
+   "google.com"
+  ],
+  "packages": []
+ },
+ {
+  "name": "WhatsApp",
+  "tokens": [
+   "whatsapp"
+  ],
+  "domains": [
+   "whatsapp.com"
+  ],
+  "packages": [
+   "com.whatsapp"
+  ]
+ },
+ {
+  "name": "Delhivery",
+  "tokens": [
+   "delhivery"
+  ],
+  "domains": [
+   "delhivery.com"
+  ],
+  "packages": []
+ },
+ {
+  "name": "DTDC",
+  "tokens": [
+   "dtdc"
+  ],
+  "domains": [
+   "dtdc.in",
+   "dtdc.com"
+  ],
+  "packages": []
+ },
+ {
+  "name": "Blue Dart",
+  "tokens": [
+   "bluedart"
+  ],
+  "domains": [
+   "bluedart.com"
+  ],
+  "packages": []
+ },
+ {
+  "name": "Jio",
+  "tokens": [
+   "jio",
+   "myjio"
+  ],
+  "domains": [
+   "jio.com"
+  ],
+  "packages": []
+ },
+ {
+  "name": "Airtel",
+  "tokens": [
+   "airtel"
+  ],
+  "domains": [
+   "airtel.in"
+  ],
+  "packages": []
+ },
+ {
+  "name": "Swiggy",
+  "tokens": [
+   "swiggy"
+  ],
+  "domains": [
+   "swiggy.com"
+  ],
+  "packages": []
+ },
+ {
+  "name": "Zomato",
+  "tokens": [
+   "zomato"
+  ],
+  "domains": [
+   "zomato.com"
+  ],
+  "packages": []
+ }
 ]
