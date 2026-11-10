@@ -35,3 +35,21 @@ def test_wrong_transfer_scam_is_recognised():
 
 def test_disconnection_threat_is_recognised():
     assert "msg_threat_block" in ids("Your connection will be cut tonight")
+
+
+def test_delivery_otp_shared_with_agent_at_doorstep_is_not_treated_as_bank_otp_theft():
+    text = "Your Flipkart order is out for delivery. Share the delivery OTP 4821 with the agent only at your doorstep."
+    assert "msg_otp_request" not in ids(text)
+
+
+def test_amazon_pay_cashback_credit_is_not_a_payment_demand_or_authority_claim():
+    text = "Your Amazon Pay balance was credited with Rs 100 cashback for your recent purchase."
+    found = ids(text)
+    assert "msg_payment_demand" not in found
+    assert "msg_authority_claim" not in found
+
+
+def test_school_fee_notice_does_not_get_a_strong_upfront_payment_signal():
+    text = "Dear parent, school fee of Rs 15,000 is due by 30 Nov. Pay on the school portal. A late fee of Rs 500 applies after the due date."
+    payment = [s for s in analyze(text) if s["id"] == "msg_payment_demand"]
+    assert not payment or payment[0]["strength"] <= 0.7
