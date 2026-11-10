@@ -47,8 +47,9 @@ Open http://127.0.0.1:8000
 ## Tests
 ```
 pip install -r requirements-dev.txt
-python -m pytest -q          # 89 tests: engine, analyzers, API security, robustness, benchmark guard
-python tools/benchmark.py    # precision, recall, false-positive rate, F1
+python -m pytest -q          # engine, analyzers, API security, robustness and benchmark checks
+python tools/benchmark.py    # main benchmark
+python tools/benchmark.py --holdout  # holdout benchmark
 ```
 
 ## Technologies
