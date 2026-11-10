@@ -13,7 +13,7 @@
 
 | Risk | Control |
 |---|---|
-| Oversized input | Text capped at 5,000 characters; uploads capped at 50 MB; requests declaring a huge body are refused with 413 before being read |
+| Oversized input | Text capped at 5,000 characters; APK files capped at 50 MB; a bounded ASGI body middleware rejects declared oversized requests and also counts streamed bytes before multipart parsing, returning 413 without passing an oversized body to FastAPI |
 | Fake or malicious app files | Must end in `.apk`, start with the zip signature, contain `AndroidManifest.xml`, have at most 20,000 entries, unpack to under 400 MB, and not show a decompression-bomb ratio |
 | Malformed addresses and QR payloads | Parsing is wrapped so bad URLs, bad ports, broken UPI strings, huge strings and control characters never crash a check (fuzz-style test) |
 | Abuse and flooding | In-memory sliding-window rate limit per client address on `/api/scan` (30 per minute by default, `SENTRA_RATE` to change), answered with 429 |
@@ -24,7 +24,7 @@
 | Camera privacy | QR codes are decoded inside the browser; the picture is never uploaded |
 
 ## Residual risks (stated honestly)
-- **Request-body enforcement is incomplete.** The middleware rejects requests whose declared `Content-Length` exceeds the configured limit, but it does not count streamed request bytes. Multipart parsing happens before the `/api/scan` handler, so a chunked request or a request with a misleading/missing length may consume memory or temporary disk before the handler's 50 MB APK read cap is applied. Enforce a hard body limit at the reverse proxy and add an ASGI receive-layer byte counter before treating the upload cap as a complete denial-of-service control.
+- The ASGI body cap bounds application-level request buffering to 51 MB before multipart parsing. A reverse-proxy/server-level request-size limit is still recommended as defense in depth, because network and protocol buffers exist before the ASGI application receives chunks.
 - The rate limiter is in memory and per server instance, so it resets on restart and is not shared across instances.
   It trusts the `X-Forwarded-For` header, which is correct behind Render's proxy but spoofable elsewhere.
 - App files are parsed by the Androguard library; a bug in a parser is always possible. Size and structure checks
