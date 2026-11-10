@@ -115,3 +115,11 @@ None at the Suspicious cut-off.
 
 See `docs/BENCHMARK.md` and `docs/HOLDOUT.md` for every case, and `python tools/benchmark.py [--holdout]` to reproduce.
 The test cases were written by the Sentra team, so they are **not independent real-world data**.
+
+
+### Holdout benchmark
+
+The separate 40-case holdout contains 22 malicious and 18 genuine examples. In the current run, the Suspicious-or-higher
+cut-off caught **22 / 22 malicious cases**, with **100% precision**, **100% recall**, and **0 / 18 false alarms**. At
+High risk or above, recall is 50.0% (11 / 22). The cases are team-authored, not independent real-world data. Reproduce
+with `python tools/benchmark.py --holdout`; use `--write` to regenerate the detailed report.
