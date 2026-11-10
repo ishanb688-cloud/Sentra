@@ -89,12 +89,12 @@ RULES = {
     ],
     "msg_investment_lure": [
         # High-return guarantees tied to an investment or crypto offer are a strong scam pattern.
-        (r"(?=.*\\b(invest|investment|crypto|trading plan)\\b)(?=.*\\b(guaranteed|assured|fixed)\\s+returns?\\b).+", 1.0),
-        (r"(?=.*\\b(invest|investment|crypto|trading plan)\\b)(?=.*\\b(double|triple)\\s+(your\\s+)?money\\b).+", 1.0),
+        (r"(?=.*\b(invest|investment|crypto|trading plan)\b)(?=.*\b(guaranteed|assured|fixed)\s+returns?\b).+", 1.0),
+        (r"(?=.*\b(invest|investment|crypto|trading plan)\b)(?=.*\b(double|triple)\s+(your\s+)?money\b).+", 1.0),
     ],
     "msg_card_charge_impersonation": [
         # Banks use published toll-free numbers for disputes; unsolicited mobile helplines are suspicious.
-        (r"\\b(credit card|debit card|card|account)\\b[^\\n]{0,65}\\b(charged|debited|transaction|purchase)\\b[^\\n]{0,100}\\b(if not (you|authori[sz]ed)|not you)\\b[^\\n]{0,55}\\b(call|contact)\\b[^\\n]{0,35}\\b[6-9]\\d{9}\\b", 1.0),
+        (r"\b(credit card|debit card|card|account)\b[^\n]{0,65}\b(charged|debited|transaction|purchase)\b[^\n]{0,100}\b(if not (you|authori[sz]ed)|not you)\b[^\n]{0,55}\b(call|contact)\b[^\n]{0,35}\b[6-9]\d{9}\b", 1.0),
     ],
     "msg_family_impersonation": [
         (r"\bmy phone (broke|is broken|got (broken|damaged|lost))\b", 0.8),
