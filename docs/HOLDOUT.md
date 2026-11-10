@@ -11,6 +11,13 @@ A case is *flagged* when its level is at or above the selected cut-off.
 | Suspicious or above | **100.0%** | **100.0%** | **0.0%** | **1.00** | 22 | 0 | 0 | 18 |
 | High risk or above | 100.0% | 50.0% | 0.0% | 0.67 | 11 | 11 | 0 | 18 |
 
+## Confusion matrix (Suspicious or above)
+
+| | Predicted scam | Predicted not flagged |
+|---|---:|---:|
+| Actual scam | 22 (TP) | 0 (FN) |
+| Actual genuine | 0 (FP) | 18 (TN) |
+
 ## Results by input type
 
 | Category | Cases | Malicious caught | Genuine wrongly flagged |
