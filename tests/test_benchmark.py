@@ -24,15 +24,20 @@ def test_development_benchmark_has_no_false_alarms_and_high_recall():
 
 
 def test_holdout_floor_so_regressions_are_noticed():
-    m = _run(True)
     import importlib
     import benchmark
-    importlib.reload(benchmark)
-    result = benchmark.run()
+    argv = sys.argv[:]
+    sys.argv = ["benchmark", "--holdout"]
+    try:
+        importlib.reload(benchmark)
+        result = benchmark.run()
+    finally:
+        sys.argv = argv
+    m = result["cutoffs"]["Suspicious"]
     false_alarms = [
         (case["id"], case["input"], verdict[0], verdict[1], verdict[2], verdict[3])
         for case, verdict in result["rows"]
-        if case["label"] == "genuine" and benchmark.ORDER.index(verdict[0]) >= 1
+        if case["label"] == "genuine" and benchmark.ORDER.index(verdict[0]) >= benchmark.ORDER.index("Suspicious")
     ]
     assert (
         m["fpr"] <= 0.10 and m["recall"] >= 0.70 and m["precision"] >= 0.90
