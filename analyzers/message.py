@@ -111,7 +111,7 @@ COMPILED = {sid: [(re.compile(p, re.I), s) for p, s in rules] for sid, rules in 
 
 def analyze(text):
     text = text or ""
-    clean = IN_PERSON_DELIVERY_OTP.sub(" ", DISPUTE_SAFE.sub(" ", WARNING.sub(" ", text)))
+    clean = INDIAN_CREDENTIAL_WARNING.sub(" ", IN_PERSON_DELIVERY_OTP.sub(" ", DISPUTE_SAFE.sub(" ", WARNING.sub(" ", text))))
     signals = []
     for sid, rules in COMPILED.items():
         best = None
