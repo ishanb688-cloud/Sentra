@@ -706,6 +706,20 @@
     "has_launcher": true,
     "signed": true
    }
+  },
+  {
+   "id": "T01",
+   "category": "Online task scams",
+   "label": "malicious",
+   "kind": "message",
+   "input": "Earn Rs 3,000 daily by liking videos in our Telegram task group. Recharge Rs 1,000 to unlock VIP prepaid tasks and withdraw your earnings."
+  },
+  {
+   "id": "T02",
+   "category": "Online task scams",
+   "label": "genuine",
+   "kind": "message",
+   "input": "Complete the online training tasks by Friday: watch the lesson, review the worksheet, and submit your answers. No payment is required."
   }
  ]
 }
