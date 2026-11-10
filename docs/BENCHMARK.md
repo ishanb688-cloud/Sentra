@@ -8,8 +8,8 @@ A case is *flagged* when its level is at or above the cut-off.
 
 | Cut-off | Precision | Recall | False-positive rate | F1 | TP | FN | FP | TN |
 |---|---|---|---|---|---|---|---|---|
-| Suspicious or above | 100.0% | 100.0% | 0.0% | 1.00 | 58 | 0 | 0 | 32 |
-| High risk or above | 100.0% | 59.3% | 0.0% | 0.74 | 35 | 24 | 0 | 33 |
+| Suspicious or above | 100.0% | 100.0% | 0.0% | 1.00 | 59 | 0 | 0 | 33 |
+| High risk or above | 100.0% | 61.0% | 0.0% | 0.76 | 36 | 23 | 0 | 33 |
 
 ## By category (flagged at Suspicious or above)
 
