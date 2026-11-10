@@ -514,12 +514,12 @@ const t0=performance.now(),sc=$("score");
 const HANDLES={ybl:"PhonePe",ibl:"PhonePe",axl:"PhonePe",okhdfcbank:"Google Pay",okicici:"Google Pay",okaxis:"Google Pay",oksbi:"Google Pay",paytm:"Paytm",apl:"Amazon Pay",upi:"BHIM",sbi:"State Bank of India",hdfcbank:"HDFC Bank",icici:"ICICI Bank",axisbank:"Axis Bank",pnb:"Punjab National Bank",boi:"Bank of India",cnrb:"Canara Bank",unionbank:"Union Bank",idfcfirst:"IDFC FIRST Bank",fbl:"Federal Bank",kotak:"Kotak Mahindra Bank",airtel:"Airtel Payments Bank",jio:"Jio Payments Bank",yesbank:"YES Bank",freecharge:"Freecharge",rbl:"RBL Bank",federal:"Federal Bank",dbs:"DBS Bank",aubank:"AU Small Finance Bank"};
 function handleApp(pa){const h=(pa.split("@")[1]||"").toLowerCase();return HANDLES[h]|| (h?"Unknown / custom handle (@"+h+")":"No UPI handle found")}
 function upiCard(t){
-const m=t.match(/upi:\/\/pay\?[^\\s]+/i);if(!m)return null;
+const m=t.match(/upi:\/\/pay\?[^\s]+/i);if(!m)return null;
 const q=new URLSearchParams(m[0].split("?")[1]);
 const get=(k)=>{const v=q.get(k);return v===null?"":v.trim()};
 const pa=get("pa"),pn=get("pn"),amount=get("am"),note=get("tn"),currency=get("cu")||"INR",merchantCode=get("mc"),txn=get("tr")||get("tid"),url=get("url");
 const local=pa.split("@")[0]||"",handle=(pa.split("@")[1]||"").toLowerCase();
-const phone=/^\\+?91?[- ]?([6-9]\\d{9})$/.test(local)||/^[6-9]\\d{9}$/.test(local);
+const phone=/^[6-9]\d{9}$/.test(local)||/^\+91[6-9]\d{9}$/.test(local);
 const sec=el("div","sec");sec.append(el("h2",null,"QR payee intelligence"));
 const box=el("div","upi");
 const status=el("span",phone?"warn":"ok",phone?"Personal-number style UPI address":"Recipient details extracted from QR");
