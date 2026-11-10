@@ -64,7 +64,9 @@ benchmark sets | `tools/` benchmark and image tools | `docs/` methodology, secur
 ## Security and privacy
 Nothing is stored: messages are processed in memory, uploads are deleted right after reading, and the browser History keeps
 only the result. Input limits, file-structure checks, rate limiting, generic errors and a content-security policy are
-described and tested in [docs/SECURITY.md](docs/SECURITY.md).
+described and tested in [docs/SECURITY.md](docs/SECURITY.md). For shared rate limiting across Render instances,
+configure `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` as private environment variables; without
+both, the app uses its bounded per-process limiter.
 
 ## License
 MIT
