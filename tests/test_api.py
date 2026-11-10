@@ -308,3 +308,65 @@ def test_interactive_docs_are_switched_off():
 def test_messages_are_not_written_to_history_on_the_server():
     post("my secret message 98765")
     assert not any(hasattr(server, name) for name in ("HISTORY", "STORE", "DB"))
+
+
+def test_shared_rate_limiter_uses_atomic_redis_command_and_hides_client_ip(monkeypatch):
+    import json
+    from io import BytesIO
+
+    captured = {}
+
+    def fake_urlopen(request, timeout):
+        captured["url"] = request.full_url
+        captured["timeout"] = timeout
+        captured["headers"] = dict(request.header_items())
+        captured["command"] = json.loads(request.data.decode("utf-8"))
+        return BytesIO(b'{"result":1}')
+
+    monkeypatch.setattr(server.urllib.request, "urlopen", fake_urlopen)
+    limiter = server.RedisRateLimiter(
+        "https://redis.example.com", "test-secret-token", limit=3, window=60
+    )
+    assert limiter.allow("203.0.113.42") is True
+    assert captured["url"] == "https://redis.example.com"
+    assert captured["timeout"] <= 2
+    assert captured["headers"]["Authorization"] == "Bearer test-secret-token"
+    assert captured["command"][0:3] == ["EVAL", limiter.LUA, "1"]
+    assert "203.0.113.42" not in captured["command"][3]
+
+
+def test_shared_rate_limiter_rejects_non_https_url():
+    with pytest.raises(ValueError):
+        server.RedisRateLimiter("http://redis.example.com", "secret")
+
+
+def test_shared_rate_limiter_returns_429_when_shared_limit_is_reached(monkeypatch):
+    class DenyAll:
+        def allow(self, key):
+            return False
+
+    monkeypatch.setattr(server, "REDIS_CONFIG_ERROR", False)
+    monkeypatch.setattr(server, "REDIS_LIMITER", DenyAll())
+    response = post("please check this")
+    assert response.status_code == 429
+    assert response.headers["retry-after"] == "60"
+
+
+def test_shared_rate_limiter_failure_fails_closed_with_503(monkeypatch):
+    class Broken:
+        def allow(self, key):
+            raise OSError("private backend details")
+
+    monkeypatch.setattr(server, "REDIS_CONFIG_ERROR", False)
+    monkeypatch.setattr(server, "REDIS_LIMITER", Broken())
+    response = post("please check this")
+    assert response.status_code == 503
+    assert response.headers["retry-after"] == "10"
+    assert "private backend details" not in response.text
+
+
+def test_partial_shared_rate_limit_configuration_fails_closed(monkeypatch):
+    monkeypatch.setattr(server, "REDIS_CONFIG_ERROR", True)
+    monkeypatch.setattr(server, "REDIS_LIMITER", None)
+    response = post("please check this")
+    assert response.status_code == 503
