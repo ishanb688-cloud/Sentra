@@ -104,7 +104,9 @@ class BodyLimitMiddleware:
                 index += 1
                 return {"type": "http.request", "body": chunk,
                         "more_body": index < len(chunks)}
-            return {"type": "http.disconnect"}
+            # The buffered request is complete, but the response may still be streaming.
+            # Wait on the original ASGI receive channel for a real client disconnect.
+            return await receive()
 
         await self.app(scope, replay, send)
 
