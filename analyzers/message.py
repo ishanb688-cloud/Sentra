@@ -55,7 +55,7 @@ RULES = {
         (r"\b(calling from|i am from|bank officer|customer care executive)\b", 1.0),
         (r"\bdear (customer|user|sir|madam|account holder)\b", 0.5),
         (r"\b(rto|echallan|challan|parivahan)\b", 0.8),
-        (r"\b(package|parcel|courier|delivery)\b[^.\n]{0,55}\b(held|stuck|pending|undelivered|returned|failed|could not be delivered|delivery failed)\b", 0.8),
+        (r"\b(package|parcel|courier|delivery|order)\b[^.\n]{0,55}\b(held|stuck|pending|undelivered|returned|failed|could not be delivered|delivery failed)\b", 0.8),
         (r"\b(incorrect|incomplete|wrong) address\b|\b(address details|delivery details)\b[^.\n]{0,35}\b(update|verify|confirm)\b", 0.7),
         (r"\b(sbi|hdfc|icici|axis|kotak|pnb|bank of baroda|rbi|paytm|phonepe|amazon|income tax|police|cbi|customs|trai|uidai|india post|bluedart|dtdc|delhivery)\b", 0.6),
     ],
