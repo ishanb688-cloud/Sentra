@@ -37,7 +37,10 @@ RULES = {
         (r"\b(update|verify|complete)\b[^.\n]{0,20}\b(kyc|pan|aadhaar|aadhar)\b", 0.9),
     ],
     "msg_payment_demand": [
-        (r"\b(pay|deposit|transfer|send)\b[^.\n]{0,25}(₹|rs\.?|inr)\s?\d", 1.0),
+        # Allow natural wording between the payment verb and amount, e.g. "pay a refundable
+        # registration fee of ₹499", while requiring an explicit payment/fee context.
+        (r"\b(pay|deposit|transfer|send)\b[^.\n]{0,90}(₹|rs\.?|inr)\s?\d", 1.0),
+        (r"\b(fee|deposit|charge|charges|penalty|fine)\b[^.\n]{0,50}(₹|rs\.?|inr)\s?\d", 0.9),
         (r"\b(pay|deposit|transfer|send)\s+(rs\.?\s?|inr\s?|₹\s?)?\d{3,}\b", 0.8),
         (r"\b(fee|charge|penalty|fine)\b[^.\n]{0,25}\b(pay|due|pending)\b", 0.7),
     ],
@@ -52,8 +55,9 @@ RULES = {
         (r"\b(calling from|i am from|bank officer|customer care executive)\b", 1.0),
         (r"\bdear (customer|user|sir|madam|account holder)\b", 0.5),
         (r"\b(rto|echallan|challan|parivahan)\b", 0.8),
-        (r"\b(package|parcel|courier)\b[^.\n]{0,20}\b(held|stuck|pending|undelivered|returned)\b", 0.8),
-        (r"\b(sbi|hdfc|icici|axis|kotak|pnb|bank of baroda|rbi|paytm|phonepe|income tax|police|cbi|customs|trai|uidai|india post|bluedart|dtdc|delhivery)\b", 0.6),
+        (r"\b(package|parcel|courier|delivery)\b[^.\n]{0,55}\b(held|stuck|pending|undelivered|returned|failed|could not be delivered|delivery failed)\b", 0.8),
+        (r"\b(incorrect|incomplete|wrong) address\b|\b(address details|delivery details)\b[^.\n]{0,35}\b(update|verify|confirm)\b", 0.7),
+        (r"\b(sbi|hdfc|icici|axis|kotak|pnb|bank of baroda|rbi|paytm|phonepe|amazon|income tax|police|cbi|customs|trai|uidai|india post|bluedart|dtdc|delhivery)\b", 0.6),
     ],
     "msg_reward_lure": [
         (r"\b(you have won|lottery|lucky winner|claim your (prize|reward|gift))\b", 1.0),
@@ -69,7 +73,9 @@ RULES = {
         (r"\b(return|send back|refund|give back)\b[^.\n]{0,50}\b(amount|money|payment)\b[^.\n]{0,40}\b(by mistake|wrongly)\b", 1.0),
     ],
     "msg_job_lure": [
-        (r"\b(you are|you have been) selected for\b[^.\n]{0,30}\b(job|position|role|internship)\b", 1.0),
+        # Require both a recruitment context and an upfront-fee/deposit request.
+        # Ordinary job adverts and interview invitations must not trigger this signal.
+        (r"(?=.*\b(job|position|role|internship|recruitment|work from home|shortlisted|interview|employee id)\b)(?=.*\b(registration fee|joining fee|security deposit|processing fee|onboarding fee|refundable fee|employee id generation|pay.{0,35}(fee|deposit))\b).+", 1.0),
         (r"\bjoining (fee|kit|charges?)\b", 0.8),
     ],
     "msg_family_impersonation": [
