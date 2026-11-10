@@ -504,7 +504,7 @@ const g=el("div","gauge");
 g.innerHTML='<svg viewBox="0 0 240 140" role="img"><path class="track" d="M20 120A100 100 0 0 1 220 120" pathLength="100"/><path class="fill" id="fill" d="M20 120A100 100 0 0 1 220 120" pathLength="100"/><text class="score serif" x="120" y="112" text-anchor="middle" id="score">0</text></svg>';
 out.append(g);
 g.querySelector("svg").setAttribute("aria-label","Risk "+Math.round(d.risk*100)+" out of 100");
-out.append(el("div","lvl serif",d.level),el("p","say",say));const qc=qrResultCard(qrPayload||compose());if(qc)out.append(qc);
+out.append(el("div","lvl serif",d.level),el("p","say",say));const qc=qrPayload?qrResultCard(qrPayload):null;if(qc)out.append(qc);
 const risky=(d.signals||[]).filter(s=>s.category!=="dampener"),damp=(d.signals||[]).filter(s=>s.category==="dampener");
 const bars=[];
 if(d.chain){const s=el("div","sec");s.append(el("h2",null,"How this scam would play out"),el("span","chain",CHAIN[d.chain]||d.chain));
@@ -565,7 +565,7 @@ const upi=upiCard(t);if(upi)return upi;
 const sec=el("div","sec qr-result");sec.append(el("h2",null,"QR code contents"));
 let kind="Text or other data",summary=t;
 if(/^https?:\/\//i.test(t)){try{const u=new URL(t);kind="Website / URL";summary=u.hostname+(u.pathname==="/"?"":u.pathname)+u.search;sec.append(el("p","note","This QR contains a web address. Sentra has not opened it. Check the destination before visiting."));const check=el("button","ghost2 qr-pay-action","Analyse this URL");check.type="button";check.onclick=()=>smartCheck(t);sec.append(check)}catch(e){}}
-else if(/^WIFI:/i.test(t)){kind="Wi-Fi network";const part=(key)=>{const m=t.match(new RegExp("(?:^|;)"+key+":((?:\\\\.|[^;])*)"));return m?m[1].replace(/\\\\([;:,\\\\])/g,"$1"):""};const ssid=part("S"),security=part("T")||"Unknown";const pass=part("P");summary="Network: "+(ssid||"Not named")+" · Security: "+security+(pass?" · Password: hidden":"");sec.append(el("p","note","Wi-Fi details were decoded locally. The network password is intentionally hidden in this preview."))}
+else if(/^WIFI:/i.test(t)){kind="Wi-Fi network";const fields=t.slice(5).split(";"),part=(key)=>{const row=fields.find(x=>x.startsWith(key+":"));return row?row.slice(key.length+1):""};const ssid=part("S"),security=part("T")||"Unknown";const pass=part("P");summary="Network: "+(ssid||"Not named")+" · Security: "+security+(pass?" · Password: hidden":"");sec.append(el("p","note","Wi-Fi details were decoded locally. The network password is intentionally hidden in this preview."))}
 else if(/^BEGIN:VCARD/i.test(t)||/^MECARD:/i.test(t)){kind="Contact card";const name=(t.match(/(?:FN|N):([^\r\n]+)/i)||t.match(/N:([^;]+)/i)||[])[1];const tel=(t.match(/TEL[^:]*:([^\r\n;]+)/i)||[])[1];const mail=(t.match(/EMAIL[^:]*:([^\r\n;]+)/i)||[])[1];summary=[name&&"Name: "+name,tel&&"Phone: "+tel,mail&&"Email: "+mail].filter(Boolean).join(" · ")||"Contact information is present."}
 else if(/^mailto:/i.test(t)){kind="Email address";summary=t.slice(7)}
 else if(/^tel:/i.test(t)){kind="Phone number";summary=t.slice(4)}
