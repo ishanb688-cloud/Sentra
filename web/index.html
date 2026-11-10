@@ -552,30 +552,43 @@ const trust=el("p","note","Identity status: NOT VERIFIED. The payee name and pay
 sec.append(trust);
 if(warnings.length){const list=el("ul","note");warnings.forEach(w=>{const li=el("li",null,w);list.append(li)});sec.append(list)}
 return sec}
-let stream=null,raf=0,qrPayload="";
+let stream=null,raf=0,qrPayload="",qrDetector=null,qrFrameBusy=false;
 const cv=document.createElement("canvas"),cx=cv.getContext("2d",{willReadFrequently:true});
+function makeQRDetector(){try{return "BarcodeDetector" in window?new BarcodeDetector({formats:["qr_code"]}):null}catch(e){return null}}
+async function decodeQRCanvas(){
+if(!qrDetector)qrDetector=makeQRDetector();
+if(qrDetector){try{const codes=await qrDetector.detect(cv);if(codes&&codes.length&&codes[0].rawValue)return codes[0].rawValue}catch(e){}}
+if(window.jsQR){try{const im=cx.getImageData(0,0,cv.width,cv.height),code=window.jsQR(im.data,im.width,im.height,{inversionAttempts:"attemptBoth"});if(code&&code.data)return code.data}catch(e){}}
+return "";
+}
 async function startCam(){
 $("err").textContent="";
-if(!window.jsQR){$("err").textContent="The QR reader could not load. Refresh the page or upload a QR photo.";return}
+qrDetector=makeQRDetector();
+if(!qrDetector&&!window.jsQR){$("err").textContent="The QR reader could not load. Refresh the page or upload a QR photo.";return}
 if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){$("err").textContent="This browser does not support camera access. Upload a QR photo instead.";return}
 try{
-stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}});
 const v=$("cam");v.srcObject=stream;await v.play();$("scanner").hidden=false;scanLoop();
 }catch(e){stopCam();$("err").textContent="Camera access failed or was blocked. Allow camera permission, use HTTPS, or upload a QR photo instead."}
 }
-function stopCam(){cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$("scanner").hidden=true}
-function scanLoop(){const v=$("cam");
+function stopCam(){cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;qrFrameBusy=false;$("cam").srcObject=null;$("scanner").hidden=true}
+async function scanLoop(){
+const v=$("cam");
+if(!stream)return;
+if(!qrFrameBusy&&v.readyState>=v.HAVE_CURRENT_DATA&&v.videoWidth&&v.videoHeight){
+qrFrameBusy=true;
 try{
-if(v.readyState===v.HAVE_ENOUGH_DATA){
-const w=v.videoWidth,h=v.videoHeight,scale=Math.min(1,1280/Math.max(w,h));
+const w=v.videoWidth,h=v.videoHeight,scale=Math.min(1,1600/Math.max(w,h));
 cv.width=Math.max(1,Math.round(w*scale));cv.height=Math.max(1,Math.round(h*scale));cx.drawImage(v,0,0,cv.width,cv.height);
-const im=cx.getImageData(0,0,cv.width,cv.height),c=window.jsQR?window.jsQR(im.data,im.width,im.height,{inversionAttempts:"attemptBoth"}):null;
-if(c&&c.data){stopCam();gotQR(c.data);return}}
-raf=requestAnimationFrame(scanLoop);
-}catch(e){stopCam();$("err").textContent="The camera frame could not be processed. Try uploading a QR photo instead."}
+const data=await decodeQRCanvas();
+if(data){stopCam();gotQR(data);return}
+}catch(e){stopCam();$("err").textContent="The camera frame could not be processed. Try uploading a QR photo instead.";return}
+finally{qrFrameBusy=false}
+}
+if(stream)raf=requestAnimationFrame(scanLoop);
 }
 function gotQR(data){qrPayload=data;showQR();refreshBadges();navTo("qr");$("go").click()}
-function openPicker(input){if(!input)return;try{input.click()}catch(e){$("err").textContent="Your browser blocked the file picker. Try refreshing the page or using another browser."}}
+function openPicker(input){if(!input)return;try{if(typeof input.showPicker==="function")input.showPicker();else input.click()}catch(e){try{input.click()}catch(err){$("err").textContent="Your browser blocked the file picker. Try refreshing the page or using another browser."}}}
 async function readPhoto(f){
 if(!f)return;
 $("err").textContent="";
@@ -596,11 +609,10 @@ const maxSide=Math.max(width,height),base=Math.min(1,1800/maxSide);
 for(const scale of [base,base*.75,base*.5]){
 cv.width=Math.max(1,Math.round(width*scale));cv.height=Math.max(1,Math.round(height*scale));
 cx.clearRect(0,0,cv.width,cv.height);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality="high";cx.drawImage(source,0,0,cv.width,cv.height);
-if("BarcodeDetector" in window){try{const detector=new BarcodeDetector({formats:["qr_code"]}),codes=await detector.detect(cv);if(codes.length&&codes[0].rawValue){gotQR(codes[0].rawValue);return}}catch(e){}}
-if(window.jsQR){const pixels=cx.getImageData(0,0,cv.width,cv.height);const code=window.jsQR(pixels.data,pixels.width,pixels.height,{inversionAttempts:"attemptBoth"});if(code&&code.data){gotQR(code.data);return}}
+const decoded=await decodeQRCanvas();if(decoded){gotQR(decoded);return}
 }
-if(!window.jsQR&&!("BarcodeDetector" in window))$("err").textContent="The QR reader did not load. Refresh the page and try again.";
-else $("err").textContent="No QR code found. Use a clear, straight-on photo with the whole code visible and good lighting.";
+if(!window.jsQR&&!qrDetector)$("err").textContent="The QR reader did not load. Refresh the page and try again.";
+else $("err").textContent="No QR code found. Try a closer, sharper photo with the full QR visible, or use the camera scanner.";
 }catch(e){$("err").textContent="Sentra could not open that photo. Try a JPG or PNG image instead."}
 finally{if(source&&typeof source.close==="function")source.close();if(objectUrl)URL.revokeObjectURL(objectUrl)}
 }
