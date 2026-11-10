@@ -86,14 +86,15 @@ class BodyLimitMiddleware:
             if not message.get("more_body", False):
                 break
 
-        body = b"".join(chunks)
-        delivered = False
+        index = 0
 
         async def replay():
-            nonlocal delivered
-            if not delivered:
-                delivered = True
-                return {"type": "http.request", "body": body, "more_body": False}
+            nonlocal index
+            if index < len(chunks):
+                chunk = chunks[index]
+                index += 1
+                return {"type": "http.request", "body": chunk,
+                        "more_body": index < len(chunks)}
             return {"type": "http.disconnect"}
 
         await self.app(scope, replay, send)
