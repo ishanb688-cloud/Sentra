@@ -24,7 +24,7 @@
 | Camera privacy | QR codes are decoded inside the browser; the picture is never uploaded |
 
 ## Residual risks (stated honestly)
-- The ASGI body cap bounds application-level request buffering to 51 MB before multipart parsing. A reverse-proxy/server-level request-size limit is still recommended as defense in depth, because network and protocol buffers exist before the ASGI application receives chunks.
+- The ASGI body cap caps the total request payload at 51 MB before multipart parsing. A reverse-proxy/server-level request-size limit is still recommended as defense in depth, because network and protocol buffers exist before the ASGI application receives chunks.
 - The rate limiter is in memory and per server instance, so it resets on restart and is not shared across instances.
   It trusts the `X-Forwarded-For` header, which is correct behind Render's proxy but spoofable elsewhere.
 - App files are parsed by the Androguard library; a bug in a parser is always possible. Size and structure checks
