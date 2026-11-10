@@ -102,9 +102,14 @@ RULES = {
         (r"(?=.*\b(task|tasks|telegram group|video like|product review|rating)\b)(?=.*\b(recharge|top.?up|paise jama|paisa jama|deposit|withdrawal unlock|withdrawal kholne)\b).+", 1.0),
     ],
     "msg_investment_lure": [
-        # High-return guarantees tied to an investment or crypto offer are a strong scam pattern.
-        (r"(?=.*\b(invest|investment|crypto|trading plan)\b)(?=.*\b(guaranteed|assured|fixed)\s+returns?\b).+", 1.0),
-        (r"(?=.*\b(invest|investment|crypto|trading plan)\b)(?=.*\b(double|triple)\s+(your\s+)?money\b).+", 1.0),
+        # Require both an investment/trading context and an implausible return promise.
+        (r"(?=.*\b(invest|investment|crypto|trading plan|stock tips?|forex|mutual fund|trading account)\b)(?=.*\b(guaranteed|assured|fixed|risk[- ]free|no[- ]risk)\s+(daily |weekly |monthly )?returns?\b).+", 1.0),
+        (r"(?=.*\b(invest|investment|crypto|trading plan|stock tips?|forex|trading account)\b)(?=.*\b(double|triple)\s+(your\s+)?money\b).+", 1.0),
+        (r"(?=.*\b(invest|investment|crypto|trading plan|stock tips?|forex)\b)(?=.*\b(earn|profit|return)\b.{0,35}\b(\d{1,3}%\s*(per|a)\s*(day|week|month)|daily profit|weekly profit)\b).+", 0.9),
+    ],
+    "msg_delivery_fee_scam": [
+        # Delivery context plus demanded fee and a pressure/link cue; ordinary updates stay lower risk.
+        (r"(?=.*\b(parcel|package|delivery|courier|redelivery|customs)\b)(?=.*\b(delivery fee|redelivery fee|release fee|customs fee|handling fee|re-delivery charges?)\b)(?=.*\b(pay|payment|deposit|click|link|within|immediately|urgent)\b).+", 0.9),
     ],
     "msg_card_charge_impersonation": [
         # Banks use published toll-free numbers for disputes; unsolicited mobile helplines are suspicious.
