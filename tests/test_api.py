@@ -207,6 +207,22 @@ def test_rate_limit_returns_429_then_recovers():
     assert post("hi").status_code == 200
 
 
+def test_rate_limiter_prunes_expired_clients_when_key_limit_is_reached():
+    lim = server.RateLimiter(2, 60, max_clients=2)
+    assert lim.allow("old-a", 0)
+    assert lim.allow("old-b", 0)
+    assert lim.allow("new", 100)
+    assert list(lim.hits) == ["new"]
+
+
+def test_rate_limiter_bounds_unique_client_keys():
+    lim = server.RateLimiter(2, 60, max_clients=2)
+    assert lim.allow("a", 0)
+    assert lim.allow("b", 0)
+    assert lim.allow("c", 0)
+    assert len(lim.hits) == 2
+    assert "a" not in lim.hits
+
 def test_rate_limiter_window_expires():
     lim = server.RateLimiter(2, 60)
     assert lim.allow("a", 0) and lim.allow("a", 1) and not lim.allow("a", 2)
