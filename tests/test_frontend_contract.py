@@ -36,8 +36,12 @@ def test_camera_and_photo_share_native_and_jsqr_decoder():
     source = WEB.read_text(encoding="utf-8")
     assert "function makeQRDetector()" in source
     assert "async function decodeQRCanvas()" in source
-    assert "const data=await decodeQRCanvas()" in source
-    assert "const decoded=await decodeQRCanvas()" in source
+    assert "let data=await decodeQRCanvas()" in source
+    assert "const decoded=await tryRegion(0,0,width,height,scale)" in source
+    assert "const passes=[base,Math.min(2,base*1.5),Math.min(2.5,base*2)]" in source
+    assert "Scan overlapping regions" in source
+    assert "const target=Math.min(1400,Math.round(side*1.6))" in source
+    assert "if(!data){const side=Math.min(w,h)*0.72" in source
     assert "qrFrameBusy" in source
 
 
@@ -53,7 +57,7 @@ def test_qr_scanner_has_phonepe_style_live_viewfinder_and_torch():
     assert 'class="scan-line"' in source
     assert 'id="torchBtn"' in source
     assert "async function toggleTorch()" in source
-    assert "performance.now()-lastScanAt>140" in source
+    assert "performance.now()-lastScanAt>220" in source
 
 
 def test_qr_results_show_upi_payee_and_explicit_user_initiated_handoff():
@@ -68,9 +72,9 @@ def test_qr_results_show_upi_payee_and_explicit_user_initiated_handoff():
 
 def test_qr_photo_upload_retries_full_image_and_quadrants():
     source = WEB.read_text(encoding="utf-8")
-    assert "const maxSide=Math.max(width,height),base=Math.min(1,2000/maxSide)" in source
-    assert "for(const [sx,sy] of [[0,0],[width/2,0],[0,height/2],[width/2,height/2]])" in source
-    assert '["attemptBoth","dontInvert","onlyInvert"]' in source
+    assert "const maxSide=Math.max(width,height),base=Math.min(1,1800/maxSide)" in source
+    assert "const regions=[[0,0,width,height]" in source
+    assert 'inversionAttempts:"attemptBoth"' in source
 
 
 def test_qr_details_are_not_rendered_for_non_qr_checks():
