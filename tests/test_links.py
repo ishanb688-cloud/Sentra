@@ -56,3 +56,7 @@ def test_refund_named_payee_is_flagged_even_without_a_message():
 
 def test_ordinary_names_are_not_mistaken_for_refund_names():
     assert "qr_pay_not_receive" not in ids("upi://pay?pa=anil.sharma@ybl&pn=Anil%20Sharma&tn=Rent")
+
+
+def test_paytm_brand_prefix_kyc_domain_is_flagged():
+    assert "link_lookalike_brand" in ids("https://paytmbank-kyc.in/upload")
