@@ -53,3 +53,18 @@ def test_school_fee_notice_does_not_get_a_strong_upfront_payment_signal():
     text = "Dear parent, school fee of Rs 15,000 is due by 30 Nov. Pay on the school portal. A late fee of Rs 500 applies after the due date."
     payment = [s for s in analyze(text) if s["id"] == "msg_payment_demand"]
     assert not payment or payment[0]["strength"] <= 0.7
+
+
+def test_guaranteed_crypto_returns_are_flagged_as_investment_lure():
+    text = "Invest Rs 5,000 in our crypto plan and get Rs 20,000 in 2 days. Guaranteed returns."
+    assert "msg_investment_lure" in ids(text)
+
+
+def test_card_charge_alert_with_mobile_helpline_is_suspicious():
+    text = "Your credit card has been charged Rs 49,999 for iPhone. If not authorised, call our helpline 7011223344 immediately."
+    assert "msg_card_charge_impersonation" in ids(text)
+
+
+def test_genuine_bank_dispute_toll_free_number_is_not_flagged_as_mobile_helpline():
+    text = "Alert: Rs 15,000 debited from your A/c XX7712 at ATM on 08-11. Not you? Call 1800-425-1111 now. -Axis Bank"
+    assert "msg_card_charge_impersonation" not in ids(text)
