@@ -1,20 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
-<title id="title">Sentra dragon shield</title><desc id="desc">Sentra cybersecurity dragon shield browser icon.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+<title id="title">Sentra — Dragon Shield</title>
+<desc id="desc">An original fierce cyber dragon head inside a sharp shield, in electric cyan and violet.</desc>
 <defs>
- <linearGradient id="shield" x1="18" y1="12" x2="108" y2="118" gradientUnits="userSpaceOnUse"><stop stop-color="#9B7BFF"/><stop offset=".52" stop-color="#6848E8"/><stop offset="1" stop-color="#11D6E8"/></linearGradient>
- <linearGradient id="edge" x1="24" y1="18" x2="105" y2="108" gradientUnits="userSpaceOnUse"><stop stop-color="#F4F0FF"/><stop offset=".48" stop-color="#A78BFA"/><stop offset="1" stop-color="#39E6F4"/></linearGradient>
- <linearGradient id="dragon" x1="28" y1="23" x2="101" y2="98" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFFFF"/><stop offset=".38" stop-color="#DCD4FF"/><stop offset="1" stop-color="#72F3FF"/></linearGradient>
- <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <linearGradient id="rim" x1="28" y1="18" x2="225" y2="240" gradientUnits="userSpaceOnUse"><stop stop-color="#B8A2FF"/><stop offset=".48" stop-color="#7657FF"/><stop offset="1" stop-color="#00E5FF"/></linearGradient>
+ <linearGradient id="steel" x1="62" y1="40" x2="190" y2="215" gradientUnits="userSpaceOnUse"><stop stop-color="#F7FAFF"/><stop offset=".48" stop-color="#B8C8E8"/><stop offset="1" stop-color="#56E9F5"/></linearGradient>
+ <linearGradient id="inner" x1="40" y1="25" x2="212" y2="230" gradientUnits="userSpaceOnUse"><stop stop-color="#171A35"/><stop offset="1" stop-color="#080D1A"/></linearGradient>
+ <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
-<path d="M64 5 111 23v36c0 29-18 51-47 64C35 110 17 88 17 59V23L64 5Z" fill="#090B16" stroke="url(#edge)" stroke-width="3"/>
-<path d="M64 13 103 28v30c0 24-14 42-39 54C39 100 25 82 25 58V28l39-15Z" fill="url(#shield)" opacity=".2"/>
-<path d="M32 48 18 37l5 21 12 3M96 48l14-11-5 21-12 3" fill="none" stroke="#6C5BFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-<g fill="none" stroke="#45DDF0" stroke-width="2" opacity=".8"><path d="M35 73h12l7-7M93 73H81l-7-7M42 88h12l5-6M86 88H74l-5-6"/><circle cx="35" cy="73" r="2" fill="#45DDF0"/><circle cx="93" cy="73" r="2" fill="#45DDF0"/></g>
+<path d="M128 9 226 47v72c0 61-37 103-98 128-61-25-98-67-98-128V47L128 9Z" fill="#050914" stroke="url(#rim)" stroke-width="7" stroke-linejoin="round"/>
+<path d="M128 23 211 55v64c0 51-30 87-83 110-53-23-83-59-83-110V55l83-32Z" fill="url(#inner)" stroke="#29365D" stroke-width="2"/>
+<g fill="none" stroke="#20DDF4" stroke-width="3" stroke-linecap="round" opacity=".65"><path d="M48 104h22l13 13M208 104h-22l-13 13M62 166h22l11-11M194 166h-22l-11-11"/><circle cx="48" cy="104" r="4" fill="#20DDF4"/><circle cx="208" cy="104" r="4" fill="#20DDF4"/></g>
 <g filter="url(#glow)">
- <path d="M34 54 25 29l25 15 12 2 17-13 21-3-13 17 12 8-13 15-19 3-8 13-13-6-11 8 3-17-12-9 15-8 8-14Z" fill="url(#dragon)" stroke="#F7F4FF" stroke-width="1.6" stroke-linejoin="round"/>
- <path d="m50 45-5-15 16 13M77 43l13-16-1 20" fill="#9B7BFF" stroke="#EDE8FF" stroke-width="1.5" stroke-linejoin="round"/>
- <path d="m70 52 13-2-8 8Z" fill="#101322"/><path d="m81 53 4-1-3 3Z" fill="#07101B"/>
- <path d="m40 61-13 2 9 7M53 72l-7 14 16-7M80 68l12 7-14 3" fill="none" stroke="#6D55E8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M55 133 39 91l39 19 18-26 7 31 28-15 13 20 42-11-18 25 31 12-34 12-13 25-35 10-22 30-8-29-28-4 15-21-24-13 23-13-16-20Z" fill="url(#steel)" stroke="#F7FBFF" stroke-width="2.5" stroke-linejoin="round"/>
+ <path d="m91 110-13-47 35 33M128 111l20-48 8 53M158 119l43-31-18 47" fill="#8B75FF" stroke="#D9D2FF" stroke-width="3" stroke-linejoin="round"/>
+ <path d="m112 126 37-9 29 15-29 13-31-5Z" fill="#10182A"/>
+ <path d="m144 128 17 2-13 7Z" fill="#FF315B"/><circle cx="151" cy="132" r="2.5" fill="#FFF"/>
+ <path d="m177 143 16 1-14 8M120 155l28 5 20-8-11 22-31 4" fill="none" stroke="#26365C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="m83 164 19 8-12 14M101 177l18 7-11 13M121 188l16 5-10 13" fill="none" stroke="#7657FF" stroke-width="4" stroke-linecap="round"/>
+ <path d="m168 151-9 15-3-14" fill="#FFF"/>
 </g>
-<path d="M64 89v17M56 97l8 8 8-8" fill="none" stroke="#E9E3FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+<path d="M128 206v17m-9-9 9 9 9-9" fill="none" stroke="#1CE4F3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
 </svg>
