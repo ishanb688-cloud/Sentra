@@ -30,6 +30,7 @@ HANDLES = {"ybl", "ibl", "axl", "okhdfcbank", "okicici", "okaxis", "oksbi", "pay
 
 # Large platforms whose domains merely contain a brand name; no lookalike signal, no trust bonus.
 NEUTRAL = {"amazonaws.com", "googleapis.com", "googleusercontent.com", "gstatic.com", "withgoogle.com"}
+GENERIC_BRAND_SUFFIXES = {"community", "fans", "fanclub", "news", "blog", "forum", "reviews", "review", "wiki", "docs", "documentation", "careers", "jobs"}
 LEET = str.maketrans({"0": "o", "1": "l", "3": "e", "4": "a", "5": "s", "$": "s", "@": "a"})
 CRED_PATH = re.compile(r"(login|log-in|signin|sign-in|verify|verification|kyc|otp|password|passcode|secure|auth|update|account|claim|redeem|unlock)", re.I)
 RECEIVE = re.compile(r"\b(receive|received|credited|refund|cashback|prize|reward|you have won|claim|collect)\b", re.I)
@@ -144,6 +145,10 @@ def check_url(url, ctx, add):
         for name, (kind, tok, prio, b) in brand_hits(tokens, joined).items():
             said = mentions(b, ctx)
             if kind == "embedded":
+                suffix = joined[len(tok):] if joined.startswith(tok) else ""
+                generic_mention = suffix in GENERIC_BRAND_SUFFIXES and not said and not CRED_PATH.search(path_q)
+                if generic_mention:
+                    continue
                 add("link_lookalike_brand", 1.0 if said else 0.8,
                     f"{name} name inside unofficial domain {reg}")
             else:
