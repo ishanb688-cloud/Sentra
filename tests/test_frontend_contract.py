@@ -71,3 +71,8 @@ def test_qr_photo_upload_retries_full_image_and_quadrants():
     assert "const maxSide=Math.max(width,height),base=Math.min(1,2000/maxSide)" in source
     assert "for(const [sx,sy] of [[0,0],[width/2,0],[0,height/2],[width/2,height/2]])" in source
     assert '["attemptBoth","dontInvert","onlyInvert"]' in source
+
+
+def test_qr_details_are_not_rendered_for_non_qr_checks():
+    source = WEB.read_text(encoding="utf-8")
+    assert "const qc=qrPayload?qrResultCard(qrPayload):null" in source
