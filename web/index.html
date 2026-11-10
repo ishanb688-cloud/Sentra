@@ -565,10 +565,15 @@ const v=$("cam");v.srcObject=stream;await v.play();$("scanner").hidden=false;sca
 }
 function stopCam(){cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$("scanner").hidden=true}
 function scanLoop(){const v=$("cam");
-if(v.readyState===v.HAVE_ENOUGH_DATA){cv.width=v.videoWidth;cv.height=v.videoHeight;cx.drawImage(v,0,0);
+try{
+if(v.readyState===v.HAVE_ENOUGH_DATA){
+const w=v.videoWidth,h=v.videoHeight,scale=Math.min(1,1280/Math.max(w,h));
+cv.width=Math.max(1,Math.round(w*scale));cv.height=Math.max(1,Math.round(h*scale));cx.drawImage(v,0,0,cv.width,cv.height);
 const im=cx.getImageData(0,0,cv.width,cv.height),c=window.jsQR?window.jsQR(im.data,im.width,im.height,{inversionAttempts:"attemptBoth"}):null;
 if(c&&c.data){stopCam();gotQR(c.data);return}}
-raf=requestAnimationFrame(scanLoop)}
+raf=requestAnimationFrame(scanLoop);
+}catch(e){stopCam();$("err").textContent="The camera frame could not be processed. Try uploading a QR photo instead."}
+}
 function gotQR(data){qrPayload=data;showQR();refreshBadges();navTo("qr");$("go").click()}
 function openPicker(input){if(!input)return;try{input.click()}catch(e){$("err").textContent="Your browser blocked the file picker. Try refreshing the page or using another browser."}}
 async function readPhoto(f){
