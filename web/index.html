@@ -528,33 +528,27 @@ function gotQR(data){qrPayload=data;showQR();refreshBadges();navTo("qr");$("go")
 async function readPhoto(f){
 if(!f)return;
 $("err").textContent="";
-if(!f.type||!f.type.startsWith("image/")){$("err").textContent="Choose an image file containing a QR code.";return}
+const imageName=(f.name||"").toLowerCase();
+const isImage=(f.type||"").toLowerCase().startsWith("image/")||/\.(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(imageName);
+if(!isImage){$("err").textContent="Choose a photo file (JPG, PNG or WebP) containing a QR code.";return}
 if(f.size>20*1024*1024){$("err").textContent="That photo is larger than 20 MB. Choose a smaller image.";return}
 let source=null,objectUrl="";
 try{
-if("createImageBitmap" in window){source=await createImageBitmap(f)}
-else{
 objectUrl=URL.createObjectURL(f);
-source=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("image"));img.src=objectUrl})
-}
+if("createImageBitmap" in window){try{source=await createImageBitmap(f)}catch(e){}}
+if(!source)source=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("image"));img.src=objectUrl});
 const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
 if(!width||!height)throw new Error("image");
 const maxSide=Math.max(width,height),base=Math.min(1,1800/maxSide);
-const scales=[base,base*.75,base*.5];
-for(const scale of scales){
+for(const scale of [base,base*.75,base*.5]){
 cv.width=Math.max(1,Math.round(width*scale));cv.height=Math.max(1,Math.round(height*scale));
 cx.clearRect(0,0,cv.width,cv.height);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality="high";cx.drawImage(source,0,0,cv.width,cv.height);
-if("BarcodeDetector" in window){
-try{const detector=new BarcodeDetector({formats:["qr_code"]}),codes=await detector.detect(cv);if(codes.length&&codes[0].rawValue){gotQR(codes[0].rawValue);return}}catch(e){}
+if("BarcodeDetector" in window){try{const detector=new BarcodeDetector({formats:["qr_code"]}),codes=await detector.detect(cv);if(codes.length&&codes[0].rawValue){gotQR(codes[0].rawValue);return}}catch(e){}}
+if(window.jsQR){const pixels=cx.getImageData(0,0,cv.width,cv.height);const code=window.jsQR(pixels.data,pixels.width,pixels.height,{inversionAttempts:"attemptBoth"});if(code&&code.data){gotQR(code.data);return}}
 }
-if(window.jsQR){
-const pixels=cx.getImageData(0,0,cv.width,cv.height);
-const code=window.jsQR(pixels.data,pixels.width,pixels.height,{inversionAttempts:"attemptBoth"});
-if(code&&code.data){gotQR(code.data);return}
-}
-}
-$("err").textContent="No QR code found. Use a clear, straight-on photo with the whole code visible and good lighting.";
-}catch(e){$("err").textContent="Sentra could not read that photo. Try another image in JPG or PNG format."}
+if(!window.jsQR&&!("BarcodeDetector" in window))$("err").textContent="The QR reader did not load. Refresh the page and try again.";
+else $("err").textContent="No QR code found. Use a clear, straight-on photo with the whole code visible and good lighting.";
+}catch(e){$("err").textContent="Sentra could not open that photo. Try a JPG or PNG image instead."}
 finally{if(source&&typeof source.close==="function")source.close();if(objectUrl)URL.revokeObjectURL(objectUrl)}
 }
 $("camBtn").onclick=startCam;$("stopCam").onclick=stopCam;
@@ -623,7 +617,7 @@ refreshBadges();toast("Checking it as "+({message:"a message",link:"a link",qr:"
 async function pasteCheck(){let t="";try{t=(await navigator.clipboard.readText()).trim()}catch(e){toast("Allow clipboard access, or paste on a check page.");return}
 if(!t){toast("Your clipboard is empty.");return}smartCheck(t)}
 $("anyFile").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
-if(/\.apk$/i.test(f.name)){navTo("app");setFile(f);$("go").click()}else if((f.type||"").startsWith("image/")){navTo("qr");readPhoto(f)}else toast("Choose an .apk app file or a photo of a QR code.")};
+if(/\.apk$/i.test(f.name)){navTo("app");setFile(f);$("go").click()}else if((f.type||"").startsWith("image/")||/\.(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(f.name||"")){navTo("qr");readPhoto(f)}else toast("Choose an .apk app file or a photo of a QR code.")};
 function runDemo(){navTo("message");$("text").value=SAMPLES["Fake bank KYC"];refreshBadges();$("go").click()}
 function copyReport(){if(!last){toast("Run a check first, then copy its report.");return}
 navigator.clipboard.writeText(report(last)).then(()=>toast("Report copied"),()=>toast("Copying is not allowed here"))}
