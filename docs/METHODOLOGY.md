@@ -86,7 +86,7 @@ Message: `Dear customer, your SBI account will be blocked today. Update your KYC
 
 ### Main benchmark (development set)
 
-90 labelled cases: 58 malicious, 32 genuine.
+92 labelled cases: 59 malicious, 33 genuine.
 
 > Authored by the Sentra team. Not independent real-world data. APK profiles are synthetic permission sets, not real malware.
 
@@ -94,8 +94,8 @@ A case is *flagged* when its level is at or above the cut-off.
 
 | Cut-off | Precision | Recall | False-positive rate | F1 | TP | FN | FP | TN |
 |---|---|---|---|---|---|---|---|---|
-| Suspicious or above | 100.0% | 100.0% | 0.0% | 1.00 | 58 | 0 | 0 | 32 |
-| High risk or above | 100.0% | 60.3% | 0.0% | 0.75 | 35 | 23 | 0 | 32 |
+| Suspicious or above | 100.0% | 100.0% | 0.0% | 1.00 | 59 | 0 | 0 | 33 |
+| High risk or above | 100.0% | 61.0% | 0.0% | 0.76 | 36 | 23 | 0 | 33 |
 
 ## By category (flagged at Suspicious or above)
 
@@ -107,6 +107,7 @@ A case is *flagged* when its level is at or above the cut-off.
 | Suspicious URLs | 20 | 14/14 | 0/6 |
 | QR / UPI examples | 10 | 6/6 | 0/4 |
 | APK permission profiles | 5 | 3/3 | 0/2 |
+| Online task scams | 2 | 1/1 | 0/1 |
 
 ## Misses and false alarms
 
