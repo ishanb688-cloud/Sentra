@@ -95,6 +95,65 @@ def test_oversized_upload_is_refused(monkeypatch):
     assert r.status_code == 200 and "larger than" in r.json()["notes"][0]
 
 
+
+def test_streamed_body_without_content_length_is_rejected_before_parsing():
+    import asyncio
+
+    async def scenario():
+        called = False
+        sent = []
+        chunks = [b"a" * 8, b"b" * 8]
+
+        async def receive():
+            if chunks:
+                chunk = chunks.pop(0)
+                return {"type": "http.request", "body": chunk, "more_body": bool(chunks)}
+            return {"type": "http.disconnect"}
+
+        async def downstream(scope, receive, send):
+            nonlocal called
+            called = True
+
+        async def send(message):
+            sent.append(message)
+
+        middleware = server.BodyLimitMiddleware(downstream, max_body=10)
+        scope = {"type": "http", "method": "POST", "path": "/api/scan", "headers": []}
+        await middleware(scope, receive, send)
+        assert not called, "oversized streamed body reached multipart parsing"
+        assert sent[0]["status"] == 413
+        assert b"too large" in sent[1]["body"]
+
+    asyncio.run(scenario())
+
+
+def test_streamed_body_within_limit_reaches_application():
+    import asyncio
+
+    async def scenario():
+        received = []
+        chunks = [b"hello", b"world"]
+
+        async def receive():
+            if chunks:
+                chunk = chunks.pop(0)
+                return {"type": "http.request", "body": chunk, "more_body": bool(chunks)}
+            return {"type": "http.disconnect"}
+
+        async def downstream(scope, receive, send):
+            message = await receive()
+            received.append(message["body"])
+
+        async def send(message):
+            pass
+
+        middleware = server.BodyLimitMiddleware(downstream, max_body=10)
+        scope = {"type": "http", "method": "POST", "path": "/api/scan", "headers": []}
+        await middleware(scope, receive, send)
+        assert received == [b"helloworld"]
+
+    asyncio.run(scenario())
+
 def test_huge_declared_body_is_rejected_early():
     r = client.post("/api/scan", content=b"x", headers={"content-length": str(server.MAX_BODY + 10)})
     assert r.status_code == 413
