@@ -29,7 +29,7 @@ Run `python tools/benchmark.py` (main set) and `python tools/benchmark.py --hold
 
 | Test set | Scams flagged | Precision | False alarms |
 |---|---:|---:|---:|
-| Main benchmark: 59 malicious, 33 genuine | 58 / 58 (100%) | 100% | 0 / 32 |
+| Main benchmark: 59 malicious, 33 genuine | 59 / 59 (100%) | 100% | 0 / 33 |
 | **Holdout benchmark: 22 malicious, 18 genuine** | **22 / 22 (100%)** | **100%** | **0 / 18** |
 
 Both sets currently pass at the **Suspicious-or-higher** threshold. These are team-authored test cases, not independent
