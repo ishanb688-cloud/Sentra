@@ -54,4 +54,19 @@ Do not fill in numbers until the script has actually been run:
 | Precision / recall / F1 / FPR | Pending |
 | Known limitations | English historical SMS corpus; message-only |
 
-**Current status:** the harness is committed as a reproducible tool; no UCI score is claimed until the dataset is downloaded and the script is run on it.
+## Recorded evaluation
+
+The evaluator was run in GitHub Actions run [42984428938](https://github.com/ishanb688-cloud/Sentra/actions/runs/42984428938) on 5,572 messages: 747 labelled spam and 4,825 labelled ham.
+
+| Item | Recorded result |
+|---|---|
+| Dataset | UCI SMS Spam Collection; historical English SMS |
+| Rows evaluated | 5,572 |
+| Spam / ham | 747 / 4,825 |
+| Source-file SHA-256 | Not recorded in the available run summary |
+| Download date | Not recorded in the available run summary |
+| Threshold | Suspicious or above |
+| TP / FN / FP / TN | 189 / 558 / 7 / 4,818 |
+| Precision / recall / F1 / FPR | 96.43% / 25.30% / 40.08% / 0.145% |
+
+**Interpretation:** this is an evaluation on a public external corpus, not a current real-world deployment study. The low recall is material: 558 of 747 spam messages were not flagged. Do not describe the result as overall Sentra accuracy or use it to make claims about URL, QR/UPI or APK analysis. The original reproducibility harness remains available; for a fully reproducible rerun, retain the exact downloaded file, its SHA-256, download date, script revision and complete output.
