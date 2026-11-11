@@ -545,7 +545,7 @@ async function readPhoto(photo){
   if(!photo)return;
   navTo("qr");qrMessage("Reading the QR photo…");
   if(photo.size>20*1024*1024){qrMessage("This image is larger than 20 MB. Choose a smaller QR photo.");return}
-  if(typeof window.jsQR!=="function"&&!qrDetector){qrMessage("QR decoder did not load. Refresh the page and try again.");return}
+  if(typeof window.jsQR!=="function"&&!qrDetector){qrMessage("undefined");return}
   let source=null;
   try{
     if("createImageBitmap" in window)source=await createImageBitmap(photo);
@@ -561,8 +561,8 @@ async function readPhoto(photo){
     const maxSide=Math.max(width,height),base=Math.min(1,1800/maxSide);
     const cv=document.createElement("canvas");cv.width=Math.max(1,Math.round(width*base));cv.height=Math.max(1,Math.round(height*base));
     const ctx=cv.getContext("2d",{willReadFrequently:true});ctx.drawImage(source,0,0,cv.width,cv.height);
-    const previousCanvas=qrCanvas;qrCanvas=cv;
-    const data=await decodeQRCanvas();qrCanvas=previousCanvas;
+    const previousCanvas=qrCanvas;qrCanvas=cv;qrDetector=qrDetector||makeQRDetector();
+    let data="";try{data=await decodeQRCanvas()}finally{qrCanvas=previousCanvas}
     if(!data)throw new Error("No QR code was found. Try a clearer, well-lit photo with the whole code visible.");
     gotQR(data);
   }catch(e){qrMessage((e&&e.message)||"Could not read this photo. Try another image.");}
@@ -640,7 +640,7 @@ let q;try{q=new URLSearchParams(raw.split("?")[1]||"")}catch(e){sec.append(el("p
 const payee=q.get("pn")||"Payee name not provided",upi=q.get("pa")||"Not provided",amount=q.get("am");
 const box=el("div","upi");box.append(el("span","warn","Check the recipient and amount carefully before continuing."));
 [["Payee",payee],["UPI ID",upi],["Amount",amount?"Rs "+amount:"You choose"],["Note",q.get("tn")||""]].forEach(([a,b])=>{if(!b)return;const r=el("div");r.append(el("span",null,a),el("span",null,b));box.append(r)});
-const identity=el("p","note","Payee identity not verified. The payee name is supplied by the QR creator, not verified by Sentra or the bank. Confirm the registered recipient name inside your UPI app.");
+const identity=el("p","note","Payee identity not verified. The payee name is supplied by the QR creator, not verified by Sentra or the bank; it is not bank-verified. Confirm the registered recipient name inside your UPI app.");
 const pay=el("button","ghost2","Continue in UPI app");pay.type="button";pay.onclick=()=>{window.location.href=t};
 const note=el("p","note","This only opens a UPI app. Sentra never sends money or approves the payment. Review the details in your UPI app and cancel if anything looks wrong.");
 sec.append(box,identity,pay,note);return sec
