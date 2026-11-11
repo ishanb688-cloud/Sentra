@@ -29,9 +29,9 @@ If camera/network fails, use the prepared QR image and built-in examples. Never 
 
 ## 2:05–2:35 — Evidence
 
-"Our latest successful automated run passed 133 tests. Our internal development set has 92 team-authored cases: 59 malicious and 33 genuine. At the Suspicious threshold, all 59 malicious examples were flagged and none of the 33 genuine examples were flagged. A separate team-authored holdout has 40 cases: 22 malicious and 18 genuine, with the same result at that threshold.
+"Our latest successful regression run passed **138 automated tests**. Our internal development set has 92 team-authored cases: 59 malicious and 33 genuine. At the Suspicious threshold, all 59 malicious examples were flagged and none of the 33 genuine examples were flagged. A separate team-authored holdout has 40 cases: 22 malicious and 18 genuine, with the same result at that threshold.
 
-We are transparent that these are team-authored test cases, not independent real-world accuracy. We have prepared an evaluator for an external public SMS dataset, but we will not claim an external score until it has actually been run."
+We also evaluated the message detector on the public UCI SMS Spam Collection: 5,572 historical English messages. At our Suspicious cutoff, precision was 96.43%, recall was 25.30%, and F1 was 40.08%, with seven genuine messages falsely flagged. This is an external dataset, but it is not representative of current Indian-language scams or our URL, QR and APK inputs. The low recall is a real limitation: the detector missed 558 of 747 spam messages."
 
 ## 2:35–3:00 — Close
 
@@ -59,4 +59,4 @@ Our contribution is connecting different scam evidence into one understandable s
 
 **Can it guarantee safety?** No. "Low signals" means no strong known indicators were found in the submitted material, not that the item is safe.
 
-**Are the benchmarks independent?** No. The current main and holdout examples are authored by the team. Independent, India-relevant evaluation remains a priority.
+**Are the benchmarks independent?** The UCI SMS corpus is a public external dataset, but it is historical English SMS data and has limited scope. The main and holdout examples are authored by the team. Independent, India-relevant evaluation remains a priority.
