@@ -988,7 +988,14 @@ function navTo(v){if(ROUTE!==v)show(v);if(location.hash.slice(1)!==v)location.ha
 window.addEventListener("hashchange",()=>{const v=location.hash.slice(1);if(v!==ROUTE)show(v)});
 document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>navTo(b.dataset.v));
 document.querySelectorAll("[data-nav]").forEach(b=>b.onclick=()=>navTo(b.dataset.nav));
-document.querySelectorAll(".tile").forEach(b=>b.onclick=()=>{pick(+b.dataset.tab);navTo("check")});
+document.querySelectorAll(".tile").forEach(b => {
+    b.onclick = () => {
+        const tab = Number(b.dataset.tab);
+        const target = ["message", "link", "qr", "app", "full"][tab];
+
+        if (target) navTo(target);
+    };
+});
 const HK="sentra_history_v1";
 function loadH(){try{return JSON.parse(localStorage.getItem(HK)||"[]")}catch(e){return[]}}
 function saveHistory(d){const m={message:["Message"],link:["Link"],qr:["QR"],app:["App file"]};let k=m[MODE];if(!k){k=[];if($("text").value.trim())k.push("Message");if($("linkIn").value.trim())k.push("Link");if(qrPayload)k.push("QR");if(file)k.push("App file")}
