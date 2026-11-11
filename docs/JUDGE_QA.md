@@ -1,6 +1,6 @@
 # Judge Q&A: honest technical answers
 
-Use these answers to explain what the current code actually does. The benchmark figures below are from the latest successful GitHub Actions run for this branch. They are team-authored test sets, not independent real-world validation.
+Use these answers to explain what the current code actually does. The benchmark figures below are from the latest successful GitHub Actions run for this branch. The internal benchmark sets are team-authored, not independent real-world validation.
 
 ## 1. Is SENTRA genuinely AI-powered or rule-based?
 
@@ -35,7 +35,7 @@ APK inspection is static and uses Androguard. It looks at indicators such as sen
 
 These are indicators, not proof of malicious intent. SENTRA does not execute the APK, and it does not yet compare publisher certificates against a maintained, independently verified fingerprint database for every brand. The current test suite includes synthetic permission profiles; it should not be presented as broad validation against real malware samples.
 
-## 5. How does it assess QR codes and UPI payments?
+## 5. How does SENTRA assess QR codes and UPI payments?
 
 It decodes the QR payload and inspects the payment direction and visible payee information. For example, a code that sends money may conflict with a message promising that the user will receive a refund or reward. It can also identify suspicious payee descriptions or mismatches with the claimed brand.
 
@@ -43,16 +43,16 @@ It cannot query the bank or UPI network to verify the recipient's registered ide
 
 ## 6. What are the current benchmark results?
 
-Latest successful CI run (11 November 2026): **133 automated tests passed**. See [the run](https://github.com/ishanb688-cloud/Sentra/actions/runs/42969244571). The same run executed both benchmark commands.
+Latest successful regression CI run (11 November 2026): **138 automated tests passed**, with one Starlette/httpx deprecation warning. [View CI run](https://github.com/ishanb688-cloud/Sentra/actions/runs/42984436236).
 
-### Main benchmark
+### Main internal benchmark
 
 - 92 team-authored cases: 59 malicious and 33 genuine.
 - At Suspicious-or-higher: 59/59 malicious cases flagged; 0/33 genuine cases falsely flagged.
 - Precision: 100%; recall: 100%; false-positive rate: 0%.
 - At High-risk-or-higher: 36/59 malicious cases flagged; 0/33 genuine cases falsely flagged; recall 61.0%.
 
-### Holdout benchmark
+### Internal holdout benchmark
 
 - 40 team-authored cases: 22 malicious and 18 genuine.
 - At Suspicious-or-higher: 22/22 malicious cases flagged; 0/18 genuine cases falsely flagged.
@@ -60,6 +60,21 @@ Latest successful CI run (11 November 2026): **133 automated tests passed**. See
 - At High-risk-or-higher: 11/22 malicious cases flagged; 0/18 genuine cases falsely flagged; recall 50.0%.
 
 The holdout set was kept separate from the main development set, but it was still written by the project team. These results show performance on these selected examples only. They do not establish real-world accuracy, and they do not mean SENTRA catches every scam. See [BENCHMARK.md](BENCHMARK.md) and [HOLDOUT.md](HOLDOUT.md).
+
+### External SMS evaluation
+
+The UCI SMS Spam Collection evaluation covered 5,572 historical English SMS messages: 747 spam and 4,825 genuine messages. At the evaluator's Suspicious cutoff:
+
+- True positives: 189; false negatives: 558.
+- False positives: 7; true negatives: 4,818.
+- Precision: **96.43%**.
+- Recall: **25.30%**.
+- F1: **40.08%**.
+- False-positive rate: **0.145%**.
+
+[View the external evaluation run](https://github.com/ishanb688-cloud/Sentra/actions/runs/42984428938).
+
+This is a public external dataset, but it is historical English SMS data. It is not representative of current Indian-language scams, URLs, QR/UPI payloads or APK files. The result shows high precision but low recall; 558 of 747 spam messages were missed. Do not present this as overall Sentra accuracy.
 
 ## 7. What happens when a new scam appears?
 
@@ -80,8 +95,9 @@ SENTRA combines four evidence types—messages, links, QR/UPI payloads and Andro
 ## 11. What are the main limitations and next steps?
 
 - Rule-based detection can be evaded and does not learn automatically.
-- Benchmark examples are team-authored and do not represent the diversity of real-world scams.
+- The UCI SMS evaluation is historical English-only data and has low recall; a broader India-relevant evaluation set is needed.
+- Internal benchmark examples are team-authored and do not represent the diversity of real-world scams.
 - APK indicators are not proof of malware; real-world malware validation and trusted publisher-fingerprint data remain future work.
 - QR/UPI parsing cannot verify the recipient's bank-registered identity.
 - Static link inspection cannot observe live page behavior or redirects.
-- A broader, consented and independently labelled evaluation set is needed before making real-world performance claims.
+- More consented user testing and real-device QA are needed before making broad usability or reliability claims.
