@@ -486,7 +486,7 @@ async function startCam(){
     qrCanvas=document.createElement("canvas");qrBusy=false;qrDetector=makeQRDetector();qrFrameBusy=false;scanLoop();
   }catch(e){
     stopCam();panel.hidden=false;
-    qrMessage(e&&e.name==="NotAllowedError"?"Camera permission was denied. Allow camera access or upload a QR photo.":(e&&e.message)||"Could not start the camera. Upload a QR photo instead.");
+    qrMessage(e&&e.name==="NotAllowedError"?"Camera permission was denied. Allow camera access or upload a QR photo instead.":(e&&e.message)||"Could not start the camera. Upload a QR photo instead.");
   }
 }
 function makeQRDetector(){
