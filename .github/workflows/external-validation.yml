@@ -1,7 +1,7 @@
 name: external-sms-validation
 on:
   push:
-    branches: [main]
+    branches: [main, score-boost-presentation]
     paths:
       - "analyzers/**"
       - "engine/**"
