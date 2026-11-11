@@ -5,6 +5,7 @@ on:
     paths:
       - "analyzers/**"
       - "engine/**"
+      - "data/**"
       - "tools/evaluate_uci_sms.py"
       - ".github/workflows/external-validation.yml"
   workflow_dispatch:
