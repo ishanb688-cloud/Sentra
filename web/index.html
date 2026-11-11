@@ -17,7 +17,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",sy
 .nav button{display:flex;align-items:center;gap:12px;border:0;background:none;color:var(--mute);font:inherit;padding:12px 14px;border-radius:12px;cursor:pointer;text-align:left;transition:background .25s,color .25s,transform .2s;position:relative}
 .nav button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .nav button:hover{background:#ffffff0a;color:#fff}
-.nav button.on{background:linear-gradient(90deg,#27447f,#1a2d54);color:#fff;box-shadow:inset 3px 0 0 var(--accent)}
+.nav button.on{background:rgba(var(--accrgb),.10);color:#fff;box-shadow:none}
 .sidenote{margin:auto 8px 0;font-size:12px;color:#7d786d}
 .stage{padding:40px clamp(18px,4vw,56px) 64px;max-width:1240px;width:100%}
 .view{display:none}.view.on{display:block;animation:viewIn .5s cubic-bezier(.2,.8,.2,1)}
@@ -445,6 +445,87 @@ const LVL={"Low signals":["--low","No strong warning signs found. That is not a 
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const ARROW='<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h12M10.500 4.500L15 9l-4.500 4.500"/></svg>';
 let file=null,last=null;
+let qrPayload="",qrStream=null,qrRaf=0,qrBusy=false,qrCanvas=null;
+function qrMessage(message){const n=$("scanMsg");if(n)n.textContent=message}
+function stopCam(){
+  if(qrRaf)cancelAnimationFrame(qrRaf);qrRaf=0;
+  if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null}
+  const v=$("cam");if(v){v.pause();v.srcObject=null}
+  $("scanner").hidden=true;qrBusy=false;
+}
+function gotQR(data){
+  if(!data)return;
+  stopCam();qrPayload=String(data).trim();MODE="qr";
+  showQR();refreshBadges();navTo("qr");
+  $("err").textContent="";qrMessage("QR read successfully. Analysing it now…");
+  $("go").click();
+}
+async function startCam(){
+  stopCam();navTo("qr");
+  const panel=$("scanner");panel.hidden=false;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    qrMessage("Camera access is unavailable here. Use Upload a QR photo instead.");return;
+  }
+  if(!window.isSecureContext){
+    qrMessage("Camera scanning needs a secure HTTPS connection. Upload a QR photo instead.");return;
+  }
+  try{
+    if(typeof window.jsQR!=="function")throw new Error("QR decoder did not load. Refresh the page or upload a QR photo.");
+    qrStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"}}});
+    const video=$("cam");video.srcObject=qrStream;await video.play();
+    qrMessage("Point the camera steadily at the QR code.");
+    qrCanvas=document.createElement("canvas");qrBusy=false;scanLoop();
+  }catch(e){
+    stopCam();panel.hidden=false;
+    qrMessage(e&&e.name==="NotAllowedError"?"Camera permission was denied. Allow camera access or upload a QR photo.":(e&&e.message)||"Could not start the camera. Upload a QR photo instead.");
+  }
+}
+function scanLoop(){
+  if(!qrStream||qrBusy)return;
+  const video=$("cam");
+  if(video.readyState>=2&&video.videoWidth&&video.videoHeight){
+    const w=video.videoWidth,h=video.videoHeight;
+    qrCanvas.width=w;qrCanvas.height=h;
+    const ctx=qrCanvas.getContext("2d",{willReadFrequently:true});
+    ctx.drawImage(video,0,0,w,h);
+    try{
+      const code=window.jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:"attemptBoth"});
+      if(code&&code.data){qrBusy=true;gotQR(code.data);return}
+    }catch(e){qrMessage("The camera is active, but this frame could not be read. Hold the QR steady.")}
+  }
+  qrRaf=requestAnimationFrame(scanLoop);
+}
+async function readPhoto(photo){
+  if(!photo)return;
+  navTo("qr");qrMessage("Reading the QR photo…");
+  if(typeof window.jsQR!=="function"){qrMessage("QR decoder did not load. Refresh the page and try again.");return}
+  try{
+    let source;
+    if("createImageBitmap" in window)source=await createImageBitmap(photo);
+    else source=await new Promise((resolve,reject)=>{
+      const img=new Image(),url=URL.createObjectURL(photo);
+      img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};
+      img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("The image could not be opened."))};
+      img.src=url;
+    });
+    const w=source.width,h=source.height;
+    if(!w||!h)throw new Error("The image has no readable dimensions.");
+    const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(source,0,0,w,h);
+    if(source.close)source.close();
+    const code=window.jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:"attemptBoth"});
+    if(!code||!code.data)throw new Error("No QR code was found. Try a clearer, well-lit photo with the whole code visible.");
+    gotQR(code.data);
+  }catch(e){qrMessage((e&&e.message)||"Could not read this photo. Try another image.");}
+}
+$("camBtn").addEventListener("click",startCam);
+$("stopCam").addEventListener("click",stopCam);
+$("qrPhoto").addEventListener("change",e=>{
+  const photo=e.target.files&&e.target.files[0];e.target.value="";
+  if(photo)readPhoto(photo);
+});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)stopCam()});
+
 function idle(){const o=$("out");o.style.removeProperty("--lvl");o.replaceChildren();const e=el("div","pv");e.innerHTML='<svg viewBox="0 0 240 140" aria-hidden="true"><path class="track" d="M20 120A100 100 0 0 1 220 120" pathLength="100"/></svg><div class="pvt serif">Ready when you are</div><p>Paste a message, add a link, scan a QR or drop an app. Sentra will explain every warning sign it finds.</p><div class="pvl"><i style="width:82%"></i><i style="width:64%"></i><i style="width:74%"></i></div>';o.append(e)}
 function goLabel(busy){const b=$("go");b.disabled=busy;b.replaceChildren();if(busy){b.append(el("span","spin"),document.createTextNode("Checking everything together"))}else{b.append(document.createTextNode("Check this"));const s=el("span");s.innerHTML=ARROW;b.append(s.firstChild)}}
 for(const k in SAMPLES){const b=el("button","chip",k);b.type="button";b.onclick=()=>{$("text").value=SAMPLES[k];$("text").focus();refreshBadges()};$("samples").append(b)}
