@@ -605,7 +605,7 @@ if(code&&code.data)return code.data;
 }
 return "";
 }
-async async function startCam(){
+async function startCam(){
 $("err").textContent="Loading QR reader…";
 const libraryReady=await ensureQRLibrary();
 qrDetector=makeQRDetector();
