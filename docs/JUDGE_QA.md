@@ -43,7 +43,7 @@ It cannot query the bank or UPI network to verify the recipient's registered ide
 
 ## 6. What are the current benchmark results?
 
-Latest successful CI run: **89 automated tests passed**. The same run executed both benchmark commands.
+Latest successful CI run (11 November 2026): **133 automated tests passed**. See [the run](https://github.com/ishanb688-cloud/Sentra/actions/runs/42969244571). The same run executed both benchmark commands.
 
 ### Main benchmark
 
