@@ -48,20 +48,20 @@ Use the architecture diagram in [ARCHITECTURE.md](ARCHITECTURE.md) or [METHODOLO
 ### Slide 5 — Technology and evidence
 **Stack:** Python, FastAPI, Androguard for static APK parsing, browser-side jsQR decoding, HTML/CSS/JavaScript, pytest, GitHub Actions and Render.
 
-**Current reproducible evidence**
+**Current reproducible evidence (11 November 2026)**
+- Latest successful regression CI: **138 automated tests passed**, with one Starlette/httpx deprecation warning. [View CI run](https://github.com/ishanb688-cloud/Sentra/actions/runs/42984436236).
 - Main internal benchmark: 92 team-authored cases (59 malicious, 33 genuine). At Suspicious-or-higher: 59/59 malicious flagged and 0/33 genuine falsely flagged.
 - Separate internal holdout: 40 team-authored cases (22 malicious, 18 genuine). At Suspicious-or-higher: 22/22 malicious flagged and 0/18 genuine falsely flagged.
-- Latest successful CI run: 133 automated tests passed.
-- External SMS evaluation: harness prepared; no external score is claimed until the public dataset has actually been downloaded and evaluated.
+- External UCI SMS Spam Collection evaluation: 5,572 historical English SMS messages (747 spam, 4,825 ham). At the evaluator's Suspicious cutoff: 189 true positives, 558 false negatives, 7 false positives and 4,818 true negatives; precision **96.43%**, recall **25.30%**, F1 **40.08%**, false-positive rate **0.145%**. [View evaluation run](https://github.com/ishanb688-cloud/Sentra/actions/runs/42984428938).
 
-**Integrity note:** the internal cases are authored by the team, are not independent or representative real-world validation, and must not be presented as proof of 100% real-world accuracy. APK benchmark profiles are synthetic, not a corpus of real malware.
+**Integrity note:** the internal cases are authored by the team, are not independent real-world validation, and must not be presented as proof of 100% real-world accuracy. The UCI corpus is historical English SMS data, not representative of current Indian-language scams, URLs, QR/UPI payloads or APKs. APK benchmark profiles are synthetic, not a corpus of real malware. The external result shows high precision but low recall: Sentra still missed 558 of 747 spam messages in this corpus.
 
 ### Slide 6 — Feasibility and impact
 **Why it is feasible:** the prototype is already deployed, the analysis pipeline is modular, signal definitions are data-driven, and automated checks run in CI. The tool is designed to add a warning/explanation layer, not replace banks, antivirus products or human judgement.
 
 **Potential impact:** help people pause and understand warning signs before sharing credentials, installing an app or authorizing a payment. This is a potential benefit, not a measured reduction in fraud losses.
 
-**Next steps:** independent India-relevant evaluation, consented user testing, multilingual coverage, real APK corpus validation and improved browser/device QA.
+**Next steps:** independent India-relevant evaluation, consented user testing, multilingual coverage, real APK corpus validation, improved browser/device QA and better recall without unacceptable false positives.
 
 ## Live demo sequence (about 2 minutes)
 
@@ -90,4 +90,4 @@ Do not spend demo time troubleshooting camera permissions. Keep a prepared QR im
 2. Where is the AI? The current engine is rule-based and deterministic, not a trained ML model. Describe it accurately.
 3. Can it guarantee safety? No. Low signals means no strong known indicators were found; it is not a safety certificate.
 4. Can it verify a UPI recipient or prove an APK is malware? No. It parses visible QR data and statically inspects APK indicators; neither capability proves account identity or malicious intent.
-5. Are the results independent? No. Current benchmark and holdout examples are team-authored. Independent evaluation is a stated next step.
+5. Are the results independent? The UCI SMS corpus is an external public dataset, but historical and limited to English SMS. The main and holdout benchmark examples remain team-authored. Broader India-relevant evaluation is still needed.
