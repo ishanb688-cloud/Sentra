@@ -10,7 +10,7 @@
 **SENTRA: One check for every scam signal**
 
 - Explainable, multi-input scam-risk analysis
-- Problem statement: Trinetra — Digital Trust & Cybersecurity
+- Problem statement: PS 05 — AI-Powered Cybersecurity (INNOVEX 2026)
 - Team name and member details as required by the official template
 
 ### Slide 2 — Problem
