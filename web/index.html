@@ -455,8 +455,9 @@ html:not(.pointer-mode) button:focus-visible,html:not(.pointer-mode) a:focus-vis
 <p class="note">These results describe only the labelled examples in these team-authored datasets. They do not establish real-world accuracy or guarantee safety. See the full <a href="https://github.com/ishanb688-cloud/Sentra/blob/fix/detection-engine-v2/docs/BENCHMARK.md">benchmark report</a> and <a href="https://github.com/ishanb688-cloud/Sentra/blob/fix/detection-engine-v2/docs/HOLDOUT.md">holdout report</a>.</p></div>
 <div class="panel limits"><h2>What Sentra cannot do</h2><ul><li>It never says something is safe. The lowest level is "Low signals".</li><li>It is not machine learning, so it recognises known patterns and does not learn new scams by itself.</li><li>Its test results come from cases written by the team, not independent real-world data.</li><li>A name inside a payment QR is typed by whoever made it. Only your UPI app can show the account's registered name.</li><li>It reads patterns, so a brand-new scam can slip through. Treat it as a second opinion, not a guarantee.</li></ul></div></section>
 </main></div>
-<nav class="dock" id="dock" aria-label="Quick actions"><button type="button" data-d="paste"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="12" height="16" rx="2"/><path d="M9 5V4h6v1M9 11h6M9 15h4"/></svg><span>Paste</span></button><button type="button" data-d="upload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg><span>Upload</span></button><button type="button" data-d="scan" class="fab" aria-label="Scan a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg></button><button type="button" data-d="demo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg><span>Demo</span></button><button type="button" data-d="report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg><span>Report</span></button></nav><input type="file" id="anyFile" class="file-picker" accept=".apk,image/*" aria-hidden="true" tabindex="-1"><div class="toast" id="toast" role="status"></div>
-<script src="/jsQR.js?v=sentra-qr-20261110"></script>
+<nav class="dock" id="dock" aria-label="Quick actions"><button type="button" data-d="paste"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="12" height="16" rx="2"/><path d="M9 5V4h6v1M9 11h6M9 15h4"/></svg><span>Paste</span></button><button type="button" data-d="upload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg><span>Upload</span></button><button type="button" data-d="scan" class="fab" aria-label="Scan a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg></button><button type="button" data-d="demo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg><span>Demo</span></button><button type="button" data-d="report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg><span>Report</span></button></nav><input type="file" id="anyFile" accept=".apk,image/*" hidden><div class="toast" id="toast" role="status"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script>window.jsQR||document.write('<script src="/jsQR.js"><\/script>')</script>
 <script>
 const $=id=>document.getElementById(id);
 const SAMPLES={
@@ -529,159 +530,51 @@ const t0=performance.now(),sc=$("score");
 const HANDLES={ybl:"PhonePe",ibl:"PhonePe",axl:"PhonePe",okhdfcbank:"Google Pay",okicici:"Google Pay",okaxis:"Google Pay",oksbi:"Google Pay",paytm:"Paytm",apl:"Amazon Pay",upi:"BHIM",sbi:"State Bank of India",hdfcbank:"HDFC Bank",icici:"ICICI Bank",axisbank:"Axis Bank",pnb:"Punjab National Bank",boi:"Bank of India",cnrb:"Canara Bank",unionbank:"Union Bank",idfcfirst:"IDFC FIRST Bank",fbl:"Federal Bank",kotak:"Kotak Mahindra Bank",airtel:"Airtel Payments Bank",jio:"Jio Payments Bank",yesbank:"YES Bank",freecharge:"Freecharge",rbl:"RBL Bank",federal:"Federal Bank",dbs:"DBS Bank",aubank:"AU Small Finance Bank"};
 function handleApp(pa){const h=(pa.split("@")[1]||"").toLowerCase();return HANDLES[h]|| (h?"Unknown / custom handle (@"+h+")":"No UPI handle found")}
 function upiCard(t){
-const m=t.match(/^upi:\/\/pay\?([^\s]+)/i);if(!m)return null;
-const q=new URLSearchParams(m[1]);
-const get=(k)=>{const v=q.get(k);return v===null?"":v.trim()};
-const pa=get("pa"),pn=get("pn"),amount=get("am"),note=get("tn"),currency=get("cu")||"INR",merchantCode=get("mc"),txn=get("tr")||get("tid"),url=get("url");
-const local=pa.split("@")[0]||"",handle=(pa.split("@")[1]||"").toLowerCase();
-const phone=/^[6-9]\d{9}$/.test(local)||/^\+91[6-9]\d{9}$/.test(local);
-const sec=el("div","sec qr-result");sec.append(el("h2",null,"UPI payment request"));
-const hero=el("div","qr-payee");
-hero.append(el("span","qr-kicker","PAYMENT DETAILS FROM QR"),el("strong","qr-payee-name",pn||"Payee name not provided"),el("span","qr-vpa",pa||"UPI ID not provided"));
-if(amount){const money=el("div","qr-amount");money.append(el("small",null,"AMOUNT REQUESTED"),el("strong",null,currency+" "+amount));hero.append(money)}
-sec.append(hero);
-const box=el("div","upi");
-const status=el("span",phone?"warn":"ok",phone?"Personal-number style UPI address":"Details extracted from QR — identity not verified");
-box.append(status);
-const fields=[
-["Payment app / handle hint",handleApp(pa)],
-["Payment note",note||"No note supplied"],
-["Merchant category code",merchantCode||""],
-["Transaction reference",txn||""],
-["Linked URL",url||""]
-];
-fields.forEach(([a,b])=>{if(!b)return;const r=el("div");r.append(el("span",null,a),el("span",null,b));box.append(r)});
-sec.append(box);
-const trust=el("p","note","Sentra only reads what the QR contains. The displayed name can be chosen by whoever created the QR; it is not bank-verified. Before paying, compare the registered recipient name shown by your UPI app. Never approve a collect request or enter your UPI PIN to receive money.");
-sec.append(trust);
-if(!pa){sec.append(el("p","note","This QR does not contain a UPI payee address, so Sentra cannot prepare a UPI payment."));return sec}
-if(phone)sec.append(el("p","note","Caution: the UPI ID appears to use a mobile-number-style address. Verify the recipient independently."));
-const pay=el("button","ghost2 qr-pay-action","Continue in UPI app");pay.type="button";pay.onclick=()=>{window.location.href=t};sec.append(pay);
-sec.append(el("p","note","This only opens a UPI app. Sentra never sends money or approves the payment."));
-return sec}
-function qrResultCard(t){
-if(!t)return null;
-const upi=upiCard(t);if(upi)return upi;
-const sec=el("div","sec qr-result");sec.append(el("h2",null,"QR code contents"));
-let kind="Text or other data",summary=t;
-if(/^https?:\/\//i.test(t)){try{const u=new URL(t);kind="Website / URL";summary=u.hostname+(u.pathname==="/"?"":u.pathname)+u.search;sec.append(el("p","note","This QR contains a web address. Sentra has not opened it. Check the destination before visiting."));const check=el("button","ghost2 qr-pay-action","Analyse this URL");check.type="button";check.onclick=()=>smartCheck(t);sec.append(check)}catch(e){}}
-else if(/^WIFI:/i.test(t)){kind="Wi-Fi network";const fields=t.slice(5).split(";"),part=(key)=>{const row=fields.find(x=>x.startsWith(key+":"));return row?row.slice(key.length+1):""};const ssid=part("S"),security=part("T")||"Unknown";const pass=part("P");summary="Network: "+(ssid||"Not named")+" · Security: "+security+(pass?" · Password: hidden":"");sec.append(el("p","note","Wi-Fi details were decoded locally. The network password is intentionally hidden in this preview."))}
-else if(/^BEGIN:VCARD/i.test(t)||/^MECARD:/i.test(t)){kind="Contact card";const name=(t.match(/(?:FN|N):([^\r\n]+)/i)||t.match(/N:([^;]+)/i)||[])[1];const tel=(t.match(/TEL[^:]*:([^\r\n;]+)/i)||[])[1];const mail=(t.match(/EMAIL[^:]*:([^\r\n;]+)/i)||[])[1];summary=[name&&"Name: "+name,tel&&"Phone: "+tel,mail&&"Email: "+mail].filter(Boolean).join(" · ")||"Contact information is present."}
-else if(/^mailto:/i.test(t)){kind="Email address";summary=t.slice(7)}
-else if(/^tel:/i.test(t)){kind="Phone number";summary=t.slice(4)}
-sec.append(el("span","qr-kicker",kind.toUpperCase()),el("div","qr-generic",summary));
-const raw=el("details","qr-raw");const sum=el("summary",null,"Show full QR data");const rawText=/^WIFI:/i.test(t)?t.replace(/P:[^;]*/i,"P:••••••"):t;raw.append(sum,el("pre",null,rawText));sec.append(raw);
-sec.append(el("p","note","QR contents are untrusted input. A decoded QR is not proof that a link, contact or payment request is legitimate."));
-return sec}
-let stream=null,raf=0,qrPayload="",qrDetector=null,qrFrameBusy=false,lastScanAt=0,torchOn=false;
+const m=t.match(/upi:\/\/pay\?[^\s]+/i);if(!m)return null;
+const q=new URLSearchParams(m[0].split("?")[1]);const sec=el("div","sec");
+sec.append(el("h2",null,"What this QR will do"));
+const box=el("div","upi");box.append(el("span","warn","This QR sends money from your account. It does not receive money."));
+[["Name in the QR",q.get("pn")||"(no name in this QR)"],["UPI ID",q.get("pa")||"(missing)"],["Handle suggests",handleApp(q.get("pa")||"")],["Amount",q.get("am")?"Rs "+q.get("am"):"You choose"],["Note",q.get("tn")||""]].forEach(([a,b])=>{if(!b)return;const r=el("div");r.append(el("span",null,a),el("span",null,b));box.append(r)});
+sec.append(box,el("p","note","This name is typed by whoever made the QR, so a scammer can put any name there. Your UPI app shows the account's registered name before you pay. If that name differs from the one above, or from who you mean to pay, stop."));return sec}
+let stream=null,raf=0,qrPayload="";
 const cv=document.createElement("canvas"),cx=cv.getContext("2d",{willReadFrequently:true});
-let qrLibraryPromise=null;
-function ensureQRLibrary(){
-if(typeof window.jsQR==="function")return Promise.resolve(true);
-if(qrLibraryPromise)return qrLibraryPromise;
-qrLibraryPromise=new Promise(resolve=>{
-const script=document.createElement("script");
-script.src="/jsQR.js?v=sentra-qr-20261110";
-script.async=true;
-script.onload=()=>resolve(typeof window.jsQR==="function");
-script.onerror=()=>resolve(false);
-document.head.appendChild(script);
-});
-return qrLibraryPromise;
-}
-function makeQRDetector(){try{return "BarcodeDetector" in window?new BarcodeDetector({formats:["qr_code"]}):null}catch(e){return null}}
-async function decodeQRCanvas(){
-if(!cv.width||!cv.height||!cx)return "";
-if(!qrDetector)qrDetector=makeQRDetector();
-// Try the browser's native decoder first, then always fall back to the bundled
-// jsQR decoder. A native detector miss must never block the fallback.
-if(qrDetector){try{const codes=await qrDetector.detect(cv);if(codes&&codes.length&&codes[0].rawValue)return codes[0].rawValue}catch(e){}}
-if(await ensureQRLibrary()){
-try{
-const im=cx.getImageData(0,0,cv.width,cv.height);
-const code=window.jsQR(im.data,im.width,im.height,{inversionAttempts:"attemptBoth"});
-if(code&&code.data)return code.data;
-}catch(e){}
-}
-return "";
-}
 async function startCam(){
-$("err").textContent="Loading QR reader…";
-const libraryReady=await ensureQRLibrary();
-qrDetector=makeQRDetector();
-if(!qrDetector&&!libraryReady){$("err").textContent="Sentra could not load its QR decoder. Refresh the page and try again.";return}
-$("err").textContent="";
-if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){$("err").textContent="This browser does not support camera access. Upload a QR photo instead.";return}
-try{
-stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}});
-const v=$("cam");v.srcObject=stream;await v.play();$("scanner").hidden=false;const track=stream.getVideoTracks()[0],caps=track&&track.getCapabilities?track.getCapabilities():{};$("torchBtn").hidden=!(caps&&caps.torch);$("torchBtn").textContent="Turn on torch";torchOn=false;$("scanMsg").textContent="Align the QR code inside the frame";scanLoop();
-}catch(e){stopCam();$("err").textContent="Camera access failed or was blocked. Allow camera permission, use HTTPS, or upload a QR photo instead."}
-}
-function stopCam(){cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;qrFrameBusy=false;torchOn=false;$("cam").srcObject=null;$("scanner").hidden=true}
-async function toggleTorch(){const track=stream&&stream.getVideoTracks()[0];if(!track)return;try{torchOn=!torchOn;await track.applyConstraints({advanced:[{torch:torchOn}]});$("torchBtn").textContent=torchOn?"Turn off torch":"Turn on torch"}catch(e){torchOn=false;$("scanMsg").textContent="Torch is not supported by this camera"}}
-async function scanLoop(){
-const v=$("cam");
-if(!stream)return;
-if(!qrFrameBusy&&performance.now()-lastScanAt>220&&v.readyState>=v.HAVE_CURRENT_DATA&&v.videoWidth&&v.videoHeight){
-lastScanAt=performance.now();qrFrameBusy=true;
-try{
-const w=v.videoWidth,h=v.videoHeight,scale=Math.min(1,1280/Math.max(w,h));
-cv.width=Math.max(1,Math.round(w*scale));cv.height=Math.max(1,Math.round(h*scale));cx.drawImage(v,0,0,cv.width,cv.height);
-let data=await decodeQRCanvas();
-// If the QR is small in the camera frame, retry a centred crop enlarged.
-if(!data){const side=Math.min(w,h)*0.72,sx=(w-side)/2,sy=(h-side)/2;const target=Math.min(1400,Math.round(side*1.6));cv.width=target;cv.height=target;cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality="high";cx.drawImage(v,sx,sy,side,side,0,0,target,target);data=await decodeQRCanvas()}
-if(data){if(navigator.vibrate)navigator.vibrate(65);stopCam();gotQR(data);return}
-}catch(e){stopCam();$("err").textContent="The camera frame could not be processed. Try uploading a QR photo instead.";return}
-finally{qrFrameBusy=false}
-}
-if(stream)raf=requestAnimationFrame(scanLoop);
-}
+if(!window.jsQR){$("err").textContent="The QR reader could not load. Check your internet connection.";return}
+try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})}
+catch(e){$("err").textContent="Camera access was blocked. Allow the camera for this site, or upload a photo of the QR instead.";return}
+const v=$("cam");v.srcObject=stream;await v.play();$("scanner").hidden=false;scanLoop()}
+function stopCam(){cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$("scanner").hidden=true}
+function scanLoop(){const v=$("cam");
+if(v.readyState===v.HAVE_ENOUGH_DATA){cv.width=v.videoWidth;cv.height=v.videoHeight;cx.drawImage(v,0,0);
+const im=cx.getImageData(0,0,cv.width,cv.height),c=jsQR(im.data,im.width,im.height);
+if(c&&c.data){stopCam();gotQR(c.data);return}}
+raf=requestAnimationFrame(scanLoop)}
 function gotQR(data){qrPayload=data;showQR();refreshBadges();navTo("qr");$("go").click()}
-function openPicker(input){if(!input)return;try{input.value="";input.click()}catch(e){$("err").textContent="Your browser blocked the file picker. Try refreshing the page or using another browser."}}
-async function readPhoto(f){
-if(!f)return;
-$("err").textContent="Loading QR reader…";
-const libraryReady=await ensureQRLibrary();
-if(!qrDetector&&!libraryReady){$("err").textContent="Sentra could not load its QR decoder. Refresh the page and try again.";return}
-$("err").textContent="";
-const imageName=(f.name||"").toLowerCase();
-const isImage=(f.type||"").toLowerCase().startsWith("image/")||/\.(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(imageName);
-if(!isImage){$("err").textContent="Choose a photo file (JPG, PNG or WebP) containing a QR code.";return}
-if(f.size>20*1024*1024){$("err").textContent="That photo is larger than 20 MB. Choose a smaller image.";return}
-$("err").textContent="Reading QR image…";
-let source=null,objectUrl="";
-try{
-objectUrl=URL.createObjectURL(f);
-if("createImageBitmap" in window){try{source=await createImageBitmap(f)}catch(e){}}
-if(!source)source=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("image"));img.src=objectUrl});
-const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
-if(!width||!height)throw new Error("image");
-if(width*height>40000000){$("err").textContent="That image has too many pixels to scan safely. Resize it or take a smaller screenshot.";return}
-const maxSide=Math.max(width,height),base=Math.min(1,1800/maxSide);
-const passes=[base,Math.min(2,base*1.5),Math.min(2.5,base*2)];
-const seen=new Set();
-async function tryRegion(sx,sy,sw,sh,scale){
-const outW=Math.max(1,Math.min(2200,Math.round(sw*scale))),outH=Math.max(1,Math.min(2200,Math.round(sh*scale)));
-const key=[sx,sy,sw,sh,outW,outH].join(":");if(seen.has(key))return "";seen.add(key);
-cv.width=outW;cv.height=outH;cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality="high";cx.clearRect(0,0,outW,outH);cx.drawImage(source,sx,sy,sw,sh,0,0,outW,outH);
-return await decodeQRCanvas();
-}
-for(const scale of passes){const decoded=await tryRegion(0,0,width,height,scale);if(decoded){gotQR(decoded);return}}
- // Scan overlapping regions so a small QR anywhere in a screenshot gets enough pixels.
-const regions=[[0,0,width,height],[0,0,width*.62,height*.62],[width*.38,0,width*.62,height*.62],[0,height*.38,width*.62,height*.62],[width*.38,height*.38,width*.62,height*.62]];
-for(const [sx,sy,sw,sh] of regions.slice(1)){const decoded=await tryRegion(sx,sy,sw,sh,Math.min(2.5,1800/Math.max(sw,sh)));if(decoded){gotQR(decoded);return}}
-$("err").textContent="No QR code detected. Try a clearer original photo with the full QR visible, good lighting and all four corners inside the image.";
-}catch(e){$("err").textContent="Sentra could not open that photo. Try a JPG or PNG image instead."}
-finally{if(source&&typeof source.close==="function")source.close();if(objectUrl)URL.revokeObjectURL(objectUrl)}
-}
-$("camBtn").onclick=startCam;$("stopCam").onclick=stopCam;$("torchBtn").onclick=toggleTorch;
-$("qrUploadBtn").onclick=()=>openPicker($("qrPhoto"));
-$("qrPhoto").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];if(f)readPhoto(f);e.target.value=""});
+function readPhoto(f){const img=new Image();img.onload=()=>{cv.width=img.width;cv.height=img.height;cx.drawImage(img,0,0);
+const im=cx.getImageData(0,0,cv.width,cv.height),c=window.jsQR&&jsQR(im.data,im.width,im.height);URL.revokeObjectURL(img.src);
+c?gotQR(c.data):$("err").textContent="No QR code found in that photo. Try a clearer, closer picture."};img.src=URL.createObjectURL(f)}
+$("camBtn").onclick=startCam;$("stopCam").onclick=stopCam;
+$("qrPhoto").onchange=e=>{const f=e.target.files[0];if(f)readPhoto(f);e.target.value=""};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")stopCam()});
 const TABS=[...document.querySelectorAll(".tab")],PANES=[...document.querySelectorAll(".pane")];
 function pick(i){TABS.forEach((t,n)=>{t.classList.toggle("on",n===i);t.setAttribute("aria-selected",n===i)});PANES.forEach((p,n)=>p.classList.toggle("on",n===i));$("pill").style.transform="translateX("+(i*100)+"%)";typeof syncDock==="function"&&syncDock()}
 TABS.forEach((t,i)=>t.onclick=()=>pick(i));
-function compose(){const m=$("text").value.trim(),l=$("linkIn").value.trim();const o={message:[m],link:[l],qr:[qrPayload],app:[],full:[m,l,qrPayload]}[MODE]||[];return o.filter(Boolean).join("\n")}
+function compose(){
+    const message = $("text").value.trim();
+    const link = $("linkIn").value.trim();
+
+    const inputs = {
+        message: [message],
+        link: [link],
+        qr: [qrPayload],
+        app: [],
+        full: [message, link, qrPayload]
+    };
+
+    return (inputs[MODE] || [])
+        .filter(value => value && value.trim())
+        .join("\n");
+}
 function refreshBadges(){const has=[$("text").value.trim(),$("linkIn").value.trim(),qrPayload,file];TABS.forEach((t,i)=>t.querySelector(".dot").hidden=!has[i])}
 function showQR(){const b=$("qrBox");b.hidden=!qrPayload;b.replaceChildren();if(qrPayload){b.append(el("span",null,"QR read: "+qrPayload.slice(0,120)));const x=el("button",null,"Remove");x.type="button";x.onclick=()=>{qrPayload="";showQR();refreshBadges()};b.append(x)}}
 ["text","linkIn"].forEach(id=>$(id).addEventListener("input",refreshBadges));
