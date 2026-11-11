@@ -72,6 +72,7 @@ button:focus-visible,.drop:focus-visible,a:focus-visible,.tile:focus-visible{out
 .qrbox{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--field);font-size:13px;word-break:break-all;display:flex;justify-content:space-between;gap:10px;align-items:center}
 .qrbox[hidden]{display:none}.qrbox button{border:0;background:none;color:var(--accent);cursor:pointer;font:inherit;font-size:13px;flex:none}
 .scanner{position:fixed;inset:0;background:#05080f;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px}
+.scan-live{position:relative;width:min(92vw,520px);height:min(70vh,520px);display:grid;place-items:center;overflow:hidden;border-radius:22px;background:#000}.scan-live video{width:100%;height:100%;object-fit:cover}.scan-line{position:absolute;left:8%;right:8%;top:50%;height:2px;background:#36f4ff;box-shadow:0 0 14px #36f4ff;animation:scanSweep 2s ease-in-out infinite;pointer-events:none}@keyframes scanSweep{0%,100%{transform:translateY(-110px)}50%{transform:translateY(110px)}}.scanner .torch{background:#18263a;color:#dffcff;border:1px solid #36f4ff;padding:10px 18px}.scanner .scan-actions{display:flex;gap:10px;position:relative}
 .scanner[hidden]{display:none}
 .scanner video{width:min(92vw,520px);height:min(70vh,520px);object-fit:cover;border-radius:18px;background:#000}
 .scanner .frame{position:absolute;width:min(60vw,260px);aspect-ratio:1;border:3px solid var(--g-mid);border-radius:18px;box-shadow:0 0 0 9999px #0008;pointer-events:none}
@@ -414,7 +415,7 @@ button:active{transform:scale(.98);transition:transform .16s cubic-bezier(.2,.8,
 <div class="qrbox" id="qrBox" hidden></div><div class="label">Or try an example</div><div class="samples" id="qsamples"></div></div><div class="pane"><h3>An Android app file</h3><p>Drop the .apk. Sentra reads its permissions and never runs it.</p><div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose an app file">
 <div id="dropText"><strong>Drop an app file</strong> or click to choose one<br><small>.apk files only, read safely and never opened</small></div>
 </div>
-<input type="file" id="file" accept=".apk" hidden></div><div class="scanner" id="scanner" hidden><video id="cam" playsinline muted></video><div class="frame"></div><p id="scanMsg">Point the camera at the QR code</p><button id="stopCam" type="button">Close camera</button></div>
+<input type="file" id="file" accept=".apk" hidden></div><div class="scanner" id="scanner" hidden><div class="scan-live"><video id="cam" playsinline muted></video><div class="scan-line"></div><div class="frame"></div></div><p id="scanMsg">Point the camera at the QR code</p><div class="scan-actions"><button class="torch" id="torchBtn" type="button" aria-pressed="false">Turn on torch</button><button id="stopCam" type="button">Close camera</button></div></div>
 <div class="row"><button class="go" id="go"><span id="goLabel">Check this</span></button><button class="ghost" id="clear" type="button">Clear</button></div>
 <div class="err" id="err" role="alert"></div>
 </section><section class="panel" id="out" aria-live="polite"></section></div><div class="looks"><h2 class="serif" id="lkTitle">What Sentra looks for</h2><div class="lkgrid" id="lkList"></div></div></section>
@@ -453,7 +454,7 @@ const LVL={"Low signals":["--low","No strong warning signs found. That is not a 
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const ARROW='<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h12M10.500 4.500L15 9l-4.500 4.500"/></svg>';
 let file=null,last=null;
-let qrPayload="",qrStream=null,qrRaf=0,qrBusy=false,qrCanvas=null;
+let qrPayload="",qrStream=null,qrRaf=0,qrBusy=false,qrCanvas=null,qrFrameBusy=false,qrTorch=false,qrDetector=null;
 function qrMessage(message){const n=$("scanMsg");if(n)n.textContent=message}
 function stopCam(){
   if(qrRaf)cancelAnimationFrame(qrRaf);qrRaf=0;
@@ -482,33 +483,61 @@ async function startCam(){
     qrStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"}}});
     const video=$("cam");video.srcObject=qrStream;await video.play();
     qrMessage("Point the camera steadily at the QR code.");
-    qrCanvas=document.createElement("canvas");qrBusy=false;scanLoop();
+    qrCanvas=document.createElement("canvas");qrBusy=false;qrDetector=makeQRDetector();qrFrameBusy=false;scanLoop();
   }catch(e){
     stopCam();panel.hidden=false;
     qrMessage(e&&e.name==="NotAllowedError"?"Camera permission was denied. Allow camera access or upload a QR photo.":(e&&e.message)||"Could not start the camera. Upload a QR photo instead.");
   }
 }
-function scanLoop(){
-  if(!qrStream||qrBusy)return;
+function makeQRDetector(){
+  if(!("BarcodeDetector" in window))return null;
+  try{return new BarcodeDetector({formats:["qr_code"]})}catch(e){return null}
+}
+async function tryRegion(x,y,width,height,scale,source=qrCanvas){
+  const c=document.createElement("canvas"),w=Math.max(1,Math.round(width*scale)),h=Math.max(1,Math.round(height*scale));
+  c.width=w;c.height=h;const ctx=c.getContext("2d",{willReadFrequently:true});
+  ctx.drawImage(source,x,y,width,height,0,0,w,h);
+  if(qrDetector){try{const found=await qrDetector.detect(c);if(found&&found[0])return found[0].rawValue||""}catch(e){}}
+  if(typeof window.jsQR==="function"){const found=window.jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:"attemptBoth"});if(found&&found.data)return found.data}
+  return "";
+}
+async function decodeQRCanvas(canvas){
+  if(!canvas||!canvas.width||!canvas.height)return "";
+  const width=canvas.width,height=canvas.height,scale=Math.min(1,1800/Math.max(width,height));
+  const decoded=await tryRegion(0,0,width,height,scale,canvas);
+  if(decoded)return decoded;
+  const regions=[[0,0,width,height],[0,0,width/2,height/2],[width/2,0,width/2,height/2],[0,height/2,width/2,height/2],[width/2,height/2,width/2,height/2]];
+  for(const region of regions.slice(1)){const data=await tryRegion(region[0],region[1],region[2],region[3],Math.min(2,scale*1.5),canvas);if(data)return data}
+  return "";
+}
+async function scanLoop(){
+  if(!qrStream||qrBusy||qrFrameBusy)return;
   const video=$("cam");
   if(video.readyState>=2&&video.videoWidth&&video.videoHeight){
-    const w=video.videoWidth,h=video.videoHeight;
-    qrCanvas.width=w;qrCanvas.height=h;
-    const ctx=qrCanvas.getContext("2d",{willReadFrequently:true});
-    ctx.drawImage(video,0,0,w,h);
+    qrFrameBusy=true;
     try{
-      const code=window.jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:"attemptBoth"});
-      if(code&&code.data){qrBusy=true;gotQR(code.data);return}
+      const w=video.videoWidth,h=video.videoHeight;qrCanvas.width=w;qrCanvas.height=h;
+      const ctx=qrCanvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(video,0,0,w,h);
+      let data=await decodeQRCanvas(qrCanvas);
+      if(data){qrBusy=true;gotQR(data);return}
     }catch(e){qrMessage("The camera is active, but this frame could not be read. Hold the QR steady.")}
+    finally{qrFrameBusy=false}
   }
-  qrRaf=requestAnimationFrame(scanLoop);
+  if(qrStream&&!qrBusy)qrRaf=requestAnimationFrame(scanLoop);
+}
+async function toggleTorch(){
+  const track=qrStream&&qrStream.getVideoTracks()[0],button=$("torchBtn");
+  if(!track||!track.getCapabilities||!track.getCapabilities().torch){qrMessage("Torch control is not supported by this camera.");return}
+  try{qrTorch=!qrTorch;await track.applyConstraints({advanced:[{torch:qrTorch}]});button.textContent=qrTorch?"Turn off torch":"Turn on torch";button.setAttribute("aria-pressed",String(qrTorch))}
+  catch(e){qrTorch=false;qrMessage("Could not change the camera torch setting.")}
 }
 async function readPhoto(photo){
   if(!photo)return;
   navTo("qr");qrMessage("Reading the QR photo…");
-  if(typeof window.jsQR!=="function"){qrMessage("QR decoder did not load. Refresh the page and try again.");return}
+  if(photo.size>20*1024*1024){qrMessage("This image is larger than 20 MB. Choose a smaller QR photo.");return}
+  if(typeof window.jsQR!=="function"&&!qrDetector){qrMessage("QR decoder did not load. Refresh the page and try again.");return}
+  let source=null;
   try{
-    let source;
     if("createImageBitmap" in window)source=await createImageBitmap(photo);
     else source=await new Promise((resolve,reject)=>{
       const img=new Image(),url=URL.createObjectURL(photo);
@@ -516,18 +545,21 @@ async function readPhoto(photo){
       img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("The image could not be opened."))};
       img.src=url;
     });
-    const w=source.width,h=source.height;
-    if(!w||!h)throw new Error("The image has no readable dimensions.");
-    const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
-    const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(source,0,0,w,h);
-    if(source.close)source.close();
-    const code=window.jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:"attemptBoth"});
-    if(!code||!code.data)throw new Error("No QR code was found. Try a clearer, well-lit photo with the whole code visible.");
-    gotQR(code.data);
+    const width=source.width,height=source.height;
+    if(!width||!height)throw new Error("The image has no readable dimensions.");
+    if(width*height>40000000)throw new Error("This image has too many pixels. Choose a smaller QR photo.");
+    const maxSide=Math.max(width,height),base=Math.min(1,1800/maxSide);
+    const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(width*base));canvas.height=Math.max(1,Math.round(height*base));
+    const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(source,0,0,canvas.width,canvas.height);
+    const data=await decodeQRCanvas(canvas);
+    if(!data)throw new Error("No QR code was found. Try a clearer, well-lit photo with the whole code visible.");
+    gotQR(data);
   }catch(e){qrMessage((e&&e.message)||"Could not read this photo. Try another image.");}
+  finally{if(source&&typeof source.close==="function")source.close()}
 }
 $("camBtn").addEventListener("click",startCam);
 $("stopCam").addEventListener("click",stopCam);
+$("torchBtn").addEventListener("click",toggleTorch);
 $("qrPhoto").addEventListener("change",e=>{
   const photo=e.target.files&&e.target.files[0];e.target.value="";
   if(photo)readPhoto(photo);
@@ -539,7 +571,7 @@ function goLabel(busy){const b=$("go");b.disabled=busy;b.replaceChildren();if(bu
 for(const k in SAMPLES){const b=el("button","chip",k);b.type="button";b.onclick=()=>{$("text").value=SAMPLES[k];$("text").focus();refreshBadges()};$("samples").append(b)}
 const drop=$("drop"),inp=$("file");
 function setFile(f){file=f;setTimeout(refreshBadges);$("dropText").replaceChildren(el("strong",null,f?f.name:"Drop an app file"),document.createTextNode(f?" is ready to check":" or click to choose one"))}
-drop.onclick=()=>inp.click();
+drop.onclick=()=>{if(typeof inp.showPicker==="function"){try{inp.showPicker();return}catch(e){}}inp.click()};
 drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();inp.click()}};
 inp.onchange=()=>setFile(inp.files[0]||null);
 ["dragenter","dragover"].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.add("over")}));
@@ -595,7 +627,7 @@ const q=new URLSearchParams(m[0].split("?")[1]);const sec=el("div","sec");
 sec.append(el("h2",null,"What this QR will do"));
 const box=el("div","upi");box.append(el("span","warn","This QR sends money from your account. It does not receive money."));
 [["Name in the QR",q.get("pn")||"(no name in this QR)"],["UPI ID",q.get("pa")||"(missing)"],["Handle suggests",handleApp(q.get("pa")||"")],["Amount",q.get("am")?"Rs "+q.get("am"):"You choose"],["Note",q.get("tn")||""]].forEach(([a,b])=>{if(!b)return;const r=el("div");r.append(el("span",null,a),el("span",null,b));box.append(r)});
-sec.append(box,el("p","note","This name is typed by whoever made the QR, so a scammer can put any name there. Your UPI app shows the account's registered name before you pay. If that name differs from the one above, or from who you mean to pay, stop."));return sec}
+sec.append(box,el("p","note","Payee identity not verified: this name is typed by whoever made the QR, so a scammer can put any name there. The QR is not bank-verified. Your UPI app shows the account's registered name before you pay. If that name differs from the one above, or from who you mean to pay, stop."));return sec}
 
 const TABS=[...document.querySelectorAll(".tab")],PANES=[...document.querySelectorAll(".pane")];
 function pick(i){TABS.forEach((t,n)=>{t.classList.toggle("on",n===i);t.setAttribute("aria-selected",n===i)});PANES.forEach((p,n)=>p.classList.toggle("on",n===i));$("pill").style.transform="translateX("+(i*100)+"%)";typeof syncDock==="function"&&syncDock()}
