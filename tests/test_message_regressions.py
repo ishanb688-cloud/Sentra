@@ -97,3 +97,31 @@ def test_genuine_delivery_otp_at_doorstep_is_not_credential_theft():
     ids = signal_ids(text)
     assert "msg_otp_request" not in ids
     assert "msg_delivery_fee_scam" not in ids
+
+
+def test_competition_prize_message_with_reply_action_is_flagged():
+    text = "Free entry in our weekly competition to win a £900 prize. Text WIN to 80086 now."
+    assert "msg_competition_lure" in signal_ids(text)
+
+
+def test_selected_prize_with_callback_request_is_flagged():
+    text = "You have been selected to receive a £900 prize reward. To claim call 09061701461."
+    ids = signal_ids(text)
+    assert "msg_reward_lure" in ids
+    assert "msg_premium_rate_contact" in ids
+
+
+def test_premium_rate_number_without_contact_instruction_is_not_flagged():
+    assert "msg_premium_rate_contact" not in signal_ids("Reference code 09061701461 is printed on your old receipt.")
+
+
+def test_ordinary_competition_notice_without_prize_or_action_is_not_flagged():
+    text = "The annual college competition timetable is available on the student portal."
+    assert "msg_competition_lure" not in signal_ids(text)
+
+
+def test_genuine_free_trial_message_is_not_flagged_as_competition_scam():
+    text = "Your free trial starts today. You can cancel anytime in account settings."
+    ids = signal_ids(text)
+    assert "msg_competition_lure" not in ids
+    assert "msg_premium_rate_contact" not in ids
