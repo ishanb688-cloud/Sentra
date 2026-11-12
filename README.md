@@ -57,7 +57,7 @@ python tools/benchmark.py --holdout  # holdout benchmark
 A reproducible evaluator for the public UCI SMS Spam Collection is available at
 [docs/EXTERNAL_VALIDATION.md](docs/EXTERNAL_VALIDATION.md):
 `python tools/evaluate_uci_sms.py /path/to/SMSSpamCollection`.
-No external score is claimed until this is run on the downloaded corpus.
+Recorded evaluation (GitHub Actions run 42984428938): 5,572 messages (747 spam, 4,825 ham); 189 TP, 558 FN, 7 FP and 4,818 TN. Precision 96.43%, recall 25.30%, F1 40.08%, and false-positive rate 0.145%. This is a historical English SMS corpus only; it is not evidence for URL, QR/UPI or APK detection, and the low recall is an important limitation. See [docs/EXTERNAL_VALIDATION.md](docs/EXTERNAL_VALIDATION.md) for scope and reporting caveats.
 
 The judge-ready talk track, demo order, fallback checklist and concise Q&A are in
 [docs/PITCH_SCRIPT.md](docs/PITCH_SCRIPT.md).

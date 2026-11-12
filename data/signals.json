@@ -280,5 +280,17 @@
   "category": "financial_redirect",
   "reliability": 0.75,
   "reason": "A delivery or courier fee is demanded under pressure to release a parcel or correct delivery details."
+ },
+ {
+  "id": "msg_competition_lure",
+  "category": "financial_redirect",
+  "reliability": 0.75,
+  "reason": "Uses a prize or competition lure to prompt a reply, call, or paid participation."
+ },
+ {
+  "id": "msg_premium_rate_contact",
+  "category": "financial_redirect",
+  "reliability": 0.9,
+  "reason": "Directs you to contact a UK premium-rate 090/091 number, which may incur high charges."
  }
 ]

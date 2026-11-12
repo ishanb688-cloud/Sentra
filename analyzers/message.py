@@ -76,6 +76,17 @@ RULES = {
     "msg_reward_lure": [
         (r"\b(you have won|lottery|lucky winner|claim your (prize|reward|gift))\b", 1.0),
         (r"\b(refund|cashback|reward points)\b[^.\n]{0,30}\b(claim|credit|expire|pending)\b", 0.7),
+        # Prize impersonation often says the recipient was selected/awarded, then asks for contact.
+        (r"(?=.*\b(selected|chosen|awarded|winner)\b)(?=.*\b(prize|reward|gift|cash)\b)(?=.*\b(call|text|txt|reply|claim)\b).+", 0.9),
+    ],
+    "msg_competition_lure": [
+        # Require a competition/contest, a prize/free-entry cue, and an action to participate.
+        (r"(?=.*\b(competition|contest|prize draw|weekly draw)\b)(?=.*\b(prize|winner|win|free entry|entry)\b)(?=.*\b(text|txt|reply|call|claim)\b).+", 0.85),
+    ],
+    "msg_premium_rate_contact": [
+        # UK premium-rate 090/091 numbers are a strong payment-risk cue only with a contact verb.
+        (r"\b(call|text|txt|dial)\b[^.\n]{0,55}\b09[01]\d{7,}\b", 1.0),
+        (r"\b09[01]\d{7,}\b[^.\n]{0,55}\b(call|text|txt|dial)\b", 1.0),
     ],
     "msg_deadline_pressure": [
         (r"\bwithin\s+\d+\s*(hours|hrs|minutes|mins)\b", 1.0),
