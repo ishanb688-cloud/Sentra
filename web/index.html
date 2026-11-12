@@ -419,7 +419,7 @@ button:active{transform:scale(.98);transition:transform .16s cubic-bezier(.2,.8,
 <div class="row"><button class="go" id="go"><span id="goLabel">Check this</span></button><button class="ghost" id="clear" type="button">Clear</button></div>
 <div class="err" id="err" role="alert"></div>
 </section><section class="panel" id="out" aria-live="polite"></section></div><div class="looks"><h2 class="serif" id="lkTitle">What Sentra looks for</h2><div class="lkgrid" id="lkList"></div></div></section>
-<section class="view" id="v-history"><h1 class="vh serif">History</h1><p class="vs">Your recent checks, saved only in this browser. Only the result is kept, never the text you checked.</p><div id="hlist"></div><button class="ghost" id="hclear" type="button" style="padding:10px 18px;margin-top:6px">Clear history</button></section>
+<section class="view" id="v-history"><h1 class="vh serif">History</h1><p class="vs">Your recent checks, saved only in this browser. Only the result, strongest warning sign, type and time are kept, never the text you checked.</p><div id="hlist"></div><button class="ghost" id="hclear" type="button" style="padding:10px 18px;margin-top:6px">Clear history</button></section>
 <section class="view" id="v-how"><h1 class="vh serif">How Sentra decides</h1><p class="vs">Scam checkers usually look at one thing. Scams use several at once, so Sentra connects them before it gives a verdict.</p><ol class="steps">
 <li><span>1</span><b>Read</b><p>Separate readers study the message, every link, any payment QR address, and the app file. Nothing is opened or run.</p></li>
 <li><span>2</span><b>Weigh</b><p>Each warning sign gets a weight, based on how strongly it shows up and how reliable that sign usually is.</p></li>
@@ -690,11 +690,11 @@ document.querySelectorAll(".tile").forEach(b=>b.onclick=()=>{pick(+b.dataset.tab
 const HK="sentra_history_v1";
 function loadH(){try{return JSON.parse(localStorage.getItem(HK)||"[]")}catch(e){return[]}}
 function saveHistory(d){const m={message:["Message"],link:["Link"],qr:["QR"],app:["App file"]};let k=m[MODE];if(!k){k=[];if($("text").value.trim())k.push("Message");if($("linkIn").value.trim())k.push("Link");if(qrPayload)k.push("QR");if(file)k.push("App file")}
-const h=loadH();h.unshift({t:Date.now(),level:d.level,risk:d.risk,chain:d.chain,kinds:k});try{localStorage.setItem(HK,JSON.stringify(h.slice(0,20)))}catch(e){}}
+const h=loadH();const top=(d.signals||[]).find(s=>s.category!=="dampener");const summary=top?top.reason:"No strong warning signs found; this is not a safety guarantee.";h.unshift({t:Date.now(),level:d.level,risk:d.risk,chain:d.chain,kinds:k,summary});try{localStorage.setItem(HK,JSON.stringify(h.slice(0,20)))}catch(e){}}
 function showHistory(){const box=$("hlist");box.replaceChildren();const h=loadH();
 if(!h.length){box.append(el("p","note","No checks yet. Run one and it will appear here."));return}
 h.forEach(x=>{const r=el("div","hrow");r.style.setProperty("--lvl","var("+(LVL[x.level]?LVL[x.level][0]:"--mute")+")");
-r.append(el("span","badge",x.level),el("span","hk",(x.kinds||[]).join(" + ")||"Check"),el("span","hs",CHAIN[x.chain]||"No scam pattern matched"),el("span","ht",new Date(x.t).toLocaleString([],{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})));box.append(r)})}
+r.append(el("span","badge",x.level),el("span","hk",(x.kinds||[]).join(" + ")||"Check"),el("span","hs",CHAIN[x.chain]||(x.summary||"No named scam pattern matched")),el("span","ht",new Date(x.t).toLocaleString([],{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})));box.append(r)})}
 $("hclear").onclick=()=>{try{localStorage.removeItem(HK)}catch(e){}showHistory()};
 document.addEventListener("pointermove",e=>{const t=e.target.closest&&e.target.closest(".panel,.tile,.steps li");if(t){const r=t.getBoundingClientRect();t.style.setProperty("--mx",(e.clientX-r.left)+"px");t.style.setProperty("--my",(e.clientY-r.top)+"px")}});
 function syncDock(){}
