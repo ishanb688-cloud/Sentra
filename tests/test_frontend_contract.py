@@ -85,6 +85,6 @@ def test_qr_details_are_not_rendered_for_non_qr_checks():
 def test_history_stores_and_displays_strongest_warning_without_message_text():
     source = WEB.read_text(encoding="utf-8")
     assert 'const top=(d.signals||[]).find(s=>s.category!=="dampener")' in source
-    assert 'summary:summary' in source
+    assert 'kinds:k,summary});' in source
     assert 'x.summary||"No named scam pattern matched"' in source
     assert 'Only the result, strongest warning sign, type and time are kept' in source
