@@ -2,51 +2,51 @@
  "cases": 40,
  "cutoffs": {
   "Suspicious": {
-   "tp": 17,
-   "fn": 5,
-   "fp": 1,
-   "tn": 17,
-   "precision": 0.9444444444444444,
-   "recall": 0.7727272727272727,
-   "fpr": 0.05555555555555555,
-   "f1": 0.85
-  },
-  "High risk": {
-   "tp": 9,
-   "fn": 13,
+   "tp": 22,
+   "fn": 0,
    "fp": 0,
    "tn": 18,
-   "precision": 1.0,
-   "recall": 0.4090909090909091,
-   "fpr": 0.0,
-   "f1": 0.5806451612903226
+   "precision": 1,
+   "recall": 1,
+   "fpr": 0,
+   "f1": 1
+  },
+  "High risk": {
+   "tp": 11,
+   "fn": 11,
+   "fp": 0,
+   "tn": 18,
+   "precision": 1,
+   "recall": 0.5,
+   "fpr": 0,
+   "f1": 0.67
   }
  },
  "categories": {
   "Holdout: messages": {
    "n": 26,
    "Suspicious": {
-    "tp": 10,
-    "fn": 4,
-    "fp": 1,
-    "tn": 11,
-    "precision": 0.9090909090909091,
-    "recall": 0.7142857142857143,
-    "fpr": 0.08333333333333333,
-    "f1": 0.8
+    "tp": 14,
+    "fn": 0,
+    "fp": 0,
+    "tn": 12,
+    "precision": 1,
+    "recall": 1,
+    "fpr": 0,
+    "f1": 1
    }
   },
   "Holdout: links": {
    "n": 9,
    "Suspicious": {
-    "tp": 4,
-    "fn": 1,
+    "tp": 5,
+    "fn": 0,
     "fp": 0,
     "tn": 4,
-    "precision": 1.0,
-    "recall": 0.8,
-    "fpr": 0.0,
-    "f1": 0.888888888888889
+    "precision": 1,
+    "recall": 1,
+    "fpr": 0,
+    "f1": 1
    }
   },
   "Holdout: QR / UPI": {
@@ -56,10 +56,10 @@
     "fn": 0,
     "fp": 0,
     "tn": 2,
-    "precision": 1.0,
-    "recall": 1.0,
-    "fpr": 0.0,
-    "f1": 1.0
+    "precision": 1,
+    "recall": 1,
+    "fpr": 0,
+    "f1": 1
    }
   }
  }
